@@ -7,6 +7,7 @@
 //		library will be returned in XML format.
 //============================================================================
 
+import java.lang.StringBuilder;
 import java.net.URLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
@@ -25,7 +26,8 @@ public class Connector
 	public String queryLibrary(String httpRequest)
 	{
 		String response = "EMPTY";
-		
+		StringBuilder output = new StringBuilder();
+
 		try
 		{
 			tapeLibrary = new URL(httpRequest);
@@ -47,7 +49,8 @@ public class Connector
 
 			while((response = in.readLine()) != null)
 			{
-				System.out.println(response);
+				//System.out.println(response);
+				output.append(response);
 			}
 
 			in.close();
@@ -57,7 +60,7 @@ public class Connector
 			System.out.println(e);
 		}
 
-		return "Yeah baby";
+		return output.toString();
 	}
 	
 }

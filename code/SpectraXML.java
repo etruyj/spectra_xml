@@ -9,13 +9,32 @@ public class SpectraXML
 {
 	public static void main(String[] args)
 	{
-		Controller conn = new Controller("10.85.41.7", false);
-	
-		System.out.println(args[0]);
+		ArgParser aparser = new ArgParser();
 
-		conn.login("su", "");
-		conn.listPartitions();
+		if(args.length>0)
+		{
+			aparser.parseArguments(args);	
+		}
+
+		if(aparser.checkValidInput())
+		{
+			SpectraController conn = new SpectraController(aparser.getIPAddress(), false);
+	
+			if(conn.login(aparser.getUsername(), aparser.getPassword()))
+			{
+				performCommand(conn, aparser.getCommand(), aparser.getCmdOption());
+			}
+		}
 	}
 
+	public static void performCommand(SpectraController conn, String command, String option)
+	{
+		switch(command)
+		{
+			case "list-partitions":
+				conn.listPartitions();
+				break;
+		}
+	}
 }
 
