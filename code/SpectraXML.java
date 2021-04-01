@@ -23,7 +23,16 @@ public class SpectraXML
 			if(conn.login(aparser.getUsername(), aparser.getPassword()))
 			{
 				performCommand(conn, aparser.getCommand(), aparser.getCmdOption());
+				conn.logout();
 			}
+			else
+			{
+				System.out.println("Unable to login to the Spectra Logic tape library at " + aparser.getIPAddress() + " with specified username " + aparser.getUsername() + ".");
+			}
+		}
+		else
+		{
+			System.out.println("Invalid options selected. Please use -h or --help to determine the commands.");
 		}
 	}
 
@@ -31,8 +40,26 @@ public class SpectraXML
 	{
 		switch(command)
 		{
+			case "eject-empty-terapacks":
+				conn.ejectEmpty(option, true);
+				break;
+			case "list-inventory":
+				conn.listInventory(option, true);
+				break;
 			case "list-partitions":
-				conn.listPartitions();
+				conn.listPartitions(true);
+				break;
+			case "magazine-capacity":
+				conn.magazineCapacity(option, true);
+				break;
+			case "magazine-contents":
+				conn.magazineContents(option, true);
+				break;
+			case "partition-details":
+				conn.listPartitionDetails(option, true);
+				break;
+			case "physical-inventory":
+				conn.physicalInventory(option, true);
 				break;
 		}
 	}

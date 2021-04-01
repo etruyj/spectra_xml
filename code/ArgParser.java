@@ -66,7 +66,7 @@ public class ArgParser
 					if((i+1)<args.length)
 					{
 						// Check to see if the user requested help
-						if(args[i+1].equals("-h") || args[i+1].equals("--help"))
+						if(args[i+1].equals("help"))
 						{
 							System.out.println("Add extra help");
 						}
@@ -91,9 +91,22 @@ public class ArgParser
 					break;
 				case "-o":
 				case "--option":
-					if((i+1)<args.length)
+					// Allow multi-word options, specifically
+					// for partition names.
+					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
+					//if((i+1)<args.length)
 					{
-						cmd_option = args[i+1];
+						if(cmd_option.equals("none"))
+						{
+							cmd_option = args[i+1];
+						}
+						else
+						{
+							// The %20 is required for the
+							// library to properly parse
+							// the text.
+							cmd_option += "%20" + args[i+1];
+						}
 						i++;
 					}
 					break;
@@ -114,6 +127,9 @@ public class ArgParser
 						username = args[i+1];
 						i++;
 					}
+					break;
+				default:
+					i++;
 					break;
 			}
 		}
