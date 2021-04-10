@@ -22,7 +22,7 @@ public class SpectraXML
 	
 			if(conn.login(aparser.getUsername(), aparser.getPassword()))
 			{
-				performCommand(conn, aparser.getCommand(), aparser.getCmdOption());
+				performCommand(conn, aparser.getCommand(), aparser.getCmdOption(), aparser.getMaxMoves());
 				conn.logout();
 			}
 			else
@@ -30,13 +30,13 @@ public class SpectraXML
 				System.out.println("Unable to login to the Spectra Logic tape library at " + aparser.getIPAddress() + " with specified username " + aparser.getUsername() + ".");
 			}
 		}
-		else
+		else if(!aparser.getHelpSelected())
 		{
 			System.out.println("Invalid options selected. Please use -h or --help to determine the commands.");
 		}
 	}
 
-	public static void performCommand(SpectraController conn, String command, String option)
+	public static void performCommand(SpectraController conn, String command, String option, int moves)
 	{
 		switch(command)
 		{
@@ -49,11 +49,14 @@ public class SpectraXML
 			case "list-partitions":
 				conn.listPartitions(true);
 				break;
-			case "magazine-capacity":
-				conn.magazineCapacity(option, true);
+			case "magazine-compaction":
+				conn.magazineCompaction(option, moves, true);
 				break;
 			case "magazine-contents":
 				conn.magazineContents(option, true);
+				break;
+			case "magazine-utilization":
+				conn.magazineCapacity(option, true);
 				break;
 			case "partition-details":
 				conn.listPartitionDetails(option, true);

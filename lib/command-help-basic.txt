@@ -1,0 +1,8 @@
+
+Basic XML Commands
+	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
+
+	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
+	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
+	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
+	physical-inventory	provides a complete Tera-Pack based inventory list for a partition. Partition name must be specified with the -o/--option flag.

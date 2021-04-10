@@ -5,6 +5,10 @@
 // 		library. 
 //============================================================================
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class SpectraController
 {
 	private Connector cxn;
@@ -32,42 +36,62 @@ public class SpectraController
 	}
 
 	//====================================================================
-	// Get Functions
+	// Get URL Functions
+	// 	These functions generate the URLs used to Query the library.
 	//====================================================================
 
-	public String getImportExportListURL(String partition, String location, String magazine_offsets)
+	private String getImportExportListURL(String partition, String location, String magazine_offsets)
 	{
 		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
 	}
 
-	public String getInventoryListURL(String partition)
+	private String getInventoryListURL(String partition)
 	{
 		return libraryAddress + "inventory.xml?action=list&partition=" + partition;
 	}	
 
-	public String getLoginURL(String user, String password)
+	private String getLoginURL(String user, String password)
 	{
 		return libraryAddress + "login.xml?username=" + user 
 			+ "&password=" + password;
 	}
 
-	public String getLogoutURL()
+	private String getLogoutURL()
 	{
 		return libraryAddress + "logout.xml";
 	}
 
-	public String getPartitionListURL()
+	private String getMoveURL(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
+	{
+		// Generates the move URL for the XML interface.
+		// parititon - the partition in which the move will occur.
+		// sourceID - What type of source is being specified.
+		// 		valid inputs are SLOT, EE, DRIVE,
+		// 		and BC (barcode)
+		// sourceNumber - How the source is identified.
+		// 		Slot (offset) or barcode.
+		// destID - What type of destination is being specified
+		// 		valid inputs are SLOT, EE, DRIVE
+		// destNumber - What is the Slot (offset) of the destination.
+
+		return libraryAddress + "inventory.xml?action=move&partition=" + partition 
+			+ "&sourceID=" + sourceID + "&sourceNumber=" + sourceNumber 
+			+ "&destinationID=" + destID + "&destinationNumber=" + destNumber;
+	}
+
+	private String getPartitionListURL()
 	{
 		return libraryAddress + "partition.xml?action=list";
 	}
 
-	public String getPhysicalInventoryURL(String partition)
+	private String getPhysicalInventoryURL(String partition)
 	{
 		return libraryAddress + "physInventory.xml?partition=" + partition;
 	}
 
 	//====================================================================
 	// Control Functions
+	// 	These are the public functions callable by the script.
 	//====================================================================
 	/*
 	public XMLResult[] filterPartitionName(String header, String partitionName, XMLResult[] fullResult)
@@ -363,6 +387,13 @@ public class SpectraController
 
 	}
 
+	public void magazineCompaction(String partition, int maxMoves, boolean printToShell)
+	{
+		TeraPack[] magazine = sortMagazines(partition, true);
+		
+		moveTape(partition, magazine, maxMoves, true);
+	}
+
 	public TeraPack[] magazineContents(String partition, boolean printToShell)
 	{
 		// This creates an array of terapacks for higher level work
@@ -402,6 +433,8 @@ public class SpectraController
 				magazines[magIterator] = new TeraPack(libraryType);
 			}
 			magazines[magIterator].importXMLResult(response[j]);
+			
+
 		}
 
 		for(int m=0; m<magazines.length; m++)
@@ -427,6 +460,40 @@ public class SpectraController
 
 
 		return magazines;
+	}
+
+	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber, boolean printToShell)
+	{
+		// Issue a move command on the library.
+		// This feature isn't supported for BlueScale before 12.8
+		// parititon - the partition in which the move will occur.
+		// sourceID - What type of source is being specified.
+		// 		valid inputs are SLOT, EE, DRIVE,
+		// 		and BC (barcode)
+		// sourceNumber - How the source is identified.
+		// 		Slot (offset) or barcode.
+		// destID - What type of destination is being specified
+		// 		valid inputs are SLOT, EE, DRIVE
+		// destNumber - What is the Slot (offset) of the destination.
+
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status", "message"};
+
+		String url = getMoveURL(partition, sourceID, sourceNumber, destID, destNumber);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", false);
+		}
+	
+		return response;
 	}
 
 	public XMLResult[] physicalInventory(String partition, boolean printToShell)
@@ -617,4 +684,378 @@ public class SpectraController
 		// Debug the input for testing.
 		//printDebug(response);
 	}
+	
+	//====================================================================
+	// Internal Functions
+	// 	Private functions used for the more complex query tasks
+	// 	the code is capable of.
+	//====================================================================
+
+
+	private TeraPack[] filterEmptyFullEntryExit(TeraPack[] mags)
+	{
+		// Filter out empty, full, and entry exit terapacks.
+		// The end result should only be partially full terapacks
+		// in the Storage Partition.
+		List<TeraPack> availableInventory = new ArrayList<>();
+			
+		for(int i=0; i<mags.length; i++)
+		{
+			if(mags[i].getCapacity()>0 && mags[i].getCapacity()<mags[i].getNumSlots() && mags[i].getLocation().equalsIgnoreCase("storage"))
+			{
+				availableInventory.add(mags[i]);
+			}
+		}
+		
+		// Convert list back into a TeraPack[] array to allow
+		// for consistent information.
+		TeraPack[] tempTeraPack = new TeraPack[availableInventory.size()];
+
+		for(int i=0; i<availableInventory.size(); i++)
+		{
+			tempTeraPack[i] = availableInventory.get(i);
+		}
+
+		return tempTeraPack;
+
+	}
+	
+	private String generateSlotString(String TeraPackOffset, int TapeSlot)
+	{
+		int librarySlot = (10 * Integer.valueOf(TeraPackOffset)) - (10 - TapeSlot) + 1;
+		return Integer.toString(librarySlot);
+	}
+
+	private void moveTape(String partition, TeraPack[] mags, int maxMoves, boolean printToShell)
+	{
+		int source = 0; // Incrementor for source TP
+		int destination = mags.length - 1; // Increment for destination TP
+		int sourceTapes = mags[source].getCapacity(); // How many tapes are in the Source Magazine.
+		int destSlots = mags[destination].getNumSlots() - mags[destination].getCapacity(); // How many slots are available in the destination TeraPack.
+
+		if(source>=destination)
+		{
+			System.out.println("There are no moves to free up any TeraPacks.");
+		}
+		else if(sourceTapes > maxMoves)
+		{
+			System.out.println("There are " + sourceTapes + " tapes in this TeraPack and only " + maxMoves + " moves allowed with this operation. No TeraPacks will be freed.");
+		}
+
+		int tapeSlot = -1;
+		int emptySlot = -1;
+		int moves = 0;
+		String sourceBarcode;
+		String sourceSlotString;
+		String destSlotString;
+
+		// Move validation variables.
+		int checkSlot = -1;
+		String checkBarcode;
+		String checkSlotString;
+		boolean isValidMove = false;
+	
+		while((source < destination) && (moves < maxMoves))
+		{
+			tapeSlot = mags[source].getNextOccupiedSlot(tapeSlot);
+			emptySlot = mags[destination].getNextEmptySlot(emptySlot);
+		
+			sourceBarcode = mags[source].getBarcodeAtPosition(tapeSlot);
+			sourceSlotString = generateSlotString(mags[source].getOffset(), tapeSlot);
+			destSlotString = generateSlotString(mags[destination].getOffset(), emptySlot);
+
+			if(printToShell)
+			{
+				System.out.println("Move " + moves + ": " + sourceBarcode  + " at slot " + sourceSlotString + " moving to " + destSlotString);
+			}
+			// VALIDATION
+			// The formula for the actual slot is a best-guess
+			// we'll check to see if the barcode is in the source
+			// slot, the destination slot is empty, and a barcode
+			// in the same destination tp is in the slot we expect.
+
+			checkSlot = mags[destination].getNextOccupiedSlot(checkSlot);
+			if(checkSlot>=0)
+			{
+				checkBarcode = mags[destination].getBarcodeAtPosition(checkSlot);
+				checkSlotString = generateSlotString(mags[destination].getOffset(), checkSlot);
+
+				isValidMove = validateMove(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, true);				
+			}
+
+			// Actually Perform the move
+			if(isValidMove)
+			{
+				sendMove(partition, sourceSlotString, destSlotString);
+			}
+			else
+			{
+				System.out.println("Cannot verify slot information for move " + moves + ". Cancelling action.");
+			}
+
+		
+			// Remove tape from mag count.
+			// And move to the next mag if this on is empty.
+			sourceTapes--;
+			
+			if(sourceTapes<1)
+			{
+				source++;
+				sourceTapes = mags[source].getCapacity();
+				tapeSlot = -1;
+			}
+
+			// Remove one available slot from destination
+			// And move to the next mag if this one is empty.
+			destSlots--;
+
+			if(destSlots<1)
+			{
+				destination--;
+				destSlots = mags[destination].getNumSlots() - mags[destination].getCapacity();
+				emptySlot = -1;
+			}
+
+			moves++;
+		}
+
+	}
+	
+
+	private int partition(TeraPack[] mags, int low, int high)
+	{
+		// Pivot
+		int pivot = mags[high].getCapacity();
+
+		// Index of smaller element and 
+		// indicates the right position of the
+		// pivot found so far
+		int i = (low - 1);
+
+		for(int j = low; j < high; j++)
+		{
+			// If the current element is smaller
+			// than the pivot
+			if(mags[j].getCapacity() < pivot)
+			{
+				i++;
+				swapTeraPacks(mags, i, j);
+			}
+		}
+
+		swapTeraPacks(mags, i+1, high);
+		return (i + 1);
+	}
+
+	private TeraPack[] quickSort(TeraPack[] mags, int low, int high)
+	{
+		if(low < high)
+		{
+			int pi = partition(mags, low, high);
+
+			// Separately sort elements before
+			// partition and after partition
+			quickSort(mags, low, pi - 1);
+			quickSort(mags, pi + 1, high);
+		}
+
+		return mags;
+	}
+
+	private boolean sendMove(String partition, String sourceSlot, String destSlot)
+	{
+		// Send the move to the library.
+		// Wait until the move is complete before exiting function.
+
+		moveTape(partition, "SLOT", sourceSlot, "SLOT", destSlot, true);
+
+		return true;	
+	}
+
+	private TeraPack[] sortMagazines(String partition, boolean printToShell)
+	{
+		// Gathering TeraPack from library.
+		if(printToShell) 
+		{ 
+			System.out.println("Gathering TeraPack information from library..."); 
+		}
+
+		TeraPack[] magazines = magazineContents(partition, false);
+
+		// Analyze TeraPacks
+		if(printToShell)
+		{
+			System.out.println("Analyzing TeraPack Contents...");
+		}
+		// Remove the Empty and full TeraPacks if desired.
+		magazines = filterEmptyFullEntryExit(magazines);
+
+		/* Debug Code
+		// Print before and after.
+		for(int i=0; i<magazines.length; i++)
+		{
+			System.out.print(magazines[i].getCapacity() + " ");
+		}
+
+		System.out.print("\n");
+		*/
+
+		quickSort(magazines, 0, magazines.length-1);
+
+		/* Debug Code
+		for(int i=0; i<magazines.length; i++)
+		{
+			System.out.print(magazines[i].getCapacity() + " ");
+		}
+
+		System.out.print("\n");
+		*/
+
+		return magazines;
+	}
+
+	private void swapTeraPacks(TeraPack[] terapacks, int i, int j)
+	{
+		// Swaps the TeraPack at position i with the 
+		// TeraPack at position j in the terapacks array.
+		TeraPack temp;
+		temp = terapacks[i];
+		terapacks[i] = terapacks[j];
+		terapacks[j] = temp;
+	}
+
+	private boolean validateMove(String partition, String sourceSlot, String sourceBarcode, String destSlot, String destSlot2, String destBarcode, boolean printToShell)
+	{
+		// The purpose of this function is to validate the source and destination slot
+		// against the library inventory before initiating the move.
+		// I'm guessing the formula for slot number is (10 * TeraPack Offset) - (10 - TeraPack[i].tape's array index) + 1.
+		// I'm also assuming the TeraPack offsets will update along with the slot numbers if a 
+		// TeraPack is exported or imported into the library.
+		// As there is a lot of guessing.... there's a validateMove.
+		
+
+		// Sort the three slots into ascending order
+		// Needed to compare against the order the results come in.
+		List<String> slotOrder = new ArrayList<>();
+		
+		if(Integer.valueOf(sourceSlot)<Integer.valueOf(destSlot))
+		{
+			slotOrder.add(sourceSlot);
+			slotOrder.add(destSlot);
+		}
+		else
+		{
+			slotOrder.add(destSlot);
+			slotOrder.add(sourceSlot);
+		}
+
+		if(Integer.valueOf(destSlot2) > Integer.valueOf(slotOrder.get(1)))
+		{
+			slotOrder.add(destSlot2);
+		}
+		else if(Integer.valueOf(destSlot2) < Integer.valueOf(slotOrder.get(0)))
+		{
+			slotOrder.add(0, destSlot2);
+		}
+		else
+		{
+			slotOrder.add(1, destSlot2);
+		}
+		
+		// Search for the slots in the library's inventory.
+		boolean inSlot = false; // Parsing the correct slot
+		boolean success = true; // Success default true. Any failed test results in false.
+		int listIndex = 0; // The index for the linked list.
+		String searchValue = "none";
+
+		XMLResult[] response = listInventory(partition, false);
+
+		
+		for(int i=0; i<response.length; i++)
+		{
+			// Find the right storage slot
+			if(listIndex<3)
+			{
+				if(response[i].headerTag.equalsIgnoreCase("partition>storageSlot>Offset") && response[i].value.equals(slotOrder.get(listIndex)))
+				{
+					inSlot = true;
+					
+					if(slotOrder.get(listIndex).equals(sourceSlot))
+					{
+						if(printToShell)
+						{
+							System.out.print("Verifying source...\t\t\t");
+						}
+						searchValue = sourceBarcode;
+					}
+					else if(slotOrder.get(listIndex).equals(destSlot))
+					{
+						if(printToShell)
+						{
+							System.out.print("Verifying destination...\t\t");
+						}
+						searchValue = "No";
+					}
+					else if(slotOrder.get(listIndex).equals(destSlot2))
+					{	
+						if(printToShell)
+						{
+							System.out.print("Verifying destination TeraPack...\t");
+						}
+						searchValue = destBarcode;
+					}
+				}
+
+				if(inSlot)
+				{
+
+					// Check the barcode in the slot against the one expected.
+					// If it matches return true. Otherwise return false.
+					if(response[i].headerTag.equalsIgnoreCase("partition>storageSlot>barcode"))
+					{
+						if(!response[i].value.trim().equalsIgnoreCase(searchValue.trim()))
+						{
+							if(printToShell)
+							{
+								System.out.println("[FAILED]");
+							}
+							success = false;
+						}
+						else if(printToShell)
+						{
+							System.out.println("[SUCCESS]");
+						}
+						listIndex++;
+						inSlot = false;	
+					}
+
+					// Check the empty slot.
+					// There is no barcode field in this slot
+					// test for <full>no
+					if(searchValue.equals("No") && response[i].headerTag.equalsIgnoreCase("partition>storageSlot>full"))
+					{
+						// False value
+						if(!response[i].value.equalsIgnoreCase("no"))
+						{
+							if(printToShell)
+							{
+								System.out.println("[FAILED]");
+							}
+							success = false;
+						}
+						else if(printToShell)
+						{
+							System.out.println("[SUCCESS]");
+						}
+						listIndex++;
+						inSlot = false;
+					}
+				}
+			}
+		}			
+
+		return success;
+	}
 }
+
+

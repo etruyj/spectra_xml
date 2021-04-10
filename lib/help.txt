@@ -1,0 +1,12 @@
+
+Spectra XML Command Parser
+	This command line application is designed to be used with the XML interface of Spectra Logic tape libraries. This script supports both the basic XML commands listed in the Spectra's Tape XML guide as well as a few more complex operations which build on the XML commands to perform taks. Detailed information on Spectra Logic's XML interface can be found at support.spectralogic.com under the Documentation tab.
+
+Available Options:
+	-c, --command	*REQUIRED* Enter the command you would like to execute. Examples list-partitions, get-inventory, physical-inventory. Type help after this flag for a list of available commands.
+	-e, --endpoint	*REQUIRED* Specify the IP address of the library's Web UI.
+	-m, --maxMoves	Specify the maximum number of tape moves the library can perform during the execution of the command. This is intended to prevent complex move commands issued against a production library from bogarting the robots, causing production move failures.
+	-o, --option	Specify options for the command. Most common option is partition name.
+	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
+	-u, --username	Specify the username for the connection/query.
+

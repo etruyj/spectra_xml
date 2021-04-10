@@ -49,12 +49,54 @@ public class TeraPack
 	// Getters
 	//===================================================================
 
+	public String getBarcodeAtPosition(int slot) { return tapes[slot].trim(); }
 	public int getCapacity() { return capacity; }
+	public String getLocation() { return location; }
 	public String getMagazineBarcode() { return magazine_barcode; }
+	
+	public int getNextEmptySlot(int currentSlot)
+	{
+		int slotFound = -1;
+		boolean found = false;
+
+		// Start at the next slot from the one entered, so we don't
+		// constantly get the same output.
+		for(int i=currentSlot+1; i<number_slots; i++)
+		{
+			
+			if(tapes[i].equals("none") && !found)
+			{
+				slotFound = i;
+				found = true;
+			}
+		}
+
+		return slotFound;
+	}
+
+	public int getNextOccupiedSlot(int currentSlot)
+	{
+		int slotFound = -1;
+		boolean found = false;
+
+		// Start at the next slot from the one entered, so we don't
+		// constantly get the same output.
+		for(int i=currentSlot+1; i<number_slots; i++)
+		{
+			if(!tapes[i].equals("none") && !found)
+			{
+				slotFound = i;
+				found = true;
+			}
+		}
+
+		return slotFound;
+	}
+
 	public int getNumSlots() { return number_slots; }
 	public String getOffset() { return offset; }
-	public String getLocation() { return location; }
 	public String getTapeBarcode(int index) { return tapes[index]; }
+	
 
 	//===================================================================
 	// Internal Functions

@@ -6,6 +6,10 @@
 // 		for those flags. 
 //============================================================================
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class ArgParser
 {
 	private String ip_address;
@@ -13,6 +17,8 @@ public class ArgParser
 	private String password;
 	private String command;
 	private String cmd_option;
+	private int maxMoves;
+	private boolean helpSelected;
 
 	//===================================================================
 	// Constructor
@@ -25,17 +31,21 @@ public class ArgParser
 		password = "";
 		command = "none";
 		cmd_option = "none";
+		maxMoves = 10;
+		helpSelected = false;
 	}
 
 	//===================================================================
 	// Gettors 
 	//===================================================================
 
+	public boolean getHelpSelected() { return helpSelected; }
 	public String getIPAddress() { return ip_address; }
 	public String getUsername() { return username; }
 	public String getPassword() { return password; }
 	public String getCommand() { return command; }
 	public String getCmdOption() { return cmd_option; }
+	public int getMaxMoves() { return maxMoves; }
 
 	//===================================================================
 	// functions 
@@ -68,7 +78,9 @@ public class ArgParser
 						// Check to see if the user requested help
 						if(args[i+1].equals("help"))
 						{
-							System.out.println("Add extra help");
+							helpSelected = true;
+							printFile("command-help-basic.txt");
+							printFile("command-help-advanced.txt");
 						}
 						else
 						{
@@ -87,7 +99,8 @@ public class ArgParser
 					break;
 				case "-h":
 				case "--help":
-					printHelp();
+					helpSelected = true;
+					printFile("help.txt");
 					break;
 				case "-o":
 				case "--option":
@@ -110,6 +123,15 @@ public class ArgParser
 						i++;
 					}
 					break;
+				case "-m":
+				case "--max":
+				case "--moves":
+				case "--max-moves":
+					if((i+1)<args.length)
+					{
+						maxMoves = Integer.parseInt(args[i+1]);
+						i++;
+					}
 				case "-p":
 				case "--pass":
 				case "--password":
@@ -132,6 +154,27 @@ public class ArgParser
 					i++;
 					break;
 			}
+		}
+	}
+
+	private void printFile(String fileName)
+	{
+		try
+		{
+			File inFile = new File("../lib/" + fileName);
+			Scanner reader = new Scanner(inFile);
+			String textLine;
+
+			while(reader.hasNextLine())
+			{
+				textLine = reader.nextLine();
+				System.out.println(textLine);
+			}
+		}
+		catch(FileNotFoundException e)
+		{
+			printHelp();
+			e.printStackTrace();
 		}
 	}
 

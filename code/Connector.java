@@ -12,6 +12,7 @@ import java.net.URLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,15 @@ public class Connector
 		}
 		catch(Exception e)
 		{
+			// For some reason we're throwing a 
+			// java.net.socketexception: network is down
+			// I'm not sure what this means or what to 
+			// do to correct it.
+			// My other URLConnection programs don't have this
+			// issue, but I am querying a library behind a firewall
+			// so something may be filtering the TCP connection.
+			// I'm just ignoring it for now instead of deleting
+			// the println(e).
 			System.out.println(e);
 		}
 
