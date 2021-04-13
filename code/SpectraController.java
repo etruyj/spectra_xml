@@ -40,14 +40,34 @@ public class SpectraController
 	// 	These functions generate the URLs used to Query the library.
 	//====================================================================
 
+	private String getASLDownloadURL(String aslName)
+	{
+		return libraryAddress + "autosupport.xml?action=getASL&name=" + aslName.replace(" ", "%20");
+	}
+
+	private String getASLGenerateURL()
+	{
+		return libraryAddress + "autosupport.xml?action=generateASL";
+	}
+
+	private String getASLNamesURL()
+	{
+		return libraryAddress + "autosupport.xml?action=getASLNames";
+	}
+
+	private String getASLProgressURL()
+	{
+		return libraryAddress + "autosupport.xml?progress";
+	}
+
 	private String getImportExportListURL(String partition, String location, String magazine_offsets)
 	{
-		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
+		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition.replace(" ", "%20") + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
 	}
 
 	private String getInventoryListURL(String partition)
 	{
-		return libraryAddress + "inventory.xml?action=list&partition=" + partition;
+		return libraryAddress + "inventory.xml?action=list&partition=" + partition.replace(" ", "%20");
 	}	
 
 	private String getLoginURL(String user, String password)
@@ -86,40 +106,59 @@ public class SpectraController
 
 	private String getPhysicalInventoryURL(String partition)
 	{
-		return libraryAddress + "physInventory.xml?partition=" + partition;
+		return libraryAddress + "physInventory.xml?partition=" + partition.replace(" ", "%20");
 	}
 
 	//====================================================================
 	// Control Functions
 	// 	These are the public functions callable by the script.
 	//====================================================================
-	/*
-	public XMLResult[] filterPartitionName(String header, String partitionName, XMLResult[] fullResult)
+
+	public boolean checkProgress(String operationName, boolean printToShell)
 	{
-		XMLResult[] filteredResult = new XMLResult[1];
-		boolean inPartition = false;
-		
-		for(int i=0; i<fullResult.length; i++)
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status"};
+
+		String url = "none";
+
+		switch(operationName)
 		{
-			// Found the partition if headerTag equals search tag and value equals name.
-			if(fullResult.headerTag.equalsIgnoreCase(header)&&fullResult.value.equalsIgnoreCase(partitionName))
+			case "ASL":
+			case "asl":
+				url = getASLProgressURL();
+				break;
+		}
+
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(response.length>0)
+		{
+
+			if(printToShell)
 			{
-				inPartition = true;
+				printOutput(response, "none", true);
 			}
-			
-			// Mark the bool as false once we exit the partition.
-			if(!(fullResult.headerTag.equalsIgnoreCase(header)&&fullResult.value.equalsIgnoreCase(partitionName)))
+
+			if(response[0].value.equalsIgnoreCase("OK"))
 			{
-				inPartition = true;
+				return true;
 			}
-			
-			if(inPartition)
+			else
 			{
-				filteredResult.add(fullResult[i]);
+				return false;
 			}
 		}
-		return filteredResult;
-	}*/
+		else // Something went wrong.
+		{
+			return false;
+		}
+	}
 
 	public int countMagazines(String partition)
 	{
@@ -146,6 +185,18 @@ public class SpectraController
 		{
 			return response.length;
 		}
+	}
+
+	public void downloadASL(String aslName, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status","message"};
+
+		String url = getASLDownloadURL(aslName);
+		cxn.downloadFromLibrary(url, "../output/", aslName);
 	}
 
 	public void ejectEmpty(String partition, boolean printToShell)
@@ -220,6 +271,48 @@ public class SpectraController
 		}
 	}
 
+	public void generateASL(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+		
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status", "message"};
+		
+		String url = getASLGenerateURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+	}
+
+	public void listASLs(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+		
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"ASLName"};
+		
+		String url = getASLNamesURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", false);
+		}
+
+	}
+	
 	public XMLResult[] listInventory(String partition, boolean printToShell)
 	{
 		String xmlOutput;
@@ -285,6 +378,13 @@ public class SpectraController
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
 
+
+		// Filter out results to just a partition if specified by the user.
+		if(!(option.equals("none") || option.equals("all")))
+		{
+			response = filterXMLByTagName(response, "name", option);
+		}
+	
 		if(printToShell)
 		{
 			printOutput(response, "name", true);
@@ -720,6 +820,52 @@ public class SpectraController
 
 	}
 	
+	private XMLResult[] filterXMLByTagName(XMLResult[] response, String header, String value)
+	{
+		// FilterXMLByTagName
+		// 	The purpose of this function to filter an XML response down
+		// 	to a repeated section such as by partition or drives. 
+
+		List<XMLResult> filteredResult = new ArrayList<>();
+		boolean inTag = false;
+		
+		for(int i=0; i<response.length; i++)
+		{
+			// Check to see if we're at the opening tag/value pair.
+			// If so, open the write.
+			if(response[i].headerTag.equalsIgnoreCase(header) && response[i].value.equalsIgnoreCase(value) && inTag==false)
+			{
+				inTag = true;
+			}
+
+			// Check to see if we're at the closing tag/value pair.
+			// If so, close the tag.
+			// I do it this way to store an empty line to space out the values.
+			
+			if(response[i].headerTag.equalsIgnoreCase(header) && !response[i].value.equals(value) && inTag == true)
+			{
+				inTag = false;
+			}
+
+			// Save all rows until the tag is closed.
+			if(inTag)
+			{
+				filteredResult.add(response[i]);
+			}
+		}
+
+		// Convert the list back to the XMLResult[]
+
+		XMLResult[] result = new XMLResult[filteredResult.size()];
+
+		for(int i=0; i<result.length; i++)
+		{
+			result[i] = filteredResult.get(i);
+		}
+
+		return result;
+	}
+
 	private String generateSlotString(String TeraPackOffset, int TapeSlot)
 	{
 		int librarySlot = (10 * Integer.valueOf(TeraPackOffset)) - (10 - TapeSlot) + 1;

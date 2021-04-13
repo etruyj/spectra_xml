@@ -40,8 +40,20 @@ public class SpectraXML
 	{
 		switch(command)
 		{
+			case "check-progress":
+				conn.checkProgress(option, true);
+				break;
+			case "download-asl":
+				conn.downloadASL(option, true);
+				break;
 			case "eject-empty-terapacks":
 				conn.ejectEmpty(option, true);
+				break;
+			case "generate-asl":
+				conn.generateASL(true);
+				break;
+			case "list-asls":
+				conn.listASLs(true);
 				break;
 			case "list-inventory":
 				conn.listInventory(option, true);

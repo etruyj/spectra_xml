@@ -26,7 +26,7 @@ public class TeraPack
 	
 	public TeraPack(String type)
 	{
-		if(type.equalsIgnoreCase("LTO"))
+		if(type.trim().equalsIgnoreCase("LTO"))
 		{
 			// LTO TeraPacks hold 10 tapes.
 			number_slots = 10;
@@ -49,7 +49,7 @@ public class TeraPack
 	// Getters
 	//===================================================================
 
-	public String getBarcodeAtPosition(int slot) { return tapes[slot].trim(); }
+	public String getBarcodeAtPosition(int slot) { return tapes[slot]; }
 	public int getCapacity() { return capacity; }
 	public String getLocation() { return location; }
 	public String getMagazineBarcode() { return magazine_barcode; }
@@ -154,7 +154,7 @@ public class TeraPack
 		{
 			case "offset":
 				location = headers[0];
-				offset = result.value;
+				offset = result.value.trim();
 				break;
 			case "number":
 				markPending(Integer.parseInt(result.value));
@@ -165,11 +165,11 @@ public class TeraPack
 					if(result.headerTag.equalsIgnoreCase("storage>magazine>barcode>barcode") || result.headerTag.equalsIgnoreCase("entryExit>magazine>barcode>barcode"))
 					{
 						// This is a magazine barcode
-						magazine_barcode = result.value;
+						magazine_barcode = result.value.trim();
 					}
 					else
 					{
-						addTape(result.value);
+						addTape(result.value.trim());
 					}
 				}
 				break;

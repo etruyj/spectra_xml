@@ -118,7 +118,7 @@ public class ArgParser
 							// The %20 is required for the
 							// library to properly parse
 							// the text.
-							cmd_option += "%20" + args[i+1];
+							cmd_option += " " + args[i+1];
 						}
 						i++;
 					}
