@@ -43,17 +43,28 @@ public class SpectraXML
 			case "check-progress":
 				conn.checkProgress(option, true);
 				break;
+			case "disable-controller":
+				conn.getXMLStatusMessage("controller-disable", option, "none", true);
+				break;
 			case "download-asl":
 				conn.downloadASL(option, true);
 				break;
 			case "eject-empty-terapacks":
 				conn.ejectEmpty(option, true);
 				break;
-			case "generate-asl":
-				conn.generateASL(true);
+			case "enable-controller":
+				conn.getXMLStatusMessage("controller-enable", option, "none", true);
 				break;
+			case "generate-asl":
+				conn.getXMLStatusMessage("generate-asl", option, "none", true);
+				break;
+			case "list-asl":
 			case "list-asls":
 				conn.listASLs(true);
+				break;
+			case "list-controller":
+			case "list-controllers":
+				conn.listControllers(true);
 				break;
 			case "list-inventory":
 				conn.listInventory(option, true);

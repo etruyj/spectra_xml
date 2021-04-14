@@ -2,10 +2,12 @@
 Basic XML Commands
 	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
 
-	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl.
+	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller.
+	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
 	download-asl		download the specified autosupport log (ASL). Use -o/--option to specify the file name. File will appear in the ../output directory.
 	generate-asl		generates a new autosupport log (ASL).
 	list-asls		provides a list of autosupport logs (ASLs) available in the library.
+	list-controllers	provides a list of controllers assigned in the library.
 	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.

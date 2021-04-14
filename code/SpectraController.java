@@ -60,6 +60,28 @@ public class SpectraController
 		return libraryAddress + "autosupport.xml?progress";
 	}
 
+	private String getControllerDisableFailoverURL(String controller)
+	{
+		return libraryAddress + "controllers.xml?action=disableFailover&controller=" 
+			+ controller;
+	}
+
+	private String getControllerEnableFailoverURL(String primController, String secController)
+	{
+		return libraryAddress + "controllers.xml?action=enableFailover&controller="
+			 + primController + "&spare=" + secController;
+	}
+
+	private String getControllerListURL()
+	{
+		return libraryAddress + "controllers.xml?action=list";
+	}
+
+	private String getControllerProgressURL()
+	{
+		return libraryAddress + "controllers.xml?progress";
+	}
+	
 	private String getImportExportListURL(String partition, String location, String magazine_offsets)
 	{
 		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition.replace(" ", "%20") + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
@@ -129,6 +151,9 @@ public class SpectraController
 			case "ASL":
 			case "asl":
 				url = getASLProgressURL();
+				break;
+			case "controller":
+				url = getControllerProgressURL();
 				break;
 		}
 
@@ -292,6 +317,42 @@ public class SpectraController
 
 	}
 
+	public void getXMLStatusMessage(String query, String option1, String option2, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+		
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status", "message"};
+	
+		String url = "none";
+
+		switch (query)
+		{
+			case "generate-asl":
+				url = getASLGenerateURL();
+				break;
+			case "controller-disable":
+				url = getControllerDisableFailoverURL(option1);
+				break;		
+			case "controller-enable":
+				url = getControllerEnableFailoverURL(option1, option2);
+				break;
+		}	
+		
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+
+	}
+
 	public void listASLs(boolean printToShell)
 	{
 		String xmlOutput;
@@ -313,6 +374,37 @@ public class SpectraController
 
 	}
 	
+	public void listControllers(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"controller",
+					"ID",
+					"status",
+					"firmware",
+					"type",
+					"failoverFrom",
+					"port",
+					"name",
+					"useSoftAddress",
+					"loopId",
+					"initiatorEnabled",
+					"fibreConnectionMode"};
+
+		String url = getControllerListURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+	}
+
 	public XMLResult[] listInventory(String partition, boolean printToShell)
 	{
 		String xmlOutput;
@@ -866,6 +958,58 @@ public class SpectraController
 		return result;
 	}
 
+	private String findDestinationSlot(String partition, int destSlot, int magSlot, String barcode)
+	{
+		// Finds the slot string of the destination slot
+		// by locating the slot of a tape within the same
+		// TeraPack and adjusting the slot based on the difference.
+
+		// destSlot = target
+		// magSlot = slot occupied by passed barcode.
+		int difference = destSlot - magSlot;
+		String anchor = "none";
+		anchor = findSlotString(partition, barcode);
+
+		if(!anchor.equals("none"))
+		{
+			difference = difference + Integer.valueOf(anchor);
+			return Integer.toString(difference);
+		}
+
+		return "none";		
+	}
+
+	private String findSlotString(String partition, String barcode)
+	{
+		// Search the inventory for the barcode.
+		// Export the Slot number of the barcode.
+
+		boolean slotFound = false;
+		String slot = "none";
+		int itr = 0; // using while with an iterator to save cycles.
+
+		XMLResult[] response = listInventory(partition, false);
+
+		while(!slotFound)
+		{
+			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>Offset"))
+			{
+				slot = response[itr].value;
+			}
+			
+			// have to use trim() as there's whitespace in the barcode
+			// for some reason.
+			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>barcode") && response[itr].value.trim().equalsIgnoreCase(barcode))
+			{
+				slotFound = true;
+			}
+
+			itr++;
+		}
+
+		return slot;
+	}
+	
 	private String generateSlotString(String TeraPackOffset, int TapeSlot)
 	{
 		int librarySlot = (10 * Integer.valueOf(TeraPackOffset)) - (10 - TapeSlot) + 1;
@@ -892,8 +1036,8 @@ public class SpectraController
 		int emptySlot = -1;
 		int moves = 0;
 		String sourceBarcode;
-		String sourceSlotString;
-		String destSlotString;
+		String sourceSlotString = "none";
+		String destSlotString = "none";
 
 		// Move validation variables.
 		int checkSlot = -1;
@@ -907,13 +1051,9 @@ public class SpectraController
 			emptySlot = mags[destination].getNextEmptySlot(emptySlot);
 		
 			sourceBarcode = mags[source].getBarcodeAtPosition(tapeSlot);
-			sourceSlotString = generateSlotString(mags[source].getOffset(), tapeSlot);
-			destSlotString = generateSlotString(mags[destination].getOffset(), emptySlot);
+	//		sourceSlotString = generateSlotString(mags[source].getOffset(), tapeSlot);
+	//		destSlotString = generateSlotString(mags[destination].getOffset(), emptySlot);
 
-			if(printToShell)
-			{
-				System.out.println("Move " + moves + ": " + sourceBarcode  + " at slot " + sourceSlotString + " moving to " + destSlotString);
-			}
 			// VALIDATION
 			// The formula for the actual slot is a best-guess
 			// we'll check to see if the barcode is in the source
@@ -924,7 +1064,10 @@ public class SpectraController
 			if(checkSlot>=0)
 			{
 				checkBarcode = mags[destination].getBarcodeAtPosition(checkSlot);
-				checkSlotString = generateSlotString(mags[destination].getOffset(), checkSlot);
+				sourceSlotString = findSlotString(partition, sourceBarcode);
+				checkSlotString = findSlotString(partition, checkBarcode);
+				destSlotString = findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode);
+				//			checkSlotString = generateSlotString(mags[destination].getOffset(), checkSlot);
 
 				isValidMove = validateMove(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, true);				
 			}
@@ -932,6 +1075,11 @@ public class SpectraController
 			// Actually Perform the move
 			if(isValidMove)
 			{
+				if(printToShell)
+				{
+					System.out.println("Move " + moves + ": " + sourceBarcode  + " at slot " + sourceSlotString + " moving to " + destSlotString);
+				}
+			
 				sendMove(partition, sourceSlotString, destSlotString);
 			}
 			else
