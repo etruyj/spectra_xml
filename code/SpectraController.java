@@ -81,7 +81,59 @@ public class SpectraController
 	{
 		return libraryAddress + "controllers.xml?progress";
 	}
-	
+
+	private String getDriveListProgressURL()
+	{
+		return libraryAddress + "driveList.xml?progress";
+	}
+
+	private String getDriveListURL()
+	{
+		return libraryAddress + "driveList.xml?action=list";
+	}
+
+	private String getDriveLoadCountURL(String drive)
+	{
+		return libraryAddress + "driveList.xml?action=getDriveLoadCount&driveName=" + drive;
+	}
+
+	private String getDriveTraceReplaceDriveURL(String drive)
+	{
+		return libraryAddress + "driveList.xml?action=prepareToReplaceDrive&driveName=" + drive;
+	}
+
+	private String getDriveTraceResetDriveURL(String drive)
+	{
+		return libraryAddress + "driveList.xml?action=resetDrive&driveName=" + drive;
+	}
+
+	private String getDriveTraceRetrieveTracesURL(String option, String target)
+	{
+		// Three options to choose from.
+		// Decided to parse them to make the input easier.
+		if(option.equals("download") || option.equals("usb"))
+		{
+			return libraryAddress + "driveList.xml?action=getDriveTraces&driveTracesGetType="
+					+ option;
+		}
+		else if(option.equals("email"))
+		{
+			return libraryAddress + "driveList.xml?action=getDriveTraces&driveTracesGetType="
+					+ option + "&emailAddress=" + target;
+		}
+		else
+		{
+			return "error"; // Had to have something here.
+		}
+
+	}
+
+	private String getDriveTracesURL(String drives)
+	{
+		// Can specify all drives or a comma separated value of drive ids.
+		return libraryAddress + "driveList.xml?action=generateDriveTraces&driveTracesDrives=" + drives;
+	}
+
 	private String getImportExportListURL(String partition, String location, String magazine_offsets)
 	{
 		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition.replace(" ", "%20") + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
@@ -155,6 +207,11 @@ public class SpectraController
 			case "controller":
 				url = getControllerProgressURL();
 				break;
+			case "drive":
+			case "driveList":
+			case "drive-list":
+				url = getDriveListProgressURL();
+				break;
 		}
 
 		xmlOutput = cxn.queryLibrary(url);
@@ -212,6 +269,26 @@ public class SpectraController
 		}
 	}
 
+	public void driveLoadCount(String option, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"loadCount"};
+
+		String url = getDriveLoadCountURL(option);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+	}
+
 	public void downloadASL(String aslName, boolean printToShell)
 	{
 		String xmlOutput;
@@ -222,6 +299,18 @@ public class SpectraController
 
 		String url = getASLDownloadURL(aslName);
 		cxn.downloadFromLibrary(url, "../output/", aslName);
+	}
+
+	public void downloadDriveTrace()
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status", "message"};
+
+		String url = getDriveTraceRetrieveTracesURL("download", "none");
+		cxn.downloadFromLibrary(url, "../output/", "drive_traces.zip");	
 	}
 
 	public void ejectEmpty(String partition, boolean printToShell)
@@ -329,14 +418,25 @@ public class SpectraController
 
 		switch (query)
 		{
-			case "generate-asl":
-				url = getASLGenerateURL();
-				break;
 			case "controller-disable":
 				url = getControllerDisableFailoverURL(option1);
 				break;		
 			case "controller-enable":
 				url = getControllerEnableFailoverURL(option1, option2);
+				break;
+			case "download-drive-trace":
+				url = getDriveTraceRetrieveTracesURL(option1, option2);
+			case "generate-asl":
+				url = getASLGenerateURL();
+				break;
+			case "generate-drive-trace":
+				url = getDriveTracesURL(option1);
+				break;
+			case "replace-drive":
+				url = getDriveTraceReplaceDriveURL(option1);
+				break;
+			case "reset-drive":
+				url = getDriveTraceResetDriveURL(option1);
 				break;
 		}	
 		
@@ -403,6 +503,52 @@ public class SpectraController
 		{
 			printOutput(response, "none", true);
 		}
+	}
+
+	public XMLResult[] listDrives(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"drive",
+					"ID",
+					"driveStatus",
+					"partition",
+					"partitionDriveNumber",
+					"driveType",
+					"connection",
+					"serialNumber",
+					"manufacturerSerialNumber",
+					"driveFirmware",
+					"dcmFirmware",
+					"wwn",
+					"fibreAddress",
+					"loopNumber",
+					"sparedWith",
+					"spareFor",
+					"health",
+					"firmwareStaging",
+					"connectionStatus",
+					"hostID",
+					"portID",
+					"firmware",
+					"complete",
+					"percentStaged",
+					"committing"};
+
+		String url = getDriveListURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "drive", true);
+		}
+
+		return response;
 	}
 
 	public XMLResult[] listInventory(String partition, boolean printToShell)
@@ -1051,8 +1197,6 @@ public class SpectraController
 			emptySlot = mags[destination].getNextEmptySlot(emptySlot);
 		
 			sourceBarcode = mags[source].getBarcodeAtPosition(tapeSlot);
-	//		sourceSlotString = generateSlotString(mags[source].getOffset(), tapeSlot);
-	//		destSlotString = generateSlotString(mags[destination].getOffset(), emptySlot);
 
 			// VALIDATION
 			// The formula for the actual slot is a best-guess
@@ -1064,11 +1208,25 @@ public class SpectraController
 			if(checkSlot>=0)
 			{
 				checkBarcode = mags[destination].getBarcodeAtPosition(checkSlot);
+
+				// Identify the target slots.
+				// sourceSlot - slot of source tape.
+				// destSlot - empty destination slot.
+				// checkSlot - occupied slot in the same TeraPack to
+				// 		anchor the TeraPack to the inventory
+				// 		slot. destSlot is calculated from here.
 				sourceSlotString = findSlotString(partition, sourceBarcode);
 				checkSlotString = findSlotString(partition, checkBarcode);
 				destSlotString = findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode);
-				//			checkSlotString = generateSlotString(mags[destination].getOffset(), checkSlot);
 
+				// Move validation.
+				// Will be removed/commented out in a future release.
+				// This was placed here when the slot was calculated
+				// by generateSlotString() to verify the calculated
+				// value. findSlotString() performs a similar task as
+				// validateMove(), so this function validates the move
+				// with by the same process that generates it. It's
+				// redundant.
 				isValidMove = validateMove(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, true);				
 			}
 

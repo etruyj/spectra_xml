@@ -2,13 +2,19 @@
 Basic XML Commands
 	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
 
-	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller.
+	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller, drive-list.
 	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
 	download-asl		download the specified autosupport log (ASL). Use -o/--option to specify the file name. File will appear in the ../output directory.
+	drive-load-count	prints the number of times the drive was loaded. Must specify the drive in FR[#]/DBA[#]/DR[#] format with the option flag.
 	generate-asl		generates a new autosupport log (ASL).
+	generate-drive-trace	generates a drive trace for the specified drive in FR[#]/DBA[#]/DR[#] format.
+	get-drive-trace		retrieves a most recently generated drive traces from the library. Options are download, usb, and email. Download saves the file "drive_traces.zip" to the output folder. USB saves the traces to a usb drive inserted in the LCM. Email sends the traces to the specified email if the email is configured in the library.
 	list-asls		provides a list of autosupport logs (ASLs) available in the library.
 	list-controllers	provides a list of controllers assigned in the library.
+	list-drives		provides a list of all drives in the libraries along with detailed information.
 	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
 	physical-inventory	provides a complete Tera-Pack based inventory list for a partition. Partition name must be specified with the -o/--option flag.
+	replace-drive		starts the process to safely replace the drive in the library. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
+	reset-drive		resets the specified drive. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.

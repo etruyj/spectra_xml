@@ -49,6 +49,9 @@ public class SpectraXML
 			case "download-asl":
 				conn.downloadASL(option, true);
 				break;
+			case "drive-load-count":
+				conn.driveLoadCount(option, true);
+				break;
 			case "eject-empty-terapacks":
 				conn.ejectEmpty(option, true);
 				break;
@@ -58,6 +61,19 @@ public class SpectraXML
 			case "generate-asl":
 				conn.getXMLStatusMessage("generate-asl", option, "none", true);
 				break;
+			case "generate-drive-trace":
+				conn.getXMLStatusMessage("generate-drive-trace", option, "none", true);
+				break;
+			case "get-drive-trace":
+				if(option.equals("download"))
+				{
+					conn.downloadDriveTrace();
+				}
+				else
+				{
+					conn.getXMLStatusMessage("download-drive-trace", option, "none", true);
+				}
+				break;
 			case "list-asl":
 			case "list-asls":
 				conn.listASLs(true);
@@ -65,6 +81,9 @@ public class SpectraXML
 			case "list-controller":
 			case "list-controllers":
 				conn.listControllers(true);
+				break;
+			case "list-drives":
+				conn.listDrives(true);
 				break;
 			case "list-inventory":
 				conn.listInventory(option, true);
@@ -87,6 +106,13 @@ public class SpectraXML
 			case "physical-inventory":
 				conn.physicalInventory(option, true);
 				break;
+			case "replace-drive":
+				conn.getXMLStatusMessage("replace-drive", option, "none", true);
+				break;
+			case "reset-drive":
+				conn.getXMLStatusMessage("reset-drive", option, "none", true);
+				break;
+
 		}
 	}
 }
