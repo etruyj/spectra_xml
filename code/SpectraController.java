@@ -134,6 +134,21 @@ public class SpectraController
 		return libraryAddress + "driveList.xml?action=generateDriveTraces&driveTracesDrives=" + drives;
 	}
 
+	private String getEtherLibStatusURL()
+	{
+		return libraryAddress + "etherLibStatus.xml?action=list";
+	}
+
+	private String getEtherLibProgressURL()
+	{
+		return libraryAddress + "etherLibStatus.xml?progress";
+	}
+
+	private String getEtherLibRefreshURL()
+	{
+		return libraryAddress + "etherLibStatus.xml?action=refresh";
+	}
+	
 	private String getImportExportListURL(String partition, String location, String magazine_offsets)
 	{
 		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition.replace(" ", "%20") + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
@@ -211,6 +226,10 @@ public class SpectraController
 			case "driveList":
 			case "drive-list":
 				url = getDriveListProgressURL();
+				break;
+			case "etherlib":
+			case "etherLib":
+				url = getEtherLibProgressURL();
 				break;
 		}
 
@@ -385,6 +404,30 @@ public class SpectraController
 		}
 	}
 
+	public void etherLibStatus(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"component",
+					"ID",
+					"connection",
+					"target",
+					"connected"};
+
+		String url = getEtherLibStatusURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "component", true);
+		}
+	}
+
 	public void generateASL(boolean printToShell)
 	{
 		String xmlOutput;
@@ -431,6 +474,9 @@ public class SpectraController
 				break;
 			case "generate-drive-trace":
 				url = getDriveTracesURL(option1);
+				break;
+			case "refresh-etherlib":
+				url = getEtherLibRefreshURL();
 				break;
 			case "replace-drive":
 				url = getDriveTraceReplaceDriveURL(option1);

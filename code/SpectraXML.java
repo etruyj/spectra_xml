@@ -58,6 +58,10 @@ public class SpectraXML
 			case "enable-controller":
 				conn.getXMLStatusMessage("controller-enable", option, "none", true);
 				break;
+			case "etherlib-status":
+			case "etherLib-status":
+				conn.etherLibStatus(true);
+				break;
 			case "generate-asl":
 				conn.getXMLStatusMessage("generate-asl", option, "none", true);
 				break;
@@ -105,6 +109,10 @@ public class SpectraXML
 				break;
 			case "physical-inventory":
 				conn.physicalInventory(option, true);
+				break;
+			case "refresh-etherlib":
+			case "refresh-etherLib":
+				conn.getXMLStatusMessage("refresh-etherlib", option, "none", true);
 				break;
 			case "replace-drive":
 				conn.getXMLStatusMessage("replace-drive", option, "none", true);
