@@ -18,11 +18,11 @@ public class SpectraXML
 
 		if(aparser.checkValidInput())
 		{
-			SpectraController conn = new SpectraController(aparser.getIPAddress(), false);
+			SpectraController conn = new SpectraController(aparser.getIPAddress(), aparser.getSecureHTTPS());
 	
 			if(conn.login(aparser.getUsername(), aparser.getPassword()))
 			{
-				performCommand(conn, aparser.getCommand(), aparser.getCmdOption(), aparser.getMaxMoves());
+				performCommand(conn, aparser.getCommand(), aparser.getCmdOption(), aparser.getCmdOption2(), aparser.getCmdOption3(), aparser.getMaxMoves());
 				conn.logout();
 			}
 			else
@@ -36,15 +36,21 @@ public class SpectraXML
 		}
 	}
 
-	public static void performCommand(SpectraController conn, String command, String option, int moves)
+	public static void performCommand(SpectraController conn, String command, String option, String option2, String option3, int moves)
 	{
 		switch(command)
 		{
+			case "audit-inventory":
+				conn.getXMLStatusMessage("audit-inventory", option, option2, option3, true);
+				break;
+			case "audit-inventory-result":
+				conn.getXMLStatusMessage("audit-inventory-result", option, option2, option3, true);
+				break;
 			case "check-progress":
 				conn.checkProgress(option, true);
 				break;
 			case "disable-controller":
-				conn.getXMLStatusMessage("controller-disable", option, "none", true);
+				conn.getXMLStatusMessage("controller-disable", option, option2, option3, true);
 				break;
 			case "download-asl":
 				conn.downloadASL(option, true);
@@ -56,17 +62,17 @@ public class SpectraXML
 				conn.ejectEmpty(option, true);
 				break;
 			case "enable-controller":
-				conn.getXMLStatusMessage("controller-enable", option, "none", true);
+				conn.getXMLStatusMessage("controller-enable", option, option2, option3, true);
 				break;
 			case "etherlib-status":
 			case "etherLib-status":
 				conn.etherLibStatus(true);
 				break;
 			case "generate-asl":
-				conn.getXMLStatusMessage("generate-asl", option, "none", true);
+				conn.getXMLStatusMessage("generate-asl", option, option2, option3, true);
 				break;
 			case "generate-drive-trace":
-				conn.getXMLStatusMessage("generate-drive-trace", option, "none", true);
+				conn.getXMLStatusMessage("generate-drive-trace", option, option2, option3, true);
 				break;
 			case "get-drive-trace":
 				if(option.equals("download"))
@@ -75,7 +81,7 @@ public class SpectraXML
 				}
 				else
 				{
-					conn.getXMLStatusMessage("download-drive-trace", option, "none", true);
+					conn.getXMLStatusMessage("download-drive-trace", option, option2, option3, true);
 				}
 				break;
 			case "list-asl":
@@ -88,6 +94,9 @@ public class SpectraXML
 				break;
 			case "list-drives":
 				conn.listDrives(true);
+				break;
+			case "list-hhm-data":
+				conn.listHHMData(true);
 				break;
 			case "list-inventory":
 				conn.listInventory(option, true);
@@ -104,6 +113,9 @@ public class SpectraXML
 			case "magazine-utilization":
 				conn.magazineCapacity(option, true);
 				break;
+			case "move-status":
+				conn.getXMLStatusMessage("move-result", option, option2, option3, true);
+				break;
 			case "partition-details":
 				conn.listPartitionDetails(option, true);
 				break;
@@ -112,13 +124,19 @@ public class SpectraXML
 				break;
 			case "refresh-etherlib":
 			case "refresh-etherLib":
-				conn.getXMLStatusMessage("refresh-etherlib", option, "none", true);
+				conn.getXMLStatusMessage("refresh-etherlib", option, option2, option3, true);
 				break;
 			case "replace-drive":
-				conn.getXMLStatusMessage("replace-drive", option, "none", true);
+				conn.getXMLStatusMessage("replace-drive", option, option2, option3, true);
 				break;
 			case "reset-drive":
-				conn.getXMLStatusMessage("reset-drive", option, "none", true);
+				conn.getXMLStatusMessage("reset-drive", option, option2, option3, true);
+				break;
+			case "reset-hhm-counter":
+				conn.resetHHMCounter(option, option2, option3, true);
+				break;
+			case "set-hhm-threshold":
+				conn.setHHMThreshold(option, option2, option3, true);
 				break;
 
 		}

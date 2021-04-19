@@ -17,8 +17,20 @@ public class ArgParser
 	private String password;
 	private String command;
 	private String cmd_option;
+	private String cmd_option2;
+	private String cmd_option3;
 	private int maxMoves;
 	private boolean helpSelected;
+	private boolean secure_https;
+
+	// These are for tracking the assignment of flags.
+	// for ease of coding, multiple flags map to the same
+	// variables depending on the function being called.
+	// If they aren't valid, isValid is set to false.
+	private boolean isValid; // Is the entered input valid
+	private boolean option_set;
+	private boolean option2_set;
+	private boolean option3_set;
 
 	//===================================================================
 	// Constructor
@@ -31,8 +43,21 @@ public class ArgParser
 		password = "";
 		command = "none";
 		cmd_option = "none";
+		cmd_option2 = "none";
+		cmd_option3 = "none";
 		maxMoves = 10;
 		helpSelected = false;
+		secure_https = true;
+	
+		// isValid
+		// 	Used to verify and validate the entered command.
+		// 	Defaults to ture as this is used to check the		
+		// 	option values. Options may not be
+		// 	required for specific commands.
+		isValid = true;  
+		option_set = false;
+		option2_set = false;
+		option3_set = false;
 	}
 
 	//===================================================================
@@ -40,12 +65,61 @@ public class ArgParser
 	//===================================================================
 
 	public boolean getHelpSelected() { return helpSelected; }
+	public boolean getSecureHTTPS() { return secure_https; }
 	public String getIPAddress() { return ip_address; }
 	public String getUsername() { return username; }
 	public String getPassword() { return password; }
 	public String getCommand() { return command; }
 	public String getCmdOption() { return cmd_option; }
+	public String getCmdOption2() { return cmd_option2; }
+	public String getCmdOption3() { return cmd_option3; }
 	public int getMaxMoves() { return maxMoves; }
+
+	//===================================================================
+	// Settors 
+	//===================================================================
+
+	public void setCmdOption(String option)
+	{
+		// Option hasn't been set already.
+		if(!option_set)
+		{
+			cmd_option = option;
+			option_set = true;
+		}
+		else
+		{
+			isValid = false;
+		}
+	}
+
+	public void setCmdOption2(String option2)
+	{
+		// Option2 hasn't been set already.
+		if(!option2_set)
+		{
+			cmd_option2 = option2;
+			option2_set = true;
+		}
+		else
+		{
+			isValid = false;
+		}
+	}
+
+	public void setCmdOption3(String option3)
+	{
+		// Option3 hasn't been set already.
+		if(!option3_set)
+		{
+			cmd_option3 = option3;
+			option3_set = true;
+		}
+		else
+		{
+			isValid = false;
+		}
+	}
 
 	//===================================================================
 	// functions 
@@ -53,20 +127,24 @@ public class ArgParser
 
 	public boolean checkValidInput()
 	{
-		// Verify if enough arguments were entered to query the library.
-		if(ip_address.equals("none") || username.equals("none") || command.equals("none"))
+		// Verify the input hasn't already failed the test with the entered command options.
+		if(isValid)
 		{
-			return false;
-		}
-		else
-		{
-			return true;
+			// Verify if enough arguments were entered to query the library.
+			// ip_address, username, and command are all required.
+			if(ip_address.equals("none") || username.equals("none") || command.equals("none"))
+			{
+				isValid = false;
+			}
 		}
 
+		return isValid;
 	}
 
 	public void parseArguments(String[] args)
 	{
+		String option;
+
 		for(int i=0; i<args.length; i++)
 		{
 			switch (args[i])
@@ -102,26 +180,12 @@ public class ArgParser
 					helpSelected = true;
 					printFile("help.txt");
 					break;
-				case "-o":
-				case "--option":
-					// Allow multi-word options, specifically
-					// for partition names.
-					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
-					//if((i+1)<args.length)
-					{
-						if(cmd_option.equals("none"))
-						{
-							cmd_option = args[i+1];
-						}
-						else
-						{
-							// The %20 is required for the
-							// library to properly parse
-							// the text.
-							cmd_option += " " + args[i+1];
-						}
-						i++;
-					}
+				case "--http":
+				case "--insecure":
+					secure_https = false;
+					break;
+				case "--keep-default": // Keep default HHM values (set-hhm-threshold)
+					setCmdOption2("true");
 					break;
 				case "-m":
 				case "--max":
@@ -132,6 +196,87 @@ public class ArgParser
 						maxMoves = Integer.parseInt(args[i+1]);
 						i++;
 					}
+				case "-o":
+				case "--option": // generic option command (original input flag).
+				case "--controller":
+				case "--drive": // specify the drive
+				case "--event": // spcify HHM event type (set-hhm-threshold)
+				case "--partition": // specify library partition.
+				case "--type": // specify HHM counter type. (reset-hhm-counter)
+					option = "none";
+					// Allow multi-word options, specifically
+					// for partition names.
+					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
+					//if((i+1)<args.length)
+					{
+						if(option.equals("none"))
+						{
+							option = args[i+1];
+						}
+						else
+						{
+							// The %20 is required for the
+							// library to properly parse
+							// the text.
+							option += " " + args[i+1];
+						}
+						i++;
+					}
+					setCmdOption(option);
+					break;
+				case "--option2": // Heading is more to categorize and organize.
+				case "--element": // Storage or EE
+				case "--element-type":
+				case "--email":
+				case "--email-address":
+				case "--spare":
+				case "--subtype":
+					option = "none";
+					// Allow multi-word options, specifically
+					// for partition names.
+					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
+					//if((i+1)<args.length)
+					{
+						if(option.equals("none"))
+						{
+							option = args[i+1];
+						}
+						else
+						{
+							// The %20 is required for the
+							// library to properly parse
+							// the text.
+							option += " " + args[i+1];
+						}
+						i++;
+					}
+					setCmdOption2(option);
+					break;
+				case "--option3": // Heading is more to categorize and organize.
+				case "--offset": // Terapack offset.
+				case "--robot": // Specify the TFIN robot to use.
+				case "--value":
+					option = "none";
+					// Allow multi-word options, specifically
+					// for partition names.
+					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
+					//if((i+1)<args.length)
+					{
+						if(option.equals("none"))
+						{
+							option = args[i+1];
+						}
+						else
+						{
+							// The %20 is required for the
+							// library to properly parse
+							// the text.
+							option += " " + args[i+1];
+						}
+						i++;
+					}
+					setCmdOption3(option);
+					break;
 				case "-p":
 				case "--pass":
 				case "--password":

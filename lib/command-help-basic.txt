@@ -2,10 +2,13 @@
 Basic XML Commands
 	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
 
+	audit-inventory		verify the contents of a TeraPack against the values stored in the database. TFINITY only. Requires --partition, --element-type, and --offset. Offset can be determined with the physical-inventory command. Values required are one-less than the value returned by physical-inventory. Subtract one from the value for the proper format.
+	audit-inventory-results	returns the results of the audit inventory command.
 	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller, drive-list, etherlib.
 	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
 	download-asl		download the specified autosupport log (ASL). Use -o/--option to specify the file name. File will appear in the ../output directory.
 	drive-load-count	prints the number of times the drive was loaded. Must specify the drive in FR[#]/DBA[#]/DR[#] format with the option flag.
+	enable-controller	(full command enable-controller-failover) enables failover for the specified controller. Must specify --controller and --spare.
 	etherlib-status		prints the status of the library's EtherLib connections.
 	generate-asl		generates a new autosupport log (ASL).
 	generate-drive-trace	generates a drive trace for the specified drive in FR[#]/DBA[#]/DR[#] format.
@@ -13,10 +16,14 @@ Basic XML Commands
 	list-asls		provides a list of autosupport logs (ASLs) available in the library.
 	list-controllers	provides a list of controllers assigned in the library.
 	list-drives		provides a list of all drives in the libraries along with detailed information.
+	list-hhm-data		provides a list of all HHM values in the library.
 	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
+	move-status		returns the status of the last executed move.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
 	physical-inventory	provides a complete Tera-Pack based inventory list for a partition. Partition name must be specified with the -o/--option flag.
 	refresh-etherlib	Attempts to reestablish the Ethernet connection and update the stored status information for each EtherLib connection.
 	replace-drive		starts the process to safely replace the drive in the library. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
 	reset-drive		resets the specified drive. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
+	reset-hhm-counter	resets the specified HHM counter to 0. **DO NOT PERFORM THIS OPERATION WITHOUT AUTHORIZATION FROM SPECTRA LOGIC SUPPORT** Required inputs are --type, --subtype, (and with TFINITY libraries --robot).
+	set-hhm-threshold	sets the specified HHM alert threshold. **DO NOT PERFORM THIS OPERATION WITHOUT APPROVAL FROM SPECTRA LOGIC SUPPORT** Required inputs are --event, --keepDefault to reset to default or --value to set to specific value.

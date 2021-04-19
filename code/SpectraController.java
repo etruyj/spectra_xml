@@ -148,16 +148,76 @@ public class SpectraController
 	{
 		return libraryAddress + "etherLibStatus.xml?action=refresh";
 	}
+
+	private String getHHMListURL()
+	{
+		return libraryAddress + "HHMData.xml?action=list";
+	}
+
+	private String getHHMResetCounterURL(String type, String subtype, String robot)
+	{
+		// This command corresponds to the HHM: Set counters advanced utility in the BlueScale user interface.
+		String url = libraryAddress + "HHMData.xml?action=resetCounterData&type=" + type 
+		       		+ "&subtype=" + subtype;
+
+		// Robot value only needs to be specified for TFINITY
+		if(!robot.equals("none"))
+		{
+			url = url + "&robot=" + robot;
+		}	
 	
+		return url;
+	}
+
+	private String getHHMSetThresholdURL(String event, String keepDefault, String value)
+	{
+		String url = libraryAddress + "HHMData.xml?action=setThresholdData&event=" + event;
+
+		if(keepDefault.equals("true"))
+		{
+			url = url + "&default=true";
+		}
+		else
+		{
+			url = url + "&value=" + value;
+		}
+		
+		return url;
+	}
+
 	private String getImportExportListURL(String partition, String location, String magazine_offsets)
 	{
 		return libraryAddress + "mediaExchange.xml?action=prepareImportExportList&partition=" + partition.replace(" ", "%20") + "&slotType=" + location + "&TeraPackOffsets=" + magazine_offsets;
+	}
+
+	private String getInventoryAuditURL(String partition, String elementType, String offset)
+	{
+		// Convert the offset to 0-based.
+		// The offset in the physical inventory screen is 1-based
+		// The offset value required by the inventory menu is 0-based.
+		// Subtract 1 from the value to convert to a valid input.
+		int convertedOffset = Integer.valueOf(offset);
+		convertedOffset--;
+
+		return libraryAddress + "inventory.xml?action=audit&partition=" + partition.replace(" ", "%20") 
+			+ "&elementType=" + elementType + "&TeraPackOffset=" + Integer.toString(convertedOffset);
+	}
+
+	private String getInventoryAuditResultsURL()
+	{
+		return libraryAddress + "inventory.xml?action=getAuditResults";
 	}
 
 	private String getInventoryListURL(String partition)
 	{
 		return libraryAddress + "inventory.xml?action=list&partition=" + partition.replace(" ", "%20");
 	}	
+
+	private String getInventoryMoveResultURL(String partition)
+	{
+		return libraryAddress + "inventory.xml?acton=getMoveResult&partition=" 
+			+ partition.replace(" ", "%20");
+	}
 
 	private String getLoginURL(String user, String password)
 	{
@@ -449,7 +509,7 @@ public class SpectraController
 
 	}
 
-	public void getXMLStatusMessage(String query, String option1, String option2, boolean printToShell)
+	public void getXMLStatusMessage(String query, String option1, String option2, String option3, boolean printToShell)
 	{
 		String xmlOutput;
 		XMLResult[] response;
@@ -461,6 +521,11 @@ public class SpectraController
 
 		switch (query)
 		{
+			case "audit-inventory":
+				url = getInventoryAuditURL(option1, option2, option3);
+				break;
+			case "audit-inventory-result":
+				url = getInventoryAuditResultsURL();
 			case "controller-disable":
 				url = getControllerDisableFailoverURL(option1);
 				break;		
@@ -474,6 +539,9 @@ public class SpectraController
 				break;
 			case "generate-drive-trace":
 				url = getDriveTracesURL(option1);
+				break;
+			case "move-result":
+				url = getInventoryMoveResultURL(option1);
 				break;
 			case "refresh-etherlib":
 				url = getEtherLibRefreshURL();
@@ -593,6 +661,36 @@ public class SpectraController
 		{
 			printOutput(response, "drive", true);
 		}
+
+		return response;
+	}
+
+	public XMLResult[] listHHMData(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"subType",
+					"reminder",
+					"typeName",
+					"value",
+					"unit",
+					"severity",
+					"defaultThreshold",
+					"currentThreshold",
+					"postedDate"};
+
+		String url = getHHMListURL();
+		xmlOutput = cxn.queryLibrary(url);
+		
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "typeName", true);
+		}	
 
 		return response;
 	}
@@ -1069,6 +1167,114 @@ public class SpectraController
 		//printDebug(response);
 	}
 	
+	public void resetHHMCounter(String type, String subtype, String robot, boolean printToShell)
+	{
+		// Based on this output, this function and the other
+		// HHM funtion (setHHMThreshold) could be handled by the
+		// generic XML String. Due to the number of possible settings
+		// these two functions were pushed out to validate the inputs
+		// before calling the command.
+		
+		// One boolean value set to false will carry though.
+		// The next function won't call if this value is false
+		// saving compute time.
+		boolean isValid = false;
+
+		// Validate Type
+		isValid = validateHHMType(type);
+
+		// Validate SubType
+		if(isValid)
+		{
+			isValid = validateHHMSubType(subtype);
+		}
+
+		// Validate Robot. None is a valid option.
+		if(isValid)
+		{
+			isValid = validateRobot(robot);
+		}
+
+		// Call the actual function.
+		if(isValid)
+		{
+			String xmlOutput;
+			XMLResult[] response;
+
+			XMLParser xmlparser = new XMLParser();
+			String[] searchTerms = {"status", "message"};
+
+			String url = getHHMResetCounterURL(type, subtype, robot);
+			xmlOutput = cxn.queryLibrary(url);
+
+			xmlparser.setXML(xmlOutput);
+			response = xmlparser.parseXML(searchTerms);
+
+			if(printToShell)
+			{
+				printOutput(response, "none", false);
+			}
+
+		}
+	}
+
+	public void setHHMThreshold(String event, String keepDefault, String value, boolean printToShell)
+	{
+		// Based on this output, this function could be covered
+		// by the getXMLStatusString function. However due to the
+		// variety of specific commands requested, validation of
+		// inputs should be performed.
+		
+		// One boolean value set to false will carry through.
+		// The next functions won't activate if this value is
+		// false, saving compute time.
+		boolean isValid = false;
+
+		// Validate event
+		isValid = validateHHMEvent(event);
+
+		// Validate keepDefault
+		if(isValid)
+		{
+			if(keepDefault.equals("true") || keepDefault.equals("false"))
+			{
+				isValid = true;
+			}
+		}
+
+		// Validate the value
+		if(isValid)
+		{
+			if(Integer.valueOf(value)>=0)
+			{
+				isValid = true;
+			}
+		}
+
+		// Call the actual function.
+		if(isValid)
+		{
+			String xmlOutput;
+			XMLResult[] response;
+
+			XMLParser xmlparser = new XMLParser();
+			String[] searchTerms = {"status", "message"};
+
+			String url = getHHMResetCounterURL(event, keepDefault, value);
+			xmlOutput = cxn.queryLibrary(url);
+
+			xmlparser.setXML(xmlOutput);
+			response = xmlparser.parseXML(searchTerms);
+
+			if(printToShell)
+			{
+				printOutput(response, "none", false);
+			}
+
+		}
+	}
+
+
 	//====================================================================
 	// Internal Functions
 	// 	Private functions used for the more complex query tasks
@@ -1422,6 +1628,97 @@ public class SpectraController
 		terapacks[j] = temp;
 	}
 
+	private boolean validateHHMEvent(String event)
+	{
+		boolean isValid = false;
+		
+		switch(event)
+		{
+			case "Check Contact Brushes":
+			case "Service HAX":
+			case "Service HAX Belt":
+			case "Service VAX":
+			case "Service VAX Belt":
+			case "Service VAX Cable":
+			case "Service Transporter":
+			case "Service Required":
+				isValid = true;
+				break;
+			default:
+				// Duplicating effort to make
+				// the function easier to read.
+				isValid = false;
+				// Print valid options to help input.
+				System.out.println("ERROR: Invalid event entered. Please select an event from the list: Check Contact Brushes, Serivce HAX, Service HAX Belt, Service VAX, Service VAX Belt, Service VAX Cable, Service Transporter, and Service Required.");
+				System.out.println("Note: events are case sensitive.");
+				break;
+		}
+
+
+		return isValid;
+	}
+
+	private boolean validateHHMType(String type)
+	{
+		boolean isValid = false;
+
+		switch(type)
+		{
+			case "Horizontal Axis":
+			case "Vertical Axis":
+			case "Picker Axis":
+			case "Toggle Axis":
+			case "Rotational Axis":
+			case "Magazine Axis":
+			case "Side Axis":
+			case "Drive to Drive Move":
+			case "Drive to Slot Move":
+			case "Slot to Slot Move":
+			case "Slot to Drive Move":
+			case "TAP In Move":
+			case "TAP Out Move":
+				isValid = true;
+				break;
+			default:
+				// Assigning false to make the code
+				// easier to read.
+				isValid = false;
+
+				// Print options to help usability.
+				System.out.println("ERROR: Invalid type entered. Please select a type from the list: Horizontal Axis, Vertical Axis, Picker Axis, Rotational Axis, Magazine Axis, Toggle Axis, Side Axis, Drive to Drive Move, Drive to Slot Move, Slot to Slot Move, Slot to Drive Move, TAP In Move, TAP Out Move");
+				System.out.println("Note: events are case sensitive");
+				break;
+		}
+
+		return isValid; 
+	}
+
+	private boolean validateHHMSubType(String subtype)
+	{
+		boolean isValid = false;
+
+		switch(subtype)
+		{
+			case "Trip1":
+			case "Trip2":
+			case "None":
+				isValid = true;
+				break;
+			default:
+				// Assign false to make the code 
+				// easier to read.
+				isValid = false;
+
+				// Print options to help usability.
+				System.out.println("ERROR: Invalid subtype entered. Please select a subtype from the list: Trip1, Trip2, and None");
+				System.out.println("Note: subtypes are case sensitive");
+				break;
+		}
+
+		return isValid;
+	}
+
+
 	private boolean validateMove(String partition, String sourceSlot, String sourceBarcode, String destSlot, String destSlot2, String destBarcode, boolean printToShell)
 	{
 		// The purpose of this function is to validate the source and destination slot
@@ -1553,6 +1850,30 @@ public class SpectraController
 		}			
 
 		return success;
+	}
+
+	private boolean validateRobot(String robot)
+	{
+		boolean	isValid = false;
+
+		switch(robot)
+		{
+			case "Robot 1":
+			case "Robot 2":
+			case "none":
+				isValid = true;
+				break;
+			default:
+				// Set isValid to false to make
+				// the code easier to read.
+				isValid = false;
+
+				// Print options to help with usability.
+				System.out.println("ERROR: Invalid robot selected. Please select an option from the list: Robot 1, Robot 2, or none");
+				break;
+		}
+
+		return isValid;
 	}
 }
 

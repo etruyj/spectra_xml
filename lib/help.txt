@@ -4,9 +4,21 @@ Spectra XML Command Parser
 
 Available Options:
 	-c, --command	*REQUIRED* Enter the command you would like to execute. Examples list-partitions, get-inventory, physical-inventory. Type help after this flag for a list of available commands.
+	--controller	Specify the controller/exporter to be used as the primary device for the command.
+	--drive		Specify the drive in FR[#]/DBA[#]/DR[#] format where [#] specifies the number and placement in the library.
+	--element-type	Specify the element type the operation is specifying. Storage or IE.
+	--email		Specify the email address to be used. Email must already be configured in the library UI.
 	-e, --endpoint	*REQUIRED* Specify the IP address of the library's Web UI.
+	--event		HHM Threshold event. Valid options are Service HAX, Check Contact Brushes, Service HAX Belt, Service VAX, Service VAX Belt, Service VAX Cable, Service Transporter, Service Required.
 	-m, --maxMoves	Specify the maximum number of tape moves the library can perform during the execution of the command. This is intended to prevent complex move commands issued against a production library from bogarting the robots, causing production move failures.
+	--offset	Specify the magazine offset. Magazine offsets can be found with the physical-inventory command. The offset provided by physical-inventory is actually one-higher (+1) from the value required by offset. Subtract one (-1) from the value returned by physical-inventory to have the proper offset.
 	-o, --option	Specify options for the command. Most common option is partition name.
+	--partition	Specify the partition in which the operation will occur.
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
+	--robot		Specify the robot to be used with the command. TFINITY only. Valid inputs Robot 1 or Robot 2.
+	--spare		Specify the backup controller/export for the enable controller failover command.
+	--subtype	Specify the subtype of the HHM counter being specified. Valid inputs Trip1 or Trip2.
+	--type		Specify the HHM counter type for reset-hhm-counter command. Valid inputs Horizontal Axis, Vertical Axis, Picker Axis, Rotational Axis, Magazine Axis, Toggle Axis, Side Axis, Drive to Drive Move, Drive to Slot Move, Slot to Slot Move, Slot to Drive Move TAP In Move, TAP Out Move.
 	-u, --username	Specify the username for the connection/query.
+	--value		Specify the value the HHM counter should be set to.
 
