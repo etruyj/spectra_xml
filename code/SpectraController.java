@@ -219,6 +219,36 @@ public class SpectraController
 			+ partition.replace(" ", "%20");
 	}
 
+	private String getLibraryStatusURL()
+	{
+		return libraryAddress + "libraryStatus.xml";
+	}
+
+	private String getLibraryMoveDetailsURL()
+	{
+		return libraryAddress + "libraryStatus.xml?action=getMoveOperationDetails";
+	}
+
+	private String getLibraryProgressURL()
+	{
+		return libraryAddress + "libraryStatus.xml?progress";
+	}
+
+	private String getLibraryRCMStatusURL(String rcm)
+	{
+		return libraryAddress + "libraryStatus.xml?action=RCMStatus&id=" + rcm;
+	}
+
+	private String getLibraryRefreshECInfoURL()
+	{
+		return libraryAddress + "libraryStatus.xml?action=refreshECInfo";
+	}
+
+	private String getLibraryRefreshEnvironmentURL()
+	{
+		return libraryAddress + " libraryStatus.xml?action=refreshEnvironment";
+	}
+
 	private String getLoginURL(String user, String password)
 	{
 		return libraryAddress + "login.xml?username=" + user 
@@ -290,6 +320,10 @@ public class SpectraController
 			case "etherlib":
 			case "etherLib":
 				url = getEtherLibProgressURL();
+				break;
+			case "library":
+			case "library-refresh":
+				url = getLibraryProgressURL();
 				break;
 		}
 
@@ -543,6 +577,12 @@ public class SpectraController
 			case "move-result":
 				url = getInventoryMoveResultURL(option1);
 				break;
+			case "refresh-ec-info":
+				url = getLibraryRefreshECInfoURL();
+				break;
+			case "refresh-environment":
+				url = getLibraryRefreshEnvironmentURL();
+				break;
 			case "refresh-etherlib":
 				url = getEtherLibRefreshURL();
 				break;
@@ -565,6 +605,213 @@ public class SpectraController
 		}
 
 
+	}
+
+	public XMLResult[] libraryMoveDetails(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"move",
+					"startTime",
+					"endTime",
+					"overallStatus",
+					"overallSense",
+					"source",
+					"destination",
+					"firstRobot",
+					"secondRobot",
+					"partition",
+					"elementType",
+					"elementOffset",
+					"number",
+					"lastOperation"};
+
+		String url = getLibraryMoveDetailsURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "move", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] libraryRCMStatus(String rcm, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"RCMStatus",
+					"ID",
+					"overallStatus",
+					"loglibStatus",
+					"motionStatus",
+					"repeaterStatus"};
+
+		String url = getLibraryRCMStatusURL(rcm);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "RCMStatus", true);
+		}
+
+		return response;	
+	}
+
+	public XMLResult[] libraryStatus(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"libraryType",
+					"libraryUpTimeSeconds",
+					"maintenanceMode",
+					"frames",
+					"railPowerOn",
+					"robot",
+					"controllerEnvironmentInfo",
+					"controller",
+					"driveControlModule",
+					"powerSupplyFRU",
+					"powerControlModule",
+					"fanControlModule",
+					"frameManagementModule",
+					"serviceBayControlModule",
+					"ECInfo",
+					"SDInfo",
+					"componenent",
+					"chassisCount",
+					"physicalFrame",
+					"framePosition",
+					"frameType",
+					"state",
+					"transporterType",
+					"topHAXGear",
+					"bottomHAXGear",
+					"topHAXSolenoid",
+					"bottomHAXSolenoid",
+					"ID",
+					"temperatureInCelsius",
+					"portALinkUp",
+					"portBLinkUp",
+					"failoverStatus",
+					"type",
+					"fwVersion",
+					"twelveVoltVoltage",
+					"fiveVoltVoltage",
+					"fanCurrentInAmps",
+					"isFullHeight",
+					"driveFwVersion",
+					"inputPowerOkay",
+					"outputPowerOkay",
+					"temperatureWarning",
+					"temperatureAlarm",
+					"modelNumber",
+					"manufactuererPartNumber",
+					"serialNumber",
+					"modLevel",
+					"manufacturer",
+					"countryOfManufacturer",
+					"communicatingWithPCM",
+					"fanInPowerSupplyFRU",
+					"nominalVoltage",
+					"actualVoltage",
+					"actualCurrentInAmps",
+					"frameIDInfo",
+					"twentyFourVoltVoltage",
+					"fanRailVoltage",
+					"switchedRailVoltage",
+					"twentyFourVoltCurrentInAmps",
+					"powerConsumedInWatts",
+					"sampleRateInSeconds",
+					"samplesTaken",
+					"EPMTemperatureInCelsius",
+					"frameToFrameTemperatureInCelsius",
+					"frameToFrameAttached",
+					"frameToFrame5VoltEnabled",
+					"fansEnabled",
+					"backSwitchOpen",
+					"filterSwitchOPen",
+					"frontSwitchOpen",
+					"safetyInterlockOpen",
+					"driveFrameNumber",
+					"switchRailState",
+					"robotPowerEnabled",
+					"internalLightsEnabled",
+					"externalLightsEnabled",
+					"fanPair",
+					"fainInFMM",
+					"present",
+					"safetyDoorState",
+					"overrideSwitch",
+					"rearAccessPanel",
+					"sideAccessPanel",
+					"sidePanel",
+					"robotInServiceFrame",
+					"bulkIEPresent",
+					"bulkIEDoorOpen",
+					"bulkIEAjar",
+					"solenoidPinPosition",
+					"bulkTAPLocation",
+					"EC",
+					"topLevelAssemblyEC",
+					"topLevelAssemblySerialNumber",
+					"date",
+					"isGen3",
+					"freeSpaceInMB",
+					"parallelACPresent",
+					"primaryACPresent",
+					"secondaryACPresent",
+					"supplyDetectionWorking",
+					"ACCurrentInAmps",
+					"primaryACVoltage",
+					"secondaryACVoltage",
+					"onBoardTemperatureInCelsius",
+					"remoteTemperatureInCelsius",
+					"powerSupplyInPCM",
+					"backPanelSwitch",
+					"fanPanelSwitch",
+					"filterPanelSwitch",
+					"frontTAPFramePanelSwitch",
+					"boardVoltage",
+					"fanInputVoltage",
+					"fanSpeedVoltage",
+					"fanSpeedSetting",
+					"newFansCalibrated",
+					"FanInFCM",
+					"lightBank",
+					"number",
+					"okay",
+					"speedInRPM",
+					"position",
+					"faulted",
+					"poweredOn"};					
+
+
+		String url = getLibraryStatusURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
 	}
 
 	public void listASLs(boolean printToShell)

@@ -13,15 +13,20 @@ Basic XML Commands
 	generate-asl		generates a new autosupport log (ASL).
 	generate-drive-trace	generates a drive trace for the specified drive in FR[#]/DBA[#]/DR[#] format.
 	get-drive-trace		retrieves a most recently generated drive traces from the library. Options are download, usb, and email. Download saves the file "drive_traces.zip" to the output folder. USB saves the traces to a usb drive inserted in the LCM. Email sends the traces to the specified email if the email is configured in the library.
+	library-status		provides a complete status report on the library and all components.
 	list-asls		provides a list of autosupport logs (ASLs) available in the library.
 	list-controllers	provides a list of controllers assigned in the library.
 	list-drives		provides a list of all drives in the libraries along with detailed information.
 	list-hhm-data		provides a list of all HHM values in the library.
 	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
+	move-details		returns move statistics for the last 10 moves. TFINITY ONLY.
 	move-status		returns the status of the last executed move.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
 	physical-inventory	provides a complete Tera-Pack based inventory list for a partition. Partition name must be specified with the -o/--option flag.
+	rcm-status		provides information on the status of the RCM specified with the --rcm flg.
+	refresh-ec-info		Refreshes the WebUI with the current hardware EC info.
+	refresh-environment	Refreshes the WebUI with the current hardware information.
 	refresh-etherlib	Attempts to reestablish the Ethernet connection and update the stored status information for each EtherLib connection.
 	replace-drive		starts the process to safely replace the drive in the library. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
 	reset-drive		resets the specified drive. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.

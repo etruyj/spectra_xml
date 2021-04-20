@@ -202,6 +202,7 @@ public class ArgParser
 				case "--drive": // specify the drive
 				case "--event": // spcify HHM event type (set-hhm-threshold)
 				case "--partition": // specify library partition.
+				case "--rcm":
 				case "--type": // specify HHM counter type. (reset-hhm-counter)
 					option = "none";
 					// Allow multi-word options, specifically

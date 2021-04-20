@@ -62,6 +62,7 @@ public class SpectraXML
 				conn.ejectEmpty(option, true);
 				break;
 			case "enable-controller":
+			case "enable-controller-failover":
 				conn.getXMLStatusMessage("controller-enable", option, option2, option3, true);
 				break;
 			case "etherlib-status":
@@ -83,6 +84,9 @@ public class SpectraXML
 				{
 					conn.getXMLStatusMessage("download-drive-trace", option, option2, option3, true);
 				}
+				break;
+			case "library-status":
+				conn.libraryStatus(true);
 				break;
 			case "list-asl":
 			case "list-asls":
@@ -113,6 +117,9 @@ public class SpectraXML
 			case "magazine-utilization":
 				conn.magazineCapacity(option, true);
 				break;
+			case "move-details":
+				conn.libraryMoveDetails(true);
+				break;
 			case "move-status":
 				conn.getXMLStatusMessage("move-result", option, option2, option3, true);
 				break;
@@ -121,6 +128,18 @@ public class SpectraXML
 				break;
 			case "physical-inventory":
 				conn.physicalInventory(option, true);
+				break;
+			case "rcm-status":
+				conn.libraryRCMStatus(option, true);
+				break;
+			case "refresh-ec":
+			case "refresh-ec-info":
+				conn.getXMLStatusMessage("refresh-ec-info", option, option2, option3, true);
+				break;
+			case "refresh-env":
+			case "refresh-environ":
+			case "refresh-environment":
+				conn.getXMLStatusMessage("refresh-environment", option, option2, option3, true);
 				break;
 			case "refresh-etherlib":
 			case "refresh-etherLib":
