@@ -20,6 +20,7 @@ Basic XML Commands
 	list-hhm-data		provides a list of all HHM values in the library.
 	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
+	list-settings		provides a list of basic library settings such as library name and what options are enabled.
 	move-details		returns move statistics for the last 10 moves. TFINITY ONLY.
 	move-status		returns the status of the last executed move.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
@@ -32,3 +33,4 @@ Basic XML Commands
 	reset-drive		resets the specified drive. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
 	reset-hhm-counter	resets the specified HHM counter to 0. **DO NOT PERFORM THIS OPERATION WITHOUT AUTHORIZATION FROM SPECTRA LOGIC SUPPORT** Required inputs are --type, --subtype, (and with TFINITY libraries --robot).
 	set-hhm-threshold	sets the specified HHM alert threshold. **DO NOT PERFORM THIS OPERATION WITHOUT APPROVAL FROM SPECTRA LOGIC SUPPORT** Required inputs are --event, --keepDefault to reset to default or --value to set to specific value.
+	update-setting		Allows modification of the setting specified in update setting using the --setting and --value flags. Aside from libary-name setting, all values can either be enable or disable. SNMP settings cannot be modified by the XML interface.

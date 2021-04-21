@@ -203,6 +203,7 @@ public class ArgParser
 				case "--event": // spcify HHM event type (set-hhm-threshold)
 				case "--partition": // specify library partition.
 				case "--rcm":
+				case "--setting": // Specify the setting to update with update-setting
 				case "--type": // specify HHM counter type. (reset-hhm-counter)
 					option = "none";
 					// Allow multi-word options, specifically

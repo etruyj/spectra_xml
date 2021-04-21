@@ -108,6 +108,9 @@ public class SpectraXML
 			case "list-partitions":
 				conn.listPartitions(true);
 				break;
+			case "list-settings":
+				conn.listSettings(true);
+				break;
 			case "magazine-compaction":
 				conn.magazineCompaction(option, moves, true);
 				break;
@@ -156,6 +159,9 @@ public class SpectraXML
 				break;
 			case "set-hhm-threshold":
 				conn.setHHMThreshold(option, option2, option3, true);
+				break;
+			case "update-setting":
+				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
 				break;
 
 		}

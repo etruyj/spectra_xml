@@ -19,6 +19,7 @@ Available Options:
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
 	--rcm		Specify the RCM for the rcm-status command.
 	--robot		Specify the robot to be used with the command. TFINITY only. Valid inputs Robot 1 or Robot 2.
+	--setting	Specify the setting to modify in the update-setting command. Valid inputs are libraryName, auto-logout, online-access, monitor-drive-performance, SNMP, auto-powerup.
 	--spare		Specify the backup controller/export for the enable controller failover command.
 	--subtype	Specify the subtype of the HHM counter being specified. Valid inputs Trip1 or Trip2.
 	--type		Specify the HHM counter type for reset-hhm-counter command. Valid inputs Horizontal Axis, Vertical Axis, Picker Axis, Rotational Axis, Magazine Axis, Toggle Axis, Side Axis, Drive to Drive Move, Drive to Slot Move, Slot to Slot Move, Slot to Drive Move TAP In Move, TAP Out Move.

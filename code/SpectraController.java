@@ -246,7 +246,28 @@ public class SpectraController
 
 	private String getLibraryRefreshEnvironmentURL()
 	{
-		return libraryAddress + " libraryStatus.xml?action=refreshEnvironment";
+		return libraryAddress + "libraryStatus.xml?action=refreshEnvironment";
+	}
+
+	private String getLibrarySettingsURL()
+	{
+		return libraryAddress + "librarySettings.xml?action=list";
+	}
+
+	private String getLibraryUpdateSettingURL(String setting, String value)
+	{
+		String url_addendum = "none";
+		url_addendum = validateSetting(setting);
+
+		if(!url_addendum.equals("none"))
+		{
+			return libraryAddress + "librarySettings.xml?action=set&"
+				+ url_addendum + value;
+		}
+		else
+		{
+			return libraryAddress + "invalidInput.xml";
+		}			
 	}
 
 	private String getLoginURL(String user, String password)
@@ -591,6 +612,9 @@ public class SpectraController
 				break;
 			case "reset-drive":
 				url = getDriveTraceResetDriveURL(option1);
+				break;
+			case "update-setting":
+				url = getLibraryUpdateSettingURL(option1, option3);
 				break;
 		}	
 		
@@ -1041,6 +1065,39 @@ public class SpectraController
 		{
 			printOutput(response, "name", false);
 		}
+	}
+
+	public XMLResult[] listSettings(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"libraryName",
+					"autoLogoutTimeoutInMinutes",
+					"drivePerformanceMonitoringEnabled",
+					"SNMPSettings",
+					"autoMaticPowerUpAfterPowerFailureEnabled",
+					"trapDestination",
+					"enabled",
+					"systemContact",
+					"systemLocation",
+					"community",
+					"description",
+					"ipAddress"};
+
+		String url = getLibrarySettingsURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
 	}
 
 	public boolean login(String user, String password)
@@ -1520,7 +1577,6 @@ public class SpectraController
 
 		}
 	}
-
 
 	//====================================================================
 	// Internal Functions
@@ -2121,6 +2177,40 @@ public class SpectraController
 		}
 
 		return isValid;
+	}
+
+	public String validateSetting(String setting)
+	{
+		String url;
+
+		switch(setting)
+		{
+			case "name":
+				url = "LibraryName=";
+				break;
+			case "auto-logout":
+				url = "autoLogoutTimoutInMinutes=";
+				break;
+			case "online-access":
+				url = "onlineAccessEnabled=";
+				break;
+			case "drive-performance":
+			case "monitor-drive-performance":
+				url = "drivePerformanceMonitoringEnabled=";
+				break;
+			case "snmp":
+			case "SNMP":
+				url = "SNMPSettings=";
+				break;
+			case "auto-powerup":
+				url = "automaticallyPowerUpAfterPowerFailureEnabled=";
+				break;
+			default:
+				url = "none";
+				break;
+		}
+
+		return url;
 	}
 }
 
