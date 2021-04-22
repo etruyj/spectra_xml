@@ -157,13 +157,13 @@ public class SpectraController
 	private String getHHMResetCounterURL(String type, String subtype, String robot)
 	{
 		// This command corresponds to the HHM: Set counters advanced utility in the BlueScale user interface.
-		String url = libraryAddress + "HHMData.xml?action=resetCounterData&type=" + type 
+		String url = libraryAddress + "HHMData.xml?action=resetCounterData&type=" + type.replace(" ", "%20") 
 		       		+ "&subtype=" + subtype;
 
 		// Robot value only needs to be specified for TFINITY
 		if(!robot.equals("none"))
 		{
-			url = url + "&robot=" + robot;
+			url = url + "&robot=" + robot.replace(" ", "%20");
 		}	
 	
 		return url;
@@ -171,7 +171,7 @@ public class SpectraController
 
 	private String getHHMSetThresholdURL(String event, String keepDefault, String value)
 	{
-		String url = libraryAddress + "HHMData.xml?action=setThresholdData&event=" + event;
+		String url = libraryAddress + "HHMData.xml?action=setThresholdData&event=" + event.replace(" ", "%20");
 
 		if(keepDefault.equals("true"))
 		{
@@ -279,6 +279,26 @@ public class SpectraController
 	private String getLogoutURL()
 	{
 		return libraryAddress + "logout.xml";
+	}
+
+	private String getMediaExchangeCleanURL(String partition, String tap)
+	{
+		return libraryAddress + "mediaExcahnge.xml?action=clean&partition="
+			+ partition + "&TAPDevice=" + tap;
+	}
+
+	private String getMediaExchangeTAPStateURL(String tap, String drawer)
+	{
+		String url = libraryAddress + "mediaExchange.xml?action=getTAPState&TAPDevice=" 
+			+ tap;
+
+		// Optional value
+		if(!drawer.equals("none"))
+		{
+			url = url + "&drawerNumber=" + drawer;
+		}
+
+		return url;
 	}
 
 	private String getMoveURL(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
@@ -446,7 +466,7 @@ public class SpectraController
 		String url = getDriveTraceRetrieveTracesURL("download", "none");
 		cxn.downloadFromLibrary(url, "../output/", "drive_traces.zip");	
 	}
-
+	
 	public void ejectEmpty(String partition, boolean printToShell)
 	{
 		// ejectEmpty
@@ -564,6 +584,32 @@ public class SpectraController
 
 	}
 
+	public void getTapState(String tap, String drawer, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"doorOpen",
+					"magazinePresent",
+					"magazineSeated",
+					"magazineType",
+					"rotaryPosition"};
+
+		tap = convertTAPString(tap);
+		String url = getMediaExchangeTAPStateURL(tap, drawer);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+		
+	}
+
 	public void getXMLStatusMessage(String query, String option1, String option2, String option3, boolean printToShell)
 	{
 		String xmlOutput;
@@ -589,6 +635,11 @@ public class SpectraController
 				break;
 			case "download-drive-trace":
 				url = getDriveTraceRetrieveTracesURL(option1, option2);
+			case "empty-bulk-tap":
+				// clean up the option values.
+				option2 = convertTAPString(option2);
+				url = getMediaExchangeCleanURL(option1, option2);
+				break;
 			case "generate-asl":
 				url = getASLGenerateURL();
 				break;
@@ -1584,6 +1635,38 @@ public class SpectraController
 	// 	the code is capable of.
 	//====================================================================
 
+
+	private String convertTAPString(String tap)
+	{
+		// Converts the user input to the required
+		// XML value
+		if(tap.equals("left"))
+		{
+			tap = "leftBulk";
+		}
+		else if(tap.equals("right"))
+		{
+			tap = "rightBulk";
+		}
+		else if(tap.equals("both"))
+		{
+			tap = "leftAndRightBulk";
+		}
+		else if(tap.equals("mainTop"))
+		{
+			tap = "mainTop";
+		}
+		else if(tap.equals("mainBottom"))
+		{
+			tap = "mainBottom";
+		}
+		else
+		{
+			tap = "none";
+		}
+
+		return tap;
+	}
 
 	private TeraPack[] filterEmptyFullEntryExit(TeraPack[] mags)
 	{

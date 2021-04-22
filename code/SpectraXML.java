@@ -61,6 +61,10 @@ public class SpectraXML
 			case "eject-empty-terapacks":
 				conn.ejectEmpty(option, true);
 				break;
+			case "empty-bulk":
+			case "empty-bulk-tap":
+				conn.getXMLStatusMessage("empty-bulk", option, option2, option3, true);
+				break;
 			case "enable-controller":
 			case "enable-controller-failover":
 				conn.getXMLStatusMessage("controller-enable", option, option2, option3, true);
@@ -162,6 +166,20 @@ public class SpectraXML
 				break;
 			case "update-setting":
 				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
+				break;
+			case "tap-status":
+				// Main needs to be executed twice to get both drawers.
+				// Main tap is broken down into mainTop and mainBottom
+				// with a drawer value of 1.
+				if(option2.equals("main"))
+				{
+					conn.getTapState("mainTop", "1", true);
+					conn.getTapState("mainBottom", "1", true);
+				}
+				else
+				{
+					conn.getTapState(option2, option3, true);
+				}
 				break;
 
 		}

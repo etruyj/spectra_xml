@@ -233,6 +233,7 @@ public class ArgParser
 				case "--email-address":
 				case "--spare":
 				case "--subtype":
+				case "--tap":
 					option = "none";
 					// Allow multi-word options, specifically
 					// for partition names.
@@ -255,6 +256,7 @@ public class ArgParser
 					setCmdOption2(option);
 					break;
 				case "--option3": // Heading is more to categorize and organize.
+				case "--drawer": // tap drawer to check with tap-status.
 				case "--offset": // Terapack offset.
 				case "--robot": // Specify the TFIN robot to use.
 				case "--value":

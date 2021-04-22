@@ -5,6 +5,7 @@ Spectra XML Command Parser
 Available Options:
 	-c, --command	*REQUIRED* Enter the command you would like to execute. Examples list-partitions, get-inventory, physical-inventory. Type help after this flag for a list of available commands.
 	--controller	Specify the controller/exporter to be used as the primary device for the command.
+	--drawer	Specify the TAP drawer to use with the empty-bulk-tap and tap-status commands. This is the chamber of the TAP.
 	--drive		Specify the drive in FR[#]/DBA[#]/DR[#] format where [#] specifies the number and placement in the library.
 	--element-type	Specify the element type the operation is specifying. Storage or IE.
 	--email		Specify the email address to be used. Email must already be configured in the library UI.
@@ -22,6 +23,7 @@ Available Options:
 	--setting	Specify the setting to modify in the update-setting command. Valid inputs are libraryName, auto-logout, online-access, monitor-drive-performance, SNMP, auto-powerup.
 	--spare		Specify the backup controller/export for the enable controller failover command.
 	--subtype	Specify the subtype of the HHM counter being specified. Valid inputs Trip1 or Trip2.
+	--tap		Specify the TAP to be used with the empty-bulk-tap and tap-status commands. Valid inputs are left, right, both, and main.
 	--type		Specify the HHM counter type for reset-hhm-counter command. Valid inputs Horizontal Axis, Vertical Axis, Picker Axis, Rotational Axis, Magazine Axis, Toggle Axis, Side Axis, Drive to Drive Move, Drive to Slot Move, Slot to Slot Move, Slot to Drive Move TAP In Move, TAP Out Move.
 	-u, --username	Specify the username for the connection/query.
 	--value		Specify the value the HHM counter should be set to.
