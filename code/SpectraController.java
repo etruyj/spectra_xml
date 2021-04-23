@@ -301,6 +301,16 @@ public class SpectraController
 		return url;
 	}
 
+	private String getMLMSettingsListURL()
+	{
+		return libraryAddress + "mlmSettings.xml?action=list";
+	}
+
+	private String getMLMSettingUpdateURL(String setting, String value)
+	{
+		return libraryAddress + "mlmSettings.xml?action=set&" + setting + value;
+	}
+
 	private String getMoveURL(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
 	{
 		// Generates the move URL for the XML interface.
@@ -663,6 +673,10 @@ public class SpectraController
 				break;
 			case "reset-drive":
 				url = getDriveTraceResetDriveURL(option1);
+				break;
+			case "set-mlm":
+				option1 = convertMLMSetting(option1);
+				url = getMLMSettingUpdateURL(option1, option3);
 				break;
 			case "update-setting":
 				url = getLibraryUpdateSettingURL(option1, option3);
@@ -1042,6 +1056,47 @@ public class SpectraController
 		if(printToShell)
 		{
 			printOutput(response, "partition", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] listMLMSettings(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"MLMEnabled",
+					"nonMLMAlertsEnaabled",
+					"loadCountDiscrepancyAlertsEnabled",
+					"minCleaningPassesBeforeWarningCount",
+					"maxTapeLoadsBeforeWarningCount",
+					"autoDiscoveryEnabled",
+					"autoDiscoveryIdleWaitInMinutes",
+					"broadcastBaseConversion",
+					"broadcastMegabitPerSecond",
+					"postScanTapeBlackOut",
+					"noncertifiedMAMBarcodeWriteEnabled",
+					"sunday",
+					"monday",
+					"tuesday",
+					"wednesday",
+					"thursday",
+					"friday",
+					"saturday",
+					"start",
+					"stop"};
+
+		String url = getMLMSettingsListURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
 		}
 
 		return response;
@@ -1635,7 +1690,22 @@ public class SpectraController
 	// 	the code is capable of.
 	//====================================================================
 
-
+	private String convertMLMSetting(String setting)
+	{
+		String url = "none";
+		switch(setting)
+		{
+			case "mlm":
+				url = "MLM=";
+				break;
+			case "noncert":
+			case "noncertified":
+				url = "nonCertifiedMAMBarcodeWrite=";
+				break;
+		}
+		return url;
+	}
+	
 	private String convertTAPString(String tap)
 	{
 		// Converts the user input to the required
@@ -2262,7 +2332,7 @@ public class SpectraController
 		return isValid;
 	}
 
-	public String validateSetting(String setting)
+	private String validateSetting(String setting)
 	{
 		String url;
 

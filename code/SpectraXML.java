@@ -109,6 +109,9 @@ public class SpectraXML
 			case "list-inventory":
 				conn.listInventory(option, true);
 				break;
+			case "list-mlm":
+				conn.listMLMSettings(true);
+				break;
 			case "list-partitions":
 				conn.listPartitions(true);
 				break;
@@ -163,6 +166,9 @@ public class SpectraXML
 				break;
 			case "set-hhm-threshold":
 				conn.setHHMThreshold(option, option2, option3, true);
+				break;
+			case "set-mlm":
+				conn.getXMLStatusMessage("set-mlm", option, option2, option3, true);
 				break;
 			case "update-setting":
 				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
