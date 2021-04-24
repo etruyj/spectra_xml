@@ -2,15 +2,17 @@
 Basic XML Commands
 	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
 
+	add-key			Add an option key to the library. Specify the key with the --key flag.
 	audit-inventory		verify the contents of a TeraPack against the values stored in the database. TFINITY only. Requires --partition, --element-type, and --offset. Offset can be determined with the physical-inventory command. Values required are one-less than the value returned by physical-inventory. Subtract one from the value for the proper format.
 	audit-inventory-results	returns the results of the audit inventory command.
-	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller, drive-list, etherlib.
+	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller, drive-list, etherlib, package-update.
 	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
 	download-asl		download the specified autosupport log (ASL). Use -o/--option to specify the file name. File will appear in the ../output directory.
 	drive-load-count	prints the number of times the drive was loaded. Must specify the drive in FR[#]/DBA[#]/DR[#] format with the option flag.
 	empty-bulk-tap		Empties the bulk TAP. Use --tap to specify left, right, or both and --partition to specify which partition to load the tapes into.
 	enable-controller	(full command enable-controller-failover) enables failover for the specified controller. Must specify --controller and --spare.
 	etherlib-status		prints the status of the library's EtherLib connections.
+	firmware-versions	displays the current firmware versions installed on individual components in the library.
 	generate-asl		generates a new autosupport log (ASL).
 	generate-drive-trace	generates a drive trace for the specified drive in FR[#]/DBA[#]/DR[#] format.
 	get-drive-trace		retrieves a most recently generated drive traces from the library. Options are download, usb, and email. Download saves the file "drive_traces.zip" to the output folder. USB saves the traces to a usb drive inserted in the LCM. Email sends the traces to the specified email if the email is configured in the library.
@@ -21,10 +23,13 @@ Basic XML Commands
 	list-hhm-data		provides a list of all HHM values in the library.
 	list-inventory		provides a complete slot-based inventory list for a partititon. This executes the inventory.xml?action=list command. Partition name must be specified with the -o/--option flag. For a list of partitions use the list-partitions command.
 	list-mlm		provides a list of all MLM settings in the library.
+	list-keys		provides a list of all option (activation) keys assigned to the library.
+	list-packages		provides the name of the currently installed packages as well as all packages stored on the LCM.
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
 	list-settings		provides a list of basic library settings such as library name and what options are enabled.
 	move-details		returns move statistics for the last 10 moves. TFINITY ONLY.
 	move-status		returns the status of the last executed move.
+	package-details		displayed the current firmware version installed on individual components in the library along with the firmware version included in the specified BlueScale package. Use --package to specify the BlueScale package.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
 	physical-inventory	provides a complete Tera-Pack based inventory list for a partition. Partition name must be specified with the -o/--option flag.
 	rcm-status		provides information on the status of the RCM specified with the --rcm flg.
@@ -36,5 +41,8 @@ Basic XML Commands
 	reset-hhm-counter	resets the specified HHM counter to 0. **DO NOT PERFORM THIS OPERATION WITHOUT AUTHORIZATION FROM SPECTRA LOGIC SUPPORT** Required inputs are --type, --subtype, (and with TFINITY libraries --robot).
 	set-hhm-threshold	sets the specified HHM alert threshold. **DO NOT PERFORM THIS OPERATION WITHOUT APPROVAL FROM SPECTRA LOGIC SUPPORT** Required inputs are --event, --keepDefault to reset to default or --value to set to specific value.
 	set-mlm			Allows MLM and writing to noncertified MAM chips to be enabled. Use --setting to specify mlm or noncertified and --value for enable or disable.
+	stage-package		Starts the background process to stage firmware to all library components that support staging (RCM, RIM(2), DCM). Use --package to specify the package name.
 	tap-status		returns the status of the specified TAP. User --tap and --drawer.
+	update-package		updates the library to the specified BlueScale package. Use --package to specify the BlueScale package. RCM and LCM will restart automatically after the process.
+	update-result		Returns status information on the most recent BlueScale update. Will reboot the LCM and RCM if they were updated during this process.
 	update-setting		Allows modification of the setting specified in update setting using the --setting and --value flags. Aside from libary-name setting, all values can either be enable or disable. SNMP settings cannot be modified by the XML interface.

@@ -13,9 +13,11 @@ Available Options:
 	--event		HHM Threshold event. Valid options are Service HAX, Check Contact Brushes, Service HAX Belt, Service VAX, Service VAX Belt, Service VAX Cable, Service Transporter, Service Required.
 	--http,		Use a non-SSL connection (http) to connect to the library. This is the same as --insecure. Only one of these flags is needed.
 	--insecure	Use a non-SSL connection (http) to connect to the library. This is the same as --http. Only one is needed.
+	--key		Specify the option key to be used with add-key.
 	-m, --maxMoves	Specify the maximum number of tape moves the library can perform during the execution of the command. This is intended to prevent complex move commands issued against a production library from bogarting the robots, causing production move failures.
 	--offset	Specify the magazine offset. Magazine offsets can be found with the physical-inventory command. The offset provided by physical-inventory is actually one-higher (+1) from the value required by offset. Subtract one (-1) from the value returned by physical-inventory to have the proper offset.
 	-o, --option	Specify options for the command. Most common option is partition name.
+	--package	Specify the package to be used with the package commands.
 	--partition	Specify the partition in which the operation will occur.
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
 	--rcm		Specify the RCM for the rcm-status command.

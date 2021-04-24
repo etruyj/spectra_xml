@@ -201,6 +201,8 @@ public class ArgParser
 				case "--controller":
 				case "--drive": // specify the drive
 				case "--event": // spcify HHM event type (set-hhm-threshold)
+				case "--key": // option key.
+				case "--package": // package name.
 				case "--partition": // specify library partition.
 				case "--rcm":
 				case "--setting": // Specify the setting to update with update-setting

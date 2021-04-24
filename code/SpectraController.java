@@ -329,6 +329,55 @@ public class SpectraController
 			+ "&destinationID=" + destID + "&destinationNumber=" + destNumber;
 	}
 
+	private String getOptionKeyAddURL(String key)
+	{
+		return libraryAddress + "optionKeys.xml?action=add&key=" + key;
+	}
+
+	private String getOptionKeyListURL()
+	{
+		return libraryAddress + "optionKeys.xml?action=list";
+	}
+
+	private String getPackageDetailsURL(String pack)
+	{
+		return libraryAddress + "package.xml?action=displayPackageDetails&package=" + pack;
+	}
+
+	private String getPackageFirmwareURL()
+	{
+		return libraryAddress + "package.xml?action=displayCurrentFirmwareVersions";
+	}
+
+	private String getPackageListURL()
+	{
+		return libraryAddress + "package.xml?action=list";
+	}
+
+	private String getPackageProgressURL()
+	{
+		return libraryAddress + "package.xml?progress";
+	}
+
+	private String getPackageResultsURL()
+	{
+		return libraryAddress + "package.xml?action=getResults";
+	}
+
+	private String getPackageStageURL(String pack)
+	{
+		return libraryAddress + "package.xml?action=stagePackage&package=" + pack;
+	}
+
+	private String getPackageUpdateURL(String pack)
+	{
+		return libraryAddress + "package.xml?action=update&package="
+			+ pack + "&autoFinish"; 
+		// autoFinish automatically reboots the LCM and RCM at the
+		// end of the package update. Without that option. The library
+		// must be reset at the end with the getResults XML command.
+	}
+
 	private String getPartitionListURL()
 	{
 		return libraryAddress + "partition.xml?action=list";
@@ -375,6 +424,10 @@ public class SpectraController
 			case "library":
 			case "library-refresh":
 				url = getLibraryProgressURL();
+				break;
+			case "package":
+			case "package-update":
+				url = getPackageProgressURL();
 				break;
 		}
 
@@ -594,6 +647,36 @@ public class SpectraController
 
 	}
 
+	public XMLResult[] getPackageResults(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"message",
+					"updateResults",
+					"packageName",
+					"component",
+					"name",
+					"previousVersion",
+					"updatedVersion",
+					"updateStatus",
+					"rebootInProgress"};
+
+		String url = getPackageResultsURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
 	public void getTapState(String tap, String drawer, boolean printToShell)
 	{
 		String xmlOutput;
@@ -632,6 +715,9 @@ public class SpectraController
 
 		switch (query)
 		{
+			case "add-key":
+				url = getOptionKeyAddURL(option1);
+				break;
 			case "audit-inventory":
 				url = getInventoryAuditURL(option1, option2, option3);
 				break;
@@ -677,6 +763,12 @@ public class SpectraController
 			case "set-mlm":
 				option1 = convertMLMSetting(option1);
 				url = getMLMSettingUpdateURL(option1, option3);
+				break;
+			case "stage-package":
+				url = getPackageStageURL(option1);
+				break;
+			case "update-package":
+				url = getPackageUpdateURL(option1);
 				break;
 			case "update-setting":
 				url = getLibraryUpdateSettingURL(option1, option3);
@@ -1102,6 +1194,112 @@ public class SpectraController
 		return response;
 	}
 
+	public XMLResult[] listOptionKeys(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"optionKey",
+					"keyValue",
+					"description",
+					"action",
+					"daysRemaining"};
+
+		String url = getOptionKeyListURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "optionKey", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] listPackages(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"current",
+					"list",
+					"name"};
+
+		String url = getPackageListURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] listPackageDetails(String pack, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"packageName",
+					"allComponentsUpToDate",
+					"allComponentsFullyStaged",
+					"component",
+					"name",
+					"currentVersion",
+					"packageVersion",
+					"fullyStaged"};
+
+		String url = getPackageDetailsURL(pack);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] listPackageFirmware(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"packageName",
+					"allComponentsUpToDate",
+					"component",
+					"name",
+					"currentVersion",
+					"packageVersion"};
+
+		String url = getPackageFirmwareURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+	
 	public XMLResult[] listPartitionDetails(String option, boolean printToShell)
 	{
 		// Get detailed information on the partitions.

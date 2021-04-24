@@ -40,6 +40,9 @@ public class SpectraXML
 	{
 		switch(command)
 		{
+			case "add-key":
+				conn.getXMLStatusMessage("add-key", option, option2, option3, true);
+				break;
 			case "audit-inventory":
 				conn.getXMLStatusMessage("audit-inventory", option, option2, option3, true);
 				break;
@@ -72,6 +75,10 @@ public class SpectraXML
 			case "etherlib-status":
 			case "etherLib-status":
 				conn.etherLibStatus(true);
+				break;
+			case "firmware":
+			case "firmware-versions":
+				conn.listPackageFirmware(true);
 				break;
 			case "generate-asl":
 				conn.getXMLStatusMessage("generate-asl", option, option2, option3, true);
@@ -112,11 +119,20 @@ public class SpectraXML
 			case "list-mlm":
 				conn.listMLMSettings(true);
 				break;
+			case "list-keys":
+				conn.listOptionKeys(true);
+				break;
+			case "list-packages":
+				conn.listPackages(true);
+				break;
 			case "list-partitions":
 				conn.listPartitions(true);
 				break;
 			case "list-settings":
 				conn.listSettings(true);
+				break;
+			case "package-details":
+				conn.listPackageDetails(option, true);
 				break;
 			case "magazine-compaction":
 				conn.magazineCompaction(option, moves, true);
@@ -169,6 +185,15 @@ public class SpectraXML
 				break;
 			case "set-mlm":
 				conn.getXMLStatusMessage("set-mlm", option, option2, option3, true);
+				break;
+			case "stage-package":
+				conn.getXMLStatusMessage("stage-package", option, option2, option3, true);
+				break;
+			case "update-package":
+				conn.getXMLStatusMessage("update-package", option, option2, option3, true);
+				break;
+			case "update-results":
+				conn.getPackageResults(true);
 				break;
 			case "update-setting":
 				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
