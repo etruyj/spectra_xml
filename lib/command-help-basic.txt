@@ -46,3 +46,4 @@ Basic XML Commands
 	update-package		updates the library to the specified BlueScale package. Use --package to specify the BlueScale package. RCM and LCM will restart automatically after the process.
 	update-result		Returns status information on the most recent BlueScale update. Will reboot the LCM and RCM if they were updated during this process.
 	update-setting		Allows modification of the setting specified in update setting using the --setting and --value flags. Aside from libary-name setting, all values can either be enable or disable. SNMP settings cannot be modified by the XML interface.
+	upload-package		Upload a package to the library. Specify the package to upload with the --file flag.

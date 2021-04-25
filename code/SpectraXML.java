@@ -198,6 +198,9 @@ public class SpectraXML
 			case "update-setting":
 				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
 				break;
+			case "upload-package":
+				conn.uploadPackageUpdate(option3, true);
+				break;
 			case "tap-status":
 				// Main needs to be executed twice to get both drawers.
 				// Main tap is broken down into mainTop and mainBottom

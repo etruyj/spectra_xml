@@ -11,6 +11,7 @@ Available Options:
 	--email		Specify the email address to be used. Email must already be configured in the library UI.
 	-e, --endpoint	*REQUIRED* Specify the IP address of the library's Web UI.
 	--event		HHM Threshold event. Valid options are Service HAX, Check Contact Brushes, Service HAX Belt, Service VAX, Service VAX Belt, Service VAX Cable, Service Transporter, Service Required.
+	--file		Specify file name. Used with upload-package.
 	--http,		Use a non-SSL connection (http) to connect to the library. This is the same as --insecure. Only one of these flags is needed.
 	--insecure	Use a non-SSL connection (http) to connect to the library. This is the same as --http. Only one is needed.
 	--key		Specify the option key to be used with add-key.

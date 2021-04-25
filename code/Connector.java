@@ -8,11 +8,15 @@
 //============================================================================
 
 import java.lang.StringBuilder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -80,6 +84,45 @@ public class Connector
 		}
 
 		return output.toString();
+	}
+
+	public String postPackageToLibrary(String httpRequest, String filename)
+	{
+		try
+		{
+			URL tapeLibrary = new URL(httpRequest);
+			HttpURLConnection conn = (HttpURLConnection) tapeLibrary.openConnection();
+			conn.setConnectTimeout(5000); // 5 sec timeout
+			conn.setReadTimeout(20000); // 20 sec read timeout
+			conn.setDoOutput(true);
+
+			if(!cookies.getName(0).equals("none"))
+			{
+				conn.setRequestProperty("Cookie", cookies.getName(0) + "=" + cookies.getValue(0));		
+			}
+
+			conn.setRequestMethod("POST");
+
+			BufferedInputStream iStream = new BufferedInputStream(new FileInputStream(filename));
+			BufferedOutputStream oStream = new BufferedOutputStream(conn.getOutputStream());
+
+			// Read byte by byte until the end of the stream.
+			int i;
+			while((i=iStream.read())>0)
+			{
+				oStream.write(i);
+			}
+
+			iStream.close();
+			oStream.close();
+
+			return conn.getResponseMessage();
+		
+		}
+		catch (Exception e)
+		{
+			return e.getMessage();
+		}
 	}
 
 	public void downloadFromLibrary(String httpRequest, String path, String filename)

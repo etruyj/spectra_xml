@@ -259,6 +259,8 @@ public class ArgParser
 					break;
 				case "--option3": // Heading is more to categorize and organize.
 				case "--drawer": // tap drawer to check with tap-status.
+				case "--file":
+				case "--file-name":
 				case "--offset": // Terapack offset.
 				case "--robot": // Specify the TFIN robot to use.
 				case "--value":

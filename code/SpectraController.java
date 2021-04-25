@@ -388,6 +388,11 @@ public class SpectraController
 		return libraryAddress + "physInventory.xml?partition=" + partition.replace(" ", "%20");
 	}
 
+	private String getPostPackageUpdateURL()
+	{
+		return libraryAddress + "packageUpload.xml";
+	}
+
 	//====================================================================
 	// Control Functions
 	// 	These are the public functions callable by the script.
@@ -1879,6 +1884,19 @@ public class SpectraController
 				printOutput(response, "none", false);
 			}
 
+		}
+	}
+
+	public void uploadPackageUpdate(String filename, boolean printToShell)
+	{
+		String url = getPostPackageUpdateURL();
+		String response;
+
+		response = cxn.postPackageToLibrary(url, filename);
+
+		if(printToShell)
+		{
+			System.out.println(response);
 		}
 	}
 
