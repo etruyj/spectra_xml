@@ -6,6 +6,8 @@ Basic XML Commands
 	audit-inventory		verify the contents of a TeraPack against the values stored in the database. TFINITY only. Requires --partition, --element-type, and --offset. Offset can be determined with the physical-inventory command. Values required are one-less than the value returned by physical-inventory. Subtract one from the value for the proper format.
 	audit-inventory-results	returns the results of the audit inventory command.
 	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller, drive-list, etherlib, package-update.
+	create-partition-auto	automatically creates one partition with all the available slots in the library. Can only be run if there are no existing partitions in the library. Use --partition to name the partition and --save-to to specify whether the configuration should be saved to a usb or sent to an email.
+	delete-partition	deletes a partition from the library. Use --partition to specify the partition name and --save-to to specify whether the new configuration should be saved to usb ro sent to an email.
 	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
 	download-asl		download the specified autosupport log (ASL). Use -o/--option to specify the file name. File will appear in the ../output directory.
 	drive-load-count	prints the number of times the drive was loaded. Must specify the drive in FR[#]/DBA[#]/DR[#] format with the option flag.
@@ -39,6 +41,7 @@ Basic XML Commands
 	replace-drive		starts the process to safely replace the drive in the library. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
 	reset-drive		resets the specified drive. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
 	reset-hhm-counter	resets the specified HHM counter to 0. **DO NOT PERFORM THIS OPERATION WITHOUT AUTHORIZATION FROM SPECTRA LOGIC SUPPORT** Required inputs are --type, --subtype, (and with TFINITY libraries --robot).
+	resize-partition	resize the number of slots in a partition. Use --partition to specify the partition name, --type to specify storage or EE slots, and --value to specify number. Putting a negative sign (-) in front of the number will cause the slots to be removed instead of added. Slots can only be added or subtracted in TeraPack increments (10s for LTO and 9s for TS).
 	set-hhm-threshold	sets the specified HHM alert threshold. **DO NOT PERFORM THIS OPERATION WITHOUT APPROVAL FROM SPECTRA LOGIC SUPPORT** Required inputs are --event, --keepDefault to reset to default or --value to set to specific value.
 	set-mlm			Allows MLM and writing to noncertified MAM chips to be enabled. Use --setting to specify mlm or noncertified and --value for enable or disable.
 	stage-package		Starts the background process to stage firmware to all library components that support staging (RCM, RIM(2), DCM). Use --package to specify the package name.

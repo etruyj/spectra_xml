@@ -52,6 +52,12 @@ public class SpectraXML
 			case "check-progress":
 				conn.checkProgress(option, true);
 				break;
+			case "create-partition-auto":
+				conn.getXMLStatusMessage("create-partition-auto", option, option2, option3, true);
+				break;
+			case "delete-partition":
+				conn.getXMLStatusMessage("delete-partition", option, option2, option3, true);
+				break;
 			case "disable-controller":
 				conn.getXMLStatusMessage("controller-disable", option, option2, option3, true);
 				break;
@@ -179,6 +185,9 @@ public class SpectraXML
 				break;
 			case "reset-hhm-counter":
 				conn.resetHHMCounter(option, option2, option3, true);
+				break;
+			case "resize-partition":
+				conn.getXMLStatusMessage("resize-partition", option, option2, option3, true);
 				break;
 			case "set-hhm-threshold":
 				conn.setHHMThreshold(option, option2, option3, true);

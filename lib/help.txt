@@ -23,6 +23,7 @@ Available Options:
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
 	--rcm		Specify the RCM for the rcm-status command.
 	--robot		Specify the robot to be used with the command. TFINITY only. Valid inputs Robot 1 or Robot 2.
+	--save-to	Specify where the setting will be saved to, i.e. usb or sent to an email address.
 	--setting	Specify the setting to modify in the update-setting command. Valid inputs are libraryName, auto-logout, online-access, monitor-drive-performance, SNMP, auto-powerup.
 	--spare		Specify the backup controller/export for the enable controller failover command.
 	--subtype	Specify the subtype of the HHM counter being specified. Valid inputs Trip1 or Trip2.

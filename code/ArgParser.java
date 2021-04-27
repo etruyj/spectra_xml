@@ -233,6 +233,7 @@ public class ArgParser
 				case "--element-type":
 				case "--email":
 				case "--email-address":
+				case "--save-to": // for autocreate-partition this value can be an email address or USB, so saving it to the same variable as email.
 				case "--spare":
 				case "--subtype":
 				case "--tap":

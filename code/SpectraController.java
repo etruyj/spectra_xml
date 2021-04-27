@@ -378,9 +378,61 @@ public class SpectraController
 		// must be reset at the end with the getResults XML command.
 	}
 
+	private String getPartitionAutoCreateURL(String partition, String saveTo)
+	{
+		String url = libraryAddress + "partition.xml?action=autocreate&partition=" + partition.replace(" ", "%20");
+	       
+		if(!saveTo.equals("none"))
+		{	
+			url = url + "&saveLibraryConfiguration=" + saveTo;
+		}
+		
+		return url;
+	}
+	
+	private String getPartitionDeleteURL(String partition, String saveTo)
+	{
+		String url = libraryAddress + "partition.xml?action=delete&partition=" + partition.replace(" ", "%20");
+		
+		if(!saveTo.equals("none"))
+		{	
+			url = url + "&saveLibraryConfiguration=" + saveTo;
+		}
+		
+		return url;
+	}
+
 	private String getPartitionListURL()
 	{
 		return libraryAddress + "partition.xml?action=list";
+	}
+
+/*	This one needs some work.... Missing an identifier in the var declarations
+ *	+ a whole lot of other logic and code required in the calling function to 
+ *	get all these details..
+	private String getPartitionNewURL(String partition, String type, String exporter, String exporterType, String globalSpares, String numStorageSlots, String numEESlots, String eeType, String barcodeLength, String barcodeShortenedSide, String barcodeChecksum, String, barcodeChecksumCalculated, String drive, String cleaningPartition, String enablePreScan, String enableFullScan, String enableQuickScan, String scanAfter, String includeDriveAndMediaGenerationInRES, String enableSoftLoad, String slotIQ, String enableMediaZoning, String QIPList)
+	{
+		String url = libraryAddress + "partition.xml?action=new";
+
+		return url;
+	}
+*/
+	private String getPartitionResizeSlotsURL(String partition, String type, String value)
+	{
+		String operation;
+
+		// Check if added or substracted slots.
+		if(value.substring(0,1).equals("-"))
+		{
+			operation = "&decrease=" + value.substring(1, value.length());
+		}
+		else
+		{
+			operation = "&increase=" + value;
+		}
+
+		return libraryAddress + "partition.xml?action=resize&partition=" 
+			+ partition + "&type=" + type + operation; 
 	}
 
 	private String getPhysicalInventoryURL(String partition)
@@ -734,6 +786,12 @@ public class SpectraController
 			case "controller-enable":
 				url = getControllerEnableFailoverURL(option1, option2);
 				break;
+			case "create-partition-auto":
+				url = getPartitionAutoCreateURL(option1, option2);
+				break;
+			case "delete-partition":
+				url = getPartitionDeleteURL(option1, option2);
+				break;
 			case "download-drive-trace":
 				url = getDriveTraceRetrieveTracesURL(option1, option2);
 			case "empty-bulk-tap":
@@ -764,6 +822,9 @@ public class SpectraController
 				break;
 			case "reset-drive":
 				url = getDriveTraceResetDriveURL(option1);
+				break;
+			case "resize-partition":
+				url = getPartitionResizeSlotsURL(option1, option2, option3);
 				break;
 			case "set-mlm":
 				option1 = convertMLMSetting(option1);
