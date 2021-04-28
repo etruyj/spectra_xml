@@ -40,6 +40,10 @@ public class SpectraXML
 	{
 		switch(command)
 		{
+			case "abort-audit":
+				// Abort security audit.
+				conn.getXMLStatusMessage("abort-audit", option, option2, option3, true);
+				break;
 			case "add-key":
 				conn.getXMLStatusMessage("add-key", option, option2, option3, true);
 				break;
@@ -48,6 +52,10 @@ public class SpectraXML
 				break;
 			case "audit-inventory-result":
 				conn.getXMLStatusMessage("audit-inventory-result", option, option2, option3, true);
+				break;
+			case "audit-status":
+				// Security audit status.
+				conn.getXMLStatusMessage("audit-status", option, option2, option3, true);
 				break;
 			case "check-progress":
 				conn.checkProgress(option, true);
@@ -209,6 +217,10 @@ public class SpectraXML
 				break;
 			case "stage-package":
 				conn.getXMLStatusMessage("stage-package", option, option2, option3, true);
+				break;
+			case "start-audit":
+			case "security-audit":
+				conn.getXMLStatusMessage("start-audit", option, option2, option3, true);
 				break;
 			case "update-package":
 				conn.getXMLStatusMessage("update-package", option, option2, option3, true);

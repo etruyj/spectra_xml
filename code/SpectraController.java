@@ -479,6 +479,21 @@ public class SpectraController
 		return libraryAddress + "robotUtilization.xml";
 	}
 
+	private String getSecurityAuditAbortURL()
+	{
+		return libraryAddress + "securityAudit.xml?action=abort";
+	}
+
+	private String getSecurityAuditStartURL()
+	{
+		return libraryAddress + "securityAudit.xml?action=start";
+	}
+
+	private String getSecurityAuditStatusURL()
+	{
+		return libraryAddress + "securityAudit.xml?acton=status";
+	}
+
 	//====================================================================
 	// Control Functions
 	// 	These are the public functions callable by the script.
@@ -806,6 +821,10 @@ public class SpectraController
 
 		switch (query)
 		{
+			case "abort-audit":
+				// Security audit not inventory audit.
+				url = getSecurityAuditAbortURL();
+				break;
 			case "add-key":
 				url = getOptionKeyAddURL(option1);
 				break;
@@ -814,6 +833,11 @@ public class SpectraController
 				break;
 			case "audit-inventory-result":
 				url = getInventoryAuditResultsURL();
+				break;
+			case "audit-status":
+				// Security audit, not inventory audit.
+				url = getSecurityAuditStatusURL();
+				break;
 			case "controller-disable":
 				url = getControllerDisableFailoverURL(option1);
 				break;		
@@ -875,6 +899,10 @@ public class SpectraController
 				break;
 			case "stage-package":
 				url = getPackageStageURL(option1);
+				break;
+			case "start-audit":
+				// security audit, not inventory audit.
+				url = getSecurityAuditStartURL();
 				break;
 			case "update-package":
 				url = getPackageUpdateURL(option1);

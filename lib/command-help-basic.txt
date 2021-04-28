@@ -2,9 +2,11 @@
 Basic XML Commands
 	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
 
+	abort-audit		Aborts an in-progress security audit. Not to be used with audit-inventory command.
 	add-key			Add an option key to the library. Specify the key with the --key flag.
 	audit-inventory		verify the contents of a TeraPack against the values stored in the database. TFINITY only. Requires --partition, --element-type, and --offset. Offset can be determined with the physical-inventory command. Values required are one-less than the value returned by physical-inventory. Subtract one from the value for the proper format.
 	audit-inventory-results	returns the results of the audit inventory command.
+	audit-status		reports the status of a security audit. Does not report the status of the audit-inventory command.
 	check-progress		check the progress of the specified command. Use -o/--option to specify the progress of what, e.g. --option asl to see ASL progress. Currently supported options are: asl, controller, drive-list, etherlib, package-update.
 	create-partition-auto	automatically creates one partition with all the available slots in the library. Can only be run if there are no existing partitions in the library. Use --partition to name the partition and --save-to to specify whether the configuration should be saved to a usb or sent to an email.
 	delete-partition	deletes a partition from the library. Use --partition to specify the partition name and --save-to to specify whether the new configuration should be saved to usb ro sent to an email.
@@ -48,6 +50,7 @@ Basic XML Commands
 	set-hhm-threshold	sets the specified HHM alert threshold. **DO NOT PERFORM THIS OPERATION WITHOUT APPROVAL FROM SPECTRA LOGIC SUPPORT** Required inputs are --event, --keepDefault to reset to default or --value to set to specific value.
 	set-mlm			Allows MLM and writing to noncertified MAM chips to be enabled. Use --setting to specify mlm or noncertified and --value for enable or disable.
 	stage-package		Starts the background process to stage firmware to all library components that support staging (RCM, RIM(2), DCM). Use --package to specify the package name.
+	start-audit		starts a security audit of every magazine in the TFinity to ensure the tapes in the magazine are located where they're expected. This is a whole library version of the audit-inventory command. If only one magazine (or a few) is targeted, the audit-inventory command will have smaller impact on library operations. Do not execute on a production library.
 	tap-status		returns the status of the specified TAP. User --tap and --drawer.
 	update-package		updates the library to the specified BlueScale package. Use --package to specify the BlueScale package. RCM and LCM will restart automatically after the process.
 	update-result		Returns status information on the most recent BlueScale update. Will reboot the LCM and RCM if they were updated during this process.
