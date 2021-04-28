@@ -5,6 +5,7 @@ Spectra XML Command Parser
 Available Options:
 	-c, --command	*REQUIRED* Enter the command you would like to execute. Examples list-partitions, get-inventory, physical-inventory. Type help after this flag for a list of available commands.
 	--controller	Specify the controller/exporter to be used as the primary device for the command.
+	--delay		Specify the length of time the library will be off before restarting. 
 	--drawer	Specify the TAP drawer to use with the empty-bulk-tap and tap-status commands. This is the chamber of the TAP.
 	--drive		Specify the drive in FR[#]/DBA[#]/DR[#] format where [#] specifies the number and placement in the library.
 	--element-type	Specify the element type the operation is specifying. Storage or IE.
@@ -22,6 +23,7 @@ Available Options:
 	--partition	Specify the partition in which the operation will occur.
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
 	--rcm		Specify the RCM for the rcm-status command.
+	--reboot-in	Specify the length of tme the library will be off before restarting.
 	--robot		Specify the robot to be used with the command. TFINITY only. Valid inputs Robot 1 or Robot 2.
 	--save-to	Specify where the setting will be saved to, i.e. usb or sent to an email address.
 	--setting	Specify the setting to modify in the update-setting command. Valid inputs are libraryName, auto-logout, online-access, monitor-drive-performance, SNMP, auto-powerup.

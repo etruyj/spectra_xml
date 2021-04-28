@@ -161,6 +161,9 @@ public class SpectraXML
 			case "physical-inventory":
 				conn.physicalInventory(option, true);
 				break;
+			case "power-off":
+				conn.getXMLStatusMessage("power-off", option, option2, option3, true);
+				break;
 			case "rcm-status":
 				conn.libraryRCMStatus(option, true);
 				break;
@@ -188,6 +191,15 @@ public class SpectraXML
 				break;
 			case "resize-partition":
 				conn.getXMLStatusMessage("resize-partition", option, option2, option3, true);
+				break;
+			case "return-from-service":
+				conn.getXMLStatusMessage("return-from-service", option, option2, option3, true);
+				break;
+			case "robot-utilization":
+				conn.robotUtilization(true);
+				break;
+			case "send-to-service":
+				conn.getXMLStatusMessage("send-to-service", option, option2, option3, true);
 				break;
 			case "set-hhm-threshold":
 				conn.setHHMThreshold(option, option2, option3, true);

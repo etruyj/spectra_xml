@@ -407,6 +407,11 @@ public class SpectraController
 		return libraryAddress + "partition.xml?action=list";
 	}
 
+	private String getPartitionNamesListURL()
+	{
+		return libraryAddress + "partitionList.xml";
+	}
+
 /*	This one needs some work.... Missing an identifier in the var declarations
  *	+ a whole lot of other logic and code required in the calling function to 
  *	get all these details..
@@ -443,6 +448,35 @@ public class SpectraController
 	private String getPostPackageUpdateURL()
 	{
 		return libraryAddress + "packageUpload.xml";
+	}
+
+	private String getPowerOffURL(String delay)
+	{
+		String url = libraryAddress + "powerOff.xml";
+
+		if(!delay.equals("none"))
+		{
+			url = url + "?numSecondsToRemainOff=" + delay;
+		}
+
+		return url;
+	}
+
+	private String getRobotReturnFromServiceURL(String robot)
+	{
+		return libraryAddress + "robotService.xml?action=returnFromService&robot="
+			+ robot.replace(" ", "%20");
+	}
+
+	private String getRobotSendToServiceURL(String robot)
+	{
+		return libraryAddress + "robotService.xml?action=sendToService&robot="
+			+ robot.replace(" ", "%20");
+	}
+
+	private String getRobotUtilizationURL()
+	{
+		return libraryAddress + "robotUtilization.xml";
 	}
 
 	//====================================================================
@@ -808,6 +842,9 @@ public class SpectraController
 			case "move-result":
 				url = getInventoryMoveResultURL(option1);
 				break;
+			case "power-off":
+				url = getPowerOffURL(option3);
+				break;
 			case "refresh-ec-info":
 				url = getLibraryRefreshECInfoURL();
 				break;
@@ -825,6 +862,12 @@ public class SpectraController
 				break;
 			case "resize-partition":
 				url = getPartitionResizeSlotsURL(option1, option2, option3);
+				break;
+			case "return-from-service":
+				url = getRobotReturnFromServiceURL(option3);
+				break;
+			case "send-to-service":
+				url = getRobotSendToServiceURL(option3);
 				break;
 			case "set-mlm":
 				option1 = convertMLMSetting(option1);
@@ -1423,9 +1466,9 @@ public class SpectraController
 		XMLResult[] response;
 
 		XMLParser xmlparser = new XMLParser();
-		String[] searchTerms = {"name"};
+		String[] searchTerms = {"partitionName"};
 
-		String url = getPartitionListURL();
+		String url = getPartitionNamesListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1890,6 +1933,30 @@ public class SpectraController
 			}
 
 		}
+	}
+
+	public XMLResult[] robotUtilization(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"robotUtilizationDataPoint",
+					"hourStartingAt",
+					"percentUtilization"};
+
+		String url = getRobotUtilizationURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "robotUtilizationDataPoint", true);
+		}
+
+		return response;
 	}
 
 	public void setHHMThreshold(String event, String keepDefault, String value, boolean printToShell)

@@ -34,6 +34,7 @@ Basic XML Commands
 	package-details		displayed the current firmware version installed on individual components in the library along with the firmware version included in the specified BlueScale package. Use --package to specify the BlueScale package.
 	partition-details	provides detailed information on the partitions in the library. Use the -o/--option flag to specify the partition to limit output to a single partition.
 	physical-inventory	provides a complete Tera-Pack based inventory list for a partition. Partition name must be specified with the -o/--option flag.
+	power-off		powers off the library. Can be set to restart after a delay with the --reboot-in flag specifying the number of seconds.
 	rcm-status		provides information on the status of the RCM specified with the --rcm flg.
 	refresh-ec-info		Refreshes the WebUI with the current hardware EC info.
 	refresh-environment	Refreshes the WebUI with the current hardware information.
@@ -42,6 +43,8 @@ Basic XML Commands
 	reset-drive		resets the specified drive. Drive is specified in FR[#]/DBA[#]/DR[#] format as an option.
 	reset-hhm-counter	resets the specified HHM counter to 0. **DO NOT PERFORM THIS OPERATION WITHOUT AUTHORIZATION FROM SPECTRA LOGIC SUPPORT** Required inputs are --type, --subtype, (and with TFINITY libraries --robot).
 	resize-partition	resize the number of slots in a partition. Use --partition to specify the partition name, --type to specify storage or EE slots, and --value to specify number. Putting a negative sign (-) in front of the number will cause the slots to be removed instead of added. Slots can only be added or subtracted in TeraPack increments (10s for LTO and 9s for TS).
+	return-from-service	returns the specified robot from service. Specify the robot with either a 1 or 2 using the --robot flag.
+	robot-utilization	reports on robot utilization over the last 24-hours. **TFINITY ONLY**
 	set-hhm-threshold	sets the specified HHM alert threshold. **DO NOT PERFORM THIS OPERATION WITHOUT APPROVAL FROM SPECTRA LOGIC SUPPORT** Required inputs are --event, --keepDefault to reset to default or --value to set to specific value.
 	set-mlm			Allows MLM and writing to noncertified MAM chips to be enabled. Use --setting to specify mlm or noncertified and --value for enable or disable.
 	stage-package		Starts the background process to stage firmware to all library components that support staging (RCM, RIM(2), DCM). Use --package to specify the package name.
