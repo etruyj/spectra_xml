@@ -145,6 +145,12 @@ public class SpectraXML
 			case "list-settings":
 				conn.listSettings(true);
 				break;
+			case "list-tasks":
+				conn.listTasks(true);
+				break;
+			case "list-traces":
+				conn.listTraceNames(option, true);
+				break;
 			case "package-details":
 				conn.listPackageDetails(option, true);
 				break;
@@ -221,6 +227,9 @@ public class SpectraXML
 			case "start-audit":
 			case "security-audit":
 				conn.getXMLStatusMessage("start-audit", option, option2, option3, true);
+				break;
+			case "system-messages":
+				conn.getSystemMessages(true);
 				break;
 			case "update-package":
 				conn.getXMLStatusMessage("update-package", option, option2, option3, true);

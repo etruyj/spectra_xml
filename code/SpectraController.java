@@ -494,6 +494,50 @@ public class SpectraController
 		return libraryAddress + "securityAudit.xml?acton=status";
 	}
 
+	private String getSystemMessagesURL()
+	{
+		return libraryAddress + "systemMessages.xml";
+	}
+
+	private String getTaskListURL()
+	{
+		return libraryAddress + "taskList.xml";
+	}
+
+	private String getTracesNamesURL(String traceType)
+	{
+		String url = libraryAddress + "traces.xml?action=";
+
+		switch(traceType)
+		{
+			case "can":
+			case "CAN":
+				url = url + "getCanLogNames";
+				break;
+			case "motion":
+				url = url + "getFullMotionLogNames";
+				break;
+			case "kernel":
+				url = url + "getKernelLogNames";
+				break;
+			case "QIP":
+			case "qip":
+			case "RCM":
+			case "rcm":
+				url = url + "getQIPLogNames";
+				break;
+			case "security":
+			case "securityAudit":
+				url = url + "getSecurityAuditLogNames";
+				break;
+			default:
+				url = url + "none";
+				break;
+		}
+
+		return url;
+	}
+	
 	//====================================================================
 	// Control Functions
 	// 	These are the public functions callable by the script.
@@ -778,6 +822,40 @@ public class SpectraController
 		if(printToShell)
 		{
 			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] getSystemMessages(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"message",
+					"number",
+					"severity",
+					"date",
+					"time",
+					"notification",
+					"remedy",
+					"month",
+					"day",
+					"year",
+					"hour",
+					"minute",
+					"second"};
+
+		String url = getSystemMessagesURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "message", true);
 		}
 
 		return response;
@@ -1536,6 +1614,67 @@ public class SpectraController
 		if(printToShell)
 		{
 			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] listTasks(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"currentAsynchronousAction",
+					"currentBackgroundTasks",
+					"pageNeedingProgressRequest",
+					"task",
+					"name",
+					"status",
+					"feedbackString",
+					"thread",
+					"description",
+					"extraInformation"};
+
+		String url = getTaskListURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] listTraceNames(String traceType, boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+		boolean printHeaders = false;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"logName", "gathered"};
+
+		String url = getTracesNamesURL(traceType);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			// motion traces and security logs have a gathered field.
+			// To make the output less confusing, we'll print the headers here.
+			if(traceType.substring(0, 8).equals("security") || traceType.equals("motion"))
+			{
+				printHeaders = true;
+			}
+
+			printOutput(response, "none", printHeaders);
 		}
 
 		return response;
