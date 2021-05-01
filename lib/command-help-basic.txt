@@ -11,15 +11,18 @@ Basic XML Commands
 	create-partition-auto	automatically creates one partition with all the available slots in the library. Can only be run if there are no existing partitions in the library. Use --partition to name the partition and --save-to to specify whether the configuration should be saved to a usb or sent to an email.
 	delete-partition	deletes a partition from the library. Use --partition to specify the partition name and --save-to to specify whether the new configuration should be saved to usb ro sent to an email.
 	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
-	download-asl		download the specified autosupport log (ASL). Use -o/--option to specify the file name. File will appear in the ../output directory.
+	download-asl		download the specified autosupport log (ASL). Use --file-name to specify the file name. File will appear in the ../output directory.
+	download-trace		download the specified CAN, motion, kernel, or security audit traces. Specify the trace type with the -o/--option flag (can, motion, kernel, qip, security-audit) and the name of the file to download with the --file-name flag.
 	drive-load-count	prints the number of times the drive was loaded. Must specify the drive in FR[#]/DBA[#]/DR[#] format with the option flag.
 	empty-bulk-tap		Empties the bulk TAP. Use --tap to specify left, right, or both and --partition to specify which partition to load the tapes into.
 	enable-controller	(full command enable-controller-failover) enables failover for the specified controller. Must specify --controller and --spare.
 	etherlib-status		prints the status of the library's EtherLib connections.
 	firmware-versions	displays the current firmware versions installed on individual components in the library.
+	gather-trace		gathers the specified motion or security audit trace, moving it to the LCM so it can be downloaded with the download-trace command. Only necessary for motion and security-audit traces. Whether or not the trace exists on the LCM can be determined by the list-traces command under the returned gather field. Specify trace type with the -o/--option flag (motion or security-audit) and the name of the trace with the --file-name flag.
 	generate-asl		generates a new autosupport log (ASL).
 	generate-drive-trace	generates a drive trace for the specified drive in FR[#]/DBA[#]/DR[#] format.
 	get-drive-trace		retrieves a most recently generated drive traces from the library. Options are download, usb, and email. Download saves the file "drive_traces.zip" to the output folder. USB saves the traces to a usb drive inserted in the LCM. Email sends the traces to the specified email if the email is configured in the library.
+	get-trace-info		displays information on the trace specified. Specify the trace type with -o/--option. Valid options are Action, AutoDriveClean, AutoSupport, BackgroundClient, CAN, Connection, Encryption, Error, EtherLib, Event, Geometry, GPIO, HHM, HydraExit, Initialization, Inventory, Kernel, Lock, LogicalLibrary, Message, MLM, Motion, MotionInventory, MotionOptions, MotionRestart1, MotionRestart2, PackageUpdate, Pools, QIP:[QIPID], QIPDump:[QIP ID], Security, SNMP, WebServer.
 	library-status		provides a complete status report on the library and all components.
 	list-asls		provides a list of autosupport logs (ASLs) available in the library.
 	list-controllers	provides a list of controllers assigned in the library.
@@ -32,7 +35,7 @@ Basic XML Commands
 	list-partitions		provides a list of all partitions in the library, including cleaning partitions. No options exist for this command.
 	list-settings		provides a list of basic library settings such as library name and what options are enabled.
 	list-tasks		provides a list of the operations currently in process on the library.
-	list-traces		provides a list of the file names for the logs current stored on the LCM. Log type must be specified with the -o/--option command. Choices are can, motion, kernel, qip, and security.
+	list-traces		provides a list of the file names for the logs current stored on the LCM. Log type must be specified with the -o/--option command. Choices are can, motion, kernel, qip, and security-audit.
 	move-details		returns move statistics for the last 10 moves. TFINITY ONLY.
 	move-status		returns the status of the last executed move.
 	package-details		displayed the current firmware version installed on individual components in the library along with the firmware version included in the specified BlueScale package. Use --package to specify the BlueScale package.

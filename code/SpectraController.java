@@ -527,7 +527,7 @@ public class SpectraController
 				url = url + "getQIPLogNames";
 				break;
 			case "security":
-			case "securityAudit":
+			case "security-audit":
 				url = url + "getSecurityAuditLogNames";
 				break;
 			default:
@@ -537,7 +537,172 @@ public class SpectraController
 
 		return url;
 	}
-	
+
+	private String getTracesDownloadURL(String traceType, String name)
+	{
+		String url = libraryAddress + "traces.xml?action=";
+
+		switch(traceType)
+		{
+			case "can":
+			case "CAN":
+				url = url + "getCanLog";
+				break;
+			case "motion":
+				url = url + "getFullMotionLog";
+				break;
+			case "kernel":
+				url = url + "getKernelLog";
+				break;
+			case "QIP":
+			case "qip":
+			case "RCM":
+			case "rcm":
+				url = url + "getQIPLog";
+				break;
+			case "security":
+			case "security-audit":
+				url = url + "getSecurityAuditLog";
+				break;
+			default:
+				url = url + "none";
+				break;
+		}
+
+		url = url + "&name=" + name;
+
+		return url;
+	}
+
+	private String getTracesGatherURL(String traceType, String name)
+	{
+		String url = libraryAddress + "traces.xml?action=";
+
+		switch(traceType)
+		{
+			case "motion":
+				url = url + "gatherFullMotion";
+				break;
+			case "security":
+			case "security-audit":
+				url = url + "gatherSecurityAuditLog";
+			default:
+				url = url + "none";
+				break;
+		}
+
+		url = url + "&name=" + name;
+
+		return url;
+	}
+
+	private String getTraceTypeURL(String type)
+	{
+		return libraryAddress + "traces.xml?traceType=" + type;
+	}
+
+	private String getUtilsDisplayBarcodeReportingURL()
+	{
+		return libraryAddress + "utils.xml?action=displayBarcodeReportingSettings";
+	}
+
+	private String getUtilsDisplayTapeBarcodeVerificationURL()
+	{
+		return libraryAddress + "utils.xml?action=displayTapeBarcodeVerificationSetting";
+	}
+
+	private String getUtilsLockTensionRodsURL(String state)
+	{
+		return libraryAddress + "utils.xml?action=lockTensionRods&state=" + state;
+	}
+
+	private String getUtilsModifyBarcodeReportingURL(String checksums, String readFrom, String charactersToReport)
+	{
+		String url = libraryAddress + "utils.xml?action=modifyBarcodeReportingSettings";
+
+		if(!checksums.equals("none"))
+		{
+			url = url + "&checksummedBehavior=" + checksums;
+		}
+
+		if(!readFrom.equals("none"))
+		{
+			url = url + "&directionToStartReportingCharacters=" + readFrom;
+		}
+
+		if(!charactersToReport.equals("none"))
+		{
+			url = url + "&maxNumberOfCharactersToReport=" + charactersToReport;
+		}
+
+		return url;
+	}
+
+	private String getUtilsModifyTapeBarcodeVerifyURL(String state)
+	{
+		return libraryAddress + "utils.xml?action=modifyTapeBarcodeVerificationSettings&state=" 
+			+ state;
+	}
+
+	private String getUtilsProgressURL()
+	{
+		return libraryAddress + "utils.xml?progress";
+	}
+
+	private String getUtilsRemoveAllPartitionsURL()
+	{
+		return libraryAddress + "utils.xml?action=removeAlLibraryPartitions";
+	}
+
+	private String getUtilsResetControllerURL(String controller)
+	{
+		return libraryAddress + "utils.xml?action=resetController&id="
+			+ controller;
+	}
+
+	private String getUtilsResetInventoryURL()
+	{
+		return libraryAddress + "utils.xml?action=resetInventory";
+	}
+
+	private String getUtilsResetLCMURL()
+	{
+		return libraryAddress + "utils.xml?action=resetLCM";
+	}
+
+	private String getUtilsResetRobotURL(String QIP)
+	{
+		String url = libraryAddress + "utils.xml?action=resetRobot";
+
+		if(!QIP.equals("none"))
+		{
+			url = url + "&id=" + QIP;
+		}
+
+		return url;
+	}
+
+	private String getUtilsResetRobotCalibrationURL(String robot)
+	{
+		return libraryAddress + "utils.xml?action=resetRobotCalibrationSettings&robot="
+			+ robot;
+	}
+
+	private String getUtilsRobotStateURL(String robot)
+	{
+		return libraryAddress + "utils.xml?action=saveRobotState&number=" + robot;
+	}
+
+	private String getUtilsSetSnowplowURL(String state)
+	{
+		return libraryAddress + "utils.xml?action=selectiveSnowplow&state=" + state;
+	}
+
+	private String getUtilsVerifyMagazineBarcodesURL()
+	{
+		return libraryAddress + "utils.xml?action=verifyMagazineBarcodes";
+	}
+
 	//====================================================================
 	// Control Functions
 	// 	These are the public functions callable by the script.
@@ -578,6 +743,9 @@ public class SpectraController
 			case "package":
 			case "package-update":
 				url = getPackageProgressURL();
+				break;
+			case "utils":
+				url = getUtilsProgressURL();
 				break;
 		}
 
@@ -636,6 +804,52 @@ public class SpectraController
 		}
 	}
 
+	public XMLResult[] displayBarcodeReporting(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"checksummedBehavoir",
+					"directionToStartReportingCharacters",
+					"maxNumberOfCharacters"};
+
+		String url = getUtilsDisplayBarcodeReportingURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", true);
+		}
+
+		return response;
+	}
+
+	public XMLResult[] displayBarcodeVerification(boolean printToShell)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"state"};
+
+		String url = getUtilsDisplayTapeBarcodeVerificationURL();
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(printToShell)
+		{
+			printOutput(response, "none", false);
+		}
+
+		return response;
+	}
+
 	public void driveLoadCount(String option, boolean printToShell)
 	{
 		String xmlOutput;
@@ -670,16 +884,16 @@ public class SpectraController
 
 	public void downloadDriveTrace()
 	{
-		String xmlOutput;
-		XMLResult[] response;
-
-		XMLParser xmlparser = new XMLParser();
-		String[] searchTerms = {"status", "message"};
-
 		String url = getDriveTraceRetrieveTracesURL("download", "none");
 		cxn.downloadFromLibrary(url, "../output/", "drive_traces.zip");	
 	}
-	
+
+	public void downloadTrace(String traceType, String name)
+	{
+		String url = getTracesDownloadURL(traceType, name);
+		cxn.downloadFromLibrary(url, "../output/", name);
+	}
+
 	public void ejectEmpty(String partition, boolean printToShell)
 	{
 		// ejectEmpty
@@ -887,6 +1101,19 @@ public class SpectraController
 		
 	}
 
+	public void getTraceType(String type, boolean printToShell)
+	{
+		String stringOutput;
+		String url = getTraceTypeURL(type);
+
+		stringOutput = cxn.queryLibrary(url);
+
+		if(printToShell)
+		{
+			System.out.println(stringOutput);
+		}
+	}
+
 	public void getXMLStatusMessage(String query, String option1, String option2, String option3, boolean printToShell)
 	{
 		String xmlOutput;
@@ -935,11 +1162,23 @@ public class SpectraController
 				option2 = convertTAPString(option2);
 				url = getMediaExchangeCleanURL(option1, option2);
 				break;
+			case "gather-trace":
+				url = getTracesGatherURL(option1, option3);
+				break;
 			case "generate-asl":
 				url = getASLGenerateURL();
 				break;
 			case "generate-drive-trace":
 				url = getDriveTracesURL(option1);
+				break;
+			case "lock-tension-rods":
+				url = getUtilsLockTensionRodsURL(option1);
+				break;
+			case "modify-barcode-settings":
+				url = getUtilsModifyBarcodeReportingURL(option1, option2, option3);
+				break;
+			case "modify-tape-verification":
+				url = getUtilsModifyTapeBarcodeVerifyURL(option1);
 				break;
 			case "move-result":
 				url = getInventoryMoveResultURL(option1);
@@ -956,17 +1195,38 @@ public class SpectraController
 			case "refresh-etherlib":
 				url = getEtherLibRefreshURL();
 				break;
+			case "remove-all-partitions":
+				url = getUtilsRemoveAllPartitionsURL();
+				break;
 			case "replace-drive":
 				url = getDriveTraceReplaceDriveURL(option1);
 				break;
+			case "reset-controller":
+				url = getUtilsResetControllerURL(option1);
+				break;
 			case "reset-drive":
 				url = getDriveTraceResetDriveURL(option1);
+				break;
+			case "reset-inventory":
+				url = getUtilsResetInventoryURL();
+				break;
+			case "reset-robot":
+				url = getUtilsResetRobotURL(option1);
+				break;
+			case "reset-robot-calibration":
+				url = getUtilsResetRobotCalibrationURL(option3);
 				break;
 			case "resize-partition":
 				url = getPartitionResizeSlotsURL(option1, option2, option3);
 				break;
 			case "return-from-service":
 				url = getRobotReturnFromServiceURL(option3);
+				break;
+			case "save-robot-state":
+				url = getUtilsRobotStateURL(option3);
+				break;
+			case "selective-snowplow":
+				url = getUtilsSetSnowplowURL(option1);
 				break;
 			case "send-to-service":
 				url = getRobotSendToServiceURL(option3);
@@ -987,6 +1247,9 @@ public class SpectraController
 				break;
 			case "update-setting":
 				url = getLibraryUpdateSettingURL(option1, option3);
+				break;
+			case "verify-mag-barcodes":
+				url = getUtilsVerifyMagazineBarcodesURL();
 				break;
 		}	
 		

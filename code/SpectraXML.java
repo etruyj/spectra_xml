@@ -69,8 +69,17 @@ public class SpectraXML
 			case "disable-controller":
 				conn.getXMLStatusMessage("controller-disable", option, option2, option3, true);
 				break;
+			case "display-barcode-settings":
+				conn.displayBarcodeReporting(true);
+				break;
+			case "display-tape-verification":
+				conn.displayBarcodeVerification(true);
+				break;
 			case "download-asl":
-				conn.downloadASL(option, true);
+				conn.downloadASL(option3, true);
+				break;
+			case "download-trace":
+				conn.downloadTrace(option, option3);
 				break;
 			case "drive-load-count":
 				conn.driveLoadCount(option, true);
@@ -94,6 +103,9 @@ public class SpectraXML
 			case "firmware-versions":
 				conn.listPackageFirmware(true);
 				break;
+			case "gather-trace":
+				conn.getXMLStatusMessage("gather-trace", option, option2, option3, true);
+				break;
 			case "generate-asl":
 				conn.getXMLStatusMessage("generate-asl", option, option2, option3, true);
 				break;
@@ -109,6 +121,9 @@ public class SpectraXML
 				{
 					conn.getXMLStatusMessage("download-drive-trace", option, option2, option3, true);
 				}
+				break;
+			case "get-trace-info":
+				conn.getTraceType(option, true);
 				break;
 			case "library-status":
 				conn.libraryStatus(true);
@@ -151,8 +166,8 @@ public class SpectraXML
 			case "list-traces":
 				conn.listTraceNames(option, true);
 				break;
-			case "package-details":
-				conn.listPackageDetails(option, true);
+			case "lock-tension-rods":
+				conn.getXMLStatusMessage("lock-tension-rods", option, option2, option3, true);
 				break;
 			case "magazine-compaction":
 				conn.magazineCompaction(option, moves, true);
@@ -163,11 +178,20 @@ public class SpectraXML
 			case "magazine-utilization":
 				conn.magazineCapacity(option, true);
 				break;
+			case "modify-barcode-reporting":
+				conn.getXMLStatusMessage("modify-barcode-reporting", option, option2, option3, true);
+				break;
+			case "modify-tape-verification":
+				conn.getXMLStatusMessage("modify-tape-verification", option, option2, option3, true);
+				break;
 			case "move-details":
 				conn.libraryMoveDetails(true);
 				break;
 			case "move-status":
 				conn.getXMLStatusMessage("move-result", option, option2, option3, true);
+				break;
+			case "package-details":
+				conn.listPackageDetails(option, true);
 				break;
 			case "partition-details":
 				conn.listPartitionDetails(option, true);
@@ -194,14 +218,33 @@ public class SpectraXML
 			case "refresh-etherLib":
 				conn.getXMLStatusMessage("refresh-etherlib", option, option2, option3, true);
 				break;
+			case "remove-all-partitions":
+				conn.getXMLStatusMessage("remove-all-partitions", option, option2, option3, true);
+				break;
 			case "replace-drive":
 				conn.getXMLStatusMessage("replace-drive", option, option2, option3, true);
+				break;
+			case "reset-controller":
+				conn.getXMLStatusMessage("reset-controller", option, option2, option3, true);
 				break;
 			case "reset-drive":
 				conn.getXMLStatusMessage("reset-drive", option, option2, option3, true);
 				break;
 			case "reset-hhm-counter":
 				conn.resetHHMCounter(option, option2, option3, true);
+				break;
+			case "reset-inventory":
+				conn.getXMLStatusMessage("reset-inventory", option, option2, option3, true);
+				break;
+			case "reset-lcm":
+			case "reset-LCM":
+				conn.getXMLStatusMessage("reset-lcm", option, option2, option3, true);
+				break;
+			case "reset-robot":
+				conn.getXMLStatusMessage("reset-robot", option, option2, option3, true);
+				break;
+			case "reset-robot-calibration":
+				conn.getXMLStatusMessage("reset-robot-calibration", option, option2, option3, true);
 				break;
 			case "resize-partition":
 				conn.getXMLStatusMessage("resize-partition", option, option2, option3, true);
@@ -211,6 +254,12 @@ public class SpectraXML
 				break;
 			case "robot-utilization":
 				conn.robotUtilization(true);
+				break;
+			case "save-robot-state":
+				conn.getXMLStatusMessage("save-robot-state", option, option2, option3, true);
+				break;
+			case "selective-snowplow":
+				conn.getXMLStatusMessage("selective-snowplow", option, option2, option3, true);
 				break;
 			case "send-to-service":
 				conn.getXMLStatusMessage("send-to-service", option, option2, option3, true);
@@ -231,18 +280,6 @@ public class SpectraXML
 			case "system-messages":
 				conn.getSystemMessages(true);
 				break;
-			case "update-package":
-				conn.getXMLStatusMessage("update-package", option, option2, option3, true);
-				break;
-			case "update-results":
-				conn.getPackageResults(true);
-				break;
-			case "update-setting":
-				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
-				break;
-			case "upload-package":
-				conn.uploadPackageUpdate(option3, true);
-				break;
 			case "tap-status":
 				// Main needs to be executed twice to get both drawers.
 				// Main tap is broken down into mainTop and mainBottom
@@ -256,6 +293,21 @@ public class SpectraXML
 				{
 					conn.getTapState(option2, option3, true);
 				}
+				break;
+			case "update-package":
+				conn.getXMLStatusMessage("update-package", option, option2, option3, true);
+				break;
+			case "update-results":
+				conn.getPackageResults(true);
+				break;
+			case "update-setting":
+				conn.getXMLStatusMessage("update-setting", option, option2, option3, true);
+				break;
+			case "upload-package":
+				conn.uploadPackageUpdate(option3, true);
+				break;
+			case "verify-magazine-barcodes":
+				conn.getXMLStatusMessage("verify-magazine-barcodes", option, option2, option3, true);
 				break;
 
 		}
