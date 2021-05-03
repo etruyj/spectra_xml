@@ -198,12 +198,14 @@ public class ArgParser
 					}
 				case "-o":
 				case "--option": // generic option command (original input flag).
+				case "--checksum":
 				case "--controller":
 				case "--drive": // specify the drive
 				case "--event": // spcify HHM event type (set-hhm-threshold)
 				case "--key": // option key.
 				case "--package": // package name.
 				case "--partition": // specify library partition.
+				case "--qip":
 				case "--rcm":
 				case "--setting": // Specify the setting to update with update-setting
 				case "--type": // specify HHM counter type. (reset-hhm-counter)
@@ -229,6 +231,7 @@ public class ArgParser
 					setCmdOption(option);
 					break;
 				case "--option2": // Heading is more to categorize and organize.
+				case "--direction":
 				case "--element": // Storage or EE
 				case "--element-type":
 				case "--email":
@@ -263,6 +266,8 @@ public class ArgParser
 				case "--drawer": // tap drawer to check with tap-status.
 				case "--file":
 				case "--file-name":
+				case "--number":
+				case "--number-characters":
 				case "--offset": // Terapack offset.
 				case "--reboot-in": // delay before restart.
 				case "--robot": // Specify the TFIN robot to use.
