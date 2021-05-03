@@ -4,8 +4,10 @@ Spectra XML Command Parser
 
 Available Options:
 	-c, --command	*REQUIRED* Enter the command you would like to execute. Examples list-partitions, get-inventory, physical-inventory. Type help after this flag for a list of available commands.
+	--checksum	Specify the checksum reporting for the modify-barcode-reporting command. Valid options are nonChecksummedBarcodes, checksummedBarcodes, and ignoreChecksumBarcodes.
 	--controller	Specify the controller/exporter to be used as the primary device for the command.
 	--delay		Specify the length of time the library will be off before restarting. 
+	--direction	Specify the direction the library will read barcodes in the modify-barcode-reporting command. Valid options are left or right.
 	--drawer	Specify the TAP drawer to use with the empty-bulk-tap and tap-status commands. This is the chamber of the TAP.
 	--drive		Specify the drive in FR[#]/DBA[#]/DR[#] format where [#] specifies the number and placement in the library.
 	--element-type	Specify the element type the operation is specifying. Storage or IE.
@@ -17,11 +19,13 @@ Available Options:
 	--insecure	Use a non-SSL connection (http) to connect to the library. This is the same as --http. Only one is needed.
 	--key		Specify the option key to be used with add-key.
 	-m, --maxMoves	Specify the maximum number of tape moves the library can perform during the execution of the command. This is intended to prevent complex move commands issued against a production library from bogarting the robots, causing production move failures.
+	--number	Specify the number of characters to be reported by the library in the modify-barcode-reporting command. Valid values are 1 to 16. (--number-characters is also valid.)
 	--offset	Specify the magazine offset. Magazine offsets can be found with the physical-inventory command. The offset provided by physical-inventory is actually one-higher (+1) from the value required by offset. Subtract one (-1) from the value returned by physical-inventory to have the proper offset.
 	-o, --option	Specify options for the command. Most common option is partition name.
 	--package	Specify the package to be used with the package commands.
 	--partition	Specify the partition in which the operation will occur.
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
+	--qip		Specify the QIP/RCM
 	--rcm		Specify the RCM for the rcm-status command.
 	--reboot-in	Specify the length of tme the library will be off before restarting.
 	--robot		Specify the robot to be used with the command. TFINITY only. Valid inputs Robot 1 or Robot 2.
