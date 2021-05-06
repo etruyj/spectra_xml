@@ -128,6 +128,9 @@ public class SpectraXML
 			case "library-status":
 				conn.libraryStatus(true);
 				break;
+			case "library-type":
+				conn.getLibraryType(true);
+				break;
 			case "list-asl":
 			case "list-asls":
 				conn.listASLs(true);
@@ -177,6 +180,9 @@ public class SpectraXML
 				break;
 			case "magazine-utilization":
 				conn.magazineCapacity(option, true);
+				break;
+			case "maintenance-hhm-reset":
+				conn.maintenanceHHMReset(true);
 				break;
 			case "modify-barcode-reporting":
 				conn.getXMLStatusMessage("modify-barcode-reporting", option, option2, option3, true);

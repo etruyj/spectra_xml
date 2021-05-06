@@ -2091,6 +2091,30 @@ public class SpectraController
 		return magazines;
 	}
 
+	public void maintenanceHHMReset(boolean printToShell)
+	{
+		String libraryType = getLibraryType(printToShell);
+		String robot = "none";
+		int iterations = 1;
+
+		if(libraryType.equalsIgnoreCase("TFinity"))
+		{
+			iterations = 2;
+		}
+
+		for(int i=0; i<iterations; i++)
+		{
+			if(libraryType.equalsIgnoreCase("TFinity"))
+			{
+				robot = "Robot " + Integer.toString(i+1);
+			}
+
+			resetHHMCounter("Vertical Axis", "Trip 1", robot, printToShell);
+			resetHHMCounter("Vertical Axis", "Trip 2", robot, printToShell);
+		}
+		
+	}
+
 	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber, boolean printToShell)
 	{
 		// Issue a move command on the library.
@@ -2642,6 +2666,33 @@ public class SpectraController
 	{
 		int librarySlot = (10 * Integer.valueOf(TeraPackOffset)) - (10 - TapeSlot) + 1;
 		return Integer.toString(librarySlot);
+	}
+
+	public String getLibraryType(boolean printToShell)
+	{
+		String libraryType = "none";
+		boolean typeFound = false;
+		int itr = 0;
+
+		XMLResult[] libraryProfile = libraryStatus(false);
+		
+		while(!typeFound)
+		{
+			if(libraryProfile[itr].headerTag.equalsIgnoreCase("libraryType"))
+			{
+				libraryType = libraryProfile[itr].value;
+				typeFound = true;
+			}
+			itr++;
+		}
+
+		if(printToShell)
+		{
+			System.out.println(libraryType);
+		}
+
+		return libraryType;
+
 	}
 
 	private void moveTape(String partition, TeraPack[] mags, int maxMoves, boolean printToShell)
