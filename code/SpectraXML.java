@@ -315,6 +315,9 @@ public class SpectraXML
 			case "verify-magazine-barcodes":
 				conn.getXMLStatusMessage("verify-magazine-barcodes", option, option2, option3, true);
 				break;
+			default:
+				System.out.println("Invalid command use -c help to see a list of valid commands.");
+				break;
 
 		}
 	}
