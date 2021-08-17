@@ -7,6 +7,8 @@
 //		library will be returned in XML format.
 //============================================================================
 
+import com.socialvagrancy.utils.Logger;
+
 import java.lang.StringBuilder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -31,7 +33,15 @@ public class Connector
 {
 	URL tapeLibrary;
 	URLConnection tapeConn;
-	CookieJar cookies = new CookieJar();
+	CookieJar cookies;
+	Logger log;
+
+	public Connector()
+	{
+		cookies = new CookieJar();
+		log = new Logger("../logs/slxml-main.log", 102400, 3, 1);
+		log.checkLogs();
+	}
 
 	public String queryLibrary(String httpRequest)
 	{
@@ -40,13 +50,24 @@ public class Connector
 
 		try
 		{
+			// Filter out the password so it isn't stored in logs.
+			String[] tmp = httpRequest.split("&");
+			if(tmp.length > 1 && tmp[1].substring(0,8).equals("password"))
+			{
+				log.log("Posting HTTP request: " + tmp[0], 2);
+			}
+			else
+			{
+				log.log("Posting HTTP request: " + httpRequest, 2);
+			}
+
 			tapeLibrary = new URL(httpRequest);
 
 			tapeConn = tapeLibrary.openConnection();
 			// Five second connection timeout.
 			tapeConn.setConnectTimeout(5000);
 			// Ten second read timeout
-			tapeConn.setReadTimeout(20000);
+			tapeConn.setReadTimeout(50000);
 			if(!cookies.getName(0).equals("none"))
 			{
 				// If a cookie exists, pass it.
@@ -80,6 +101,8 @@ public class Connector
 			if(!e.toString().equals("java.net.SocketException: Network is down"))
 			{
 				System.out.println(e);
+				log.log("Error with HTTP Request: " + httpRequest, 3);
+				log.log(e.getMessage(), 3);
 			}	
 		}
 
@@ -90,6 +113,9 @@ public class Connector
 	{
 		try
 		{
+			log.log("Posting package: " + filename, 2);
+			log.log("HTTP Request: " + httpRequest, 2);
+
 			URL tapeLibrary = new URL(httpRequest);
 			HttpURLConnection conn = (HttpURLConnection) tapeLibrary.openConnection();
 			conn.setConnectTimeout(5000); // 5 sec timeout
@@ -121,6 +147,8 @@ public class Connector
 		}
 		catch (Exception e)
 		{
+			log.log("Error with HTTP request: " + httpRequest, 3);
+			log.log(e.getMessage(), 3);
 			return e.getMessage();
 		}
 	}
@@ -129,6 +157,9 @@ public class Connector
 	{
 		try
 		{
+			log.log("Downloading " + filename + " to " + path, 2);
+			log.log("HTTP Request: " + httpRequest, 2);	
+
 			URL tapeLibrary = new URL(httpRequest);
 			tapeConn = tapeLibrary.openConnection();
 
@@ -147,6 +178,8 @@ public class Connector
 		}
 		catch(IOException e)
 		{
+			log.log("Error with HTTP request: " + httpRequest, 3);
+			log.log(e.getMessage(), 3);
 			System.out.println(e);
 		}
 	}

@@ -879,6 +879,7 @@ public class SpectraController
 		String[] searchTerms = {"status","message"};
 
 		String url = getASLDownloadURL(aslName);
+		
 		cxn.downloadFromLibrary(url, "../output/", aslName);
 	}
 
@@ -925,24 +926,24 @@ public class SpectraController
 				emptyTeraPacks++;
 			}
 
-			if(emptyTeraPacks>0)
-			{
-				// Shave off the last comma.
-				offset.setLength(offset.length()-1);
+
+		}
 			
-				String xmlOutput;
+		if(emptyTeraPacks>0)
+		{
+			// Shave off the last comma.
+			offset.setLength(offset.length()-1);
+		
+			String xmlOutput;
 
-				XMLParser xmlparser = new XMLParser();
-				String[] searchTerms = {"status",
-							"message"};
+			XMLParser xmlparser = new XMLParser();
+			String[] searchTerms = {"status", "message"};
 
-				url = getImportExportListURL(partition, "storage", offset.toString());
-				xmlOutput = cxn.queryLibrary(url);
+			url = getImportExportListURL(partition, "storage", offset.toString());
+			xmlOutput = cxn.queryLibrary(url);
 
-				xmlparser.setXML(xmlOutput);
-				response = xmlparser.parseXML(searchTerms);
-			}
-
+			xmlparser.setXML(xmlOutput);
+			response = xmlparser.parseXML(searchTerms);
 		}
 
 		if(printToShell)
