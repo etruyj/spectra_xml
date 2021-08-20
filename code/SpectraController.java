@@ -5,6 +5,8 @@
 // 		library. 
 //============================================================================
 
+import com.socialvagrancy.utils.FileManager;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -2017,11 +2019,24 @@ public class SpectraController
 
 	}
 
-	public void magazineCompaction(String partition, int maxMoves, boolean printToShell)
+	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
 	{
 		TeraPack[] magazine = sortMagazines(partition, true);
-		
-		moveTape(partition, magazine, maxMoves, true);
+
+		// Determine if the move commands will be issued to the library via
+		// XML or if a move list will be generated in ../output/MoveQueue.txt
+
+		if(output_type.equals("move-queue"))
+		{
+			moveListCreateFile();
+		}	
+
+		moveTape(partition, magazine, maxMoves, output_type, true);
+
+		if(output_type.equals("move-queue"))
+		{
+			System.out.println("\nGeneration of move queue is complete. The file can be found in the ../output directory. Upload the move queue to the library either by USB or the web GUI. When using USB, the file must be named MoveQueue.txt and placed in the root (/) directory to be uploaded. The move queue can be uploaded from the Inventory > Advanced menu.");
+		}
 	}
 
 	public TeraPack[] magazineContents(String partition, boolean printToShell)
@@ -2114,6 +2129,49 @@ public class SpectraController
 			resetHHMCounter("Vertical Axis", "Trip 2", robot, printToShell);
 		}
 		
+	}
+
+	public void moveListAppendLine(String source_type, String source, String dest_type, String destination)
+	{
+		//========================================
+		// moveListAppendLine
+		//	This function creates the MoveQueue.txt
+		//	file for the BlueScale move list.
+		//	This MoveList can be uploaded from
+		//	the web GUI or the LCM via USB to
+		//	issue moves.
+		//
+		//	This command adds a move command
+		//	line to the MoveQueue.txt file.
+		//========================================
+
+		String delimiter = ":";
+		String line = source_type + source + delimiter + dest_type + destination + "\r"; // added the \r to which creates the \r\n DOS endline character. **necessary**
+		FileManager movelist = new FileManager();
+		movelist.appendToFile("../output/MoveQueue.txt", line);
+
+	}
+
+	public boolean moveListCreateFile()
+	{
+		//=========================================
+		// moveListCreateFile
+		// 	This function creates the MoveQueue.txt
+		// 	for a BlueScale move list. This move
+		// 	List can be be uploaded from the web
+		// 	GUI or to the LCM via USB to issue
+		// 	moves.
+		//
+		// 	Since we're issueing commands to the
+		// 	library, we need to make sure the old
+		// 	file is deleted before starting.
+		//
+		// 	File name is specified per the T950
+		// 	user guide.
+		//=========================================
+		
+		FileManager newFile = new FileManager();
+		return newFile.createFileDeleteOld("../output/MoveQueue.txt", true);
 	}
 
 	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber, boolean printToShell)
@@ -2696,7 +2754,7 @@ public class SpectraController
 
 	}
 
-	private void moveTape(String partition, TeraPack[] mags, int maxMoves, boolean printToShell)
+	private void moveTape(String partition, TeraPack[] mags, int maxMoves, String output_type, boolean printToShell)
 	{
 		int source = 0; // Incrementor for source TP
 		int destination = mags.length - 1; // Increment for destination TP
@@ -2749,6 +2807,7 @@ public class SpectraController
 				// checkSlot - occupied slot in the same TeraPack to
 				// 		anchor the TeraPack to the inventory
 				// 		slot. destSlot is calculated from here.
+				System.out.println("Preparing move " + moves);
 				sourceSlotString = findSlotString(partition, sourceBarcode);
 				checkSlotString = findSlotString(partition, checkBarcode);
 				destSlotString = findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode);
@@ -2772,7 +2831,14 @@ public class SpectraController
 					System.out.println("Move " + moves + ": " + sourceBarcode  + " at slot " + sourceSlotString + " moving to " + destSlotString);
 				}
 			
-				sendMove(partition, sourceSlotString, destSlotString);
+				if(output_type.equals("move-queue"))
+				{
+					moveListAppendLine("Slot", sourceSlotString, "Slot", destSlotString);
+				}
+				else
+				{
+					sendMove(partition, sourceSlotString, destSlotString);
+				}
 			}
 			else
 			{

@@ -173,7 +173,7 @@ public class SpectraXML
 				conn.getXMLStatusMessage("lock-tension-rods", option, option2, option3, true);
 				break;
 			case "magazine-compaction":
-				conn.magazineCompaction(option, moves, true);
+				conn.magazineCompaction(option, moves, option3, true);
 				break;
 			case "magazine-contents":
 				conn.magazineContents(option, true);

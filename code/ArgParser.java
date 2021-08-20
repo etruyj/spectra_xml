@@ -193,9 +193,18 @@ public class ArgParser
 				case "--max-moves":
 					if((i+1)<args.length)
 					{
+						int library_maximum = 100; // Maximum number of moves available for a MoveQueue.txt file.
+
 						maxMoves = Integer.parseInt(args[i+1]);
 						i++;
+						
+						if(maxMoves > library_maximum)
+						{
+							System.out.println("The maximum number of moves allowed is 100. Setting move count to 100");
+							maxMoves = 100;
+						}
 					}
+					break;
 				case "-o":
 				case "--option": // generic option command (original input flag).
 				case "--checksum":
@@ -269,6 +278,7 @@ public class ArgParser
 				case "--number":
 				case "--number-characters":
 				case "--offset": // Terapack offset.
+				case "--output-type": // Change the output format.
 				case "--reboot-in": // delay before restart.
 				case "--robot": // Specify the TFIN robot to use.
 				case "--value":
