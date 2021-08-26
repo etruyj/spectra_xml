@@ -6,6 +6,7 @@
 //============================================================================
 
 import com.socialvagrancy.utils.FileManager;
+import com.socialvagrancy.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,7 @@ public class SpectraController
 {
 	private Connector cxn;
 	private String libraryAddress;
+	private Logger log;
 
 	//====================================================================
 	// Constructor
@@ -22,7 +24,10 @@ public class SpectraController
 	
 	public SpectraController(String server, boolean secure)
 	{
-		cxn = new Connector();
+		// Declared logger in SpectraController as opposed to 
+		// in connector to allow logging of issues within the commands.
+		log = new Logger("../logs/slxml-main.log", 102400, 3, 1);
+		cxn = new Connector(log);
 		
 		if(secure)
 		{
@@ -2035,7 +2040,7 @@ public class SpectraController
 
 		if(output_type.equals("move-queue"))
 		{
-			System.out.println("\nGeneration of move queue is complete. The file can be found in the ../output directory. Upload the move queue to the library either by USB or the web GUI. When using USB, the file must be named MoveQueue.txt and placed in the root (/) directory to be uploaded. The move queue can be uploaded from the Inventory > Advanced menu.");
+			System.out.println("\nGeneration of move queue is complete. The file can be found in the ../output directory. Upload the move queue to the library either by USB or the web GUI. When using USB, the file must be named MoveQueue.txt and placed in the root (/) directory to be uploaded. The move queue can be uploaded from the Inventory > Advanced menu.\n");
 		}
 	}
 
@@ -2807,7 +2812,7 @@ public class SpectraController
 				// checkSlot - occupied slot in the same TeraPack to
 				// 		anchor the TeraPack to the inventory
 				// 		slot. destSlot is calculated from here.
-				System.out.println("Preparing move " + moves);
+				System.out.println("\nPreparing move " + moves);
 				sourceSlotString = findSlotString(partition, sourceBarcode);
 				checkSlotString = findSlotString(partition, checkBarcode);
 				destSlotString = findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode);
@@ -3105,11 +3110,21 @@ public class SpectraController
 			slotOrder.add(1, destSlot2);
 		}
 		
+		// Log progress so far.
+		log.log("Validating Move: " + sourceBarcode + " from source " + sourceSlot + " to " + destSlot, 1);
+		log.log("Verifying destination with tape " + destBarcode + " at slot " + destSlot2, 1);
+
 		// Search for the slots in the library's inventory.
 		boolean inSlot = false; // Parsing the correct slot
 		boolean success = true; // Success default true. Any failed test results in false.
 		int listIndex = 0; // The index for the linked list.
 		String searchValue = "none";
+	
+		// slotCheck is used to make sure all three slots have been verified during this process.
+		// If source, dest, and dest2 are checked the corresponding index is marked true.
+		// isValid is determined based on success and the indices on slotCheck.
+		// results are logged.
+		boolean[] slotCheck = {false, false, false};
 
 		XMLResult[] response = listInventory(partition, false);
 
@@ -3130,6 +3145,7 @@ public class SpectraController
 							System.out.print("Verifying source...\t\t\t");
 						}
 						searchValue = sourceBarcode;
+						slotCheck[0] = true; // source has been checked.
 					}
 					else if(slotOrder.get(listIndex).equals(destSlot))
 					{
@@ -3138,6 +3154,7 @@ public class SpectraController
 							System.out.print("Verifying destination...\t\t");
 						}
 						searchValue = "No";
+						slotCheck[1] = true; // destination has been checked.
 					}
 					else if(slotOrder.get(listIndex).equals(destSlot2))
 					{	
@@ -3146,6 +3163,7 @@ public class SpectraController
 							System.out.print("Verifying destination TeraPack...\t");
 						}
 						searchValue = destBarcode;
+						slotCheck[2] = true; // reference barcode has been checked.
 					}
 				}
 
@@ -3197,7 +3215,37 @@ public class SpectraController
 			}
 		}			
 
-		return success;
+		if(success && slotCheck[0] && slotCheck[1] && slotCheck[2])
+		{
+			// All three slots were checked (slotCheck)
+			// None of values failed.
+			log.log("Move validated", 1);
+			return true;
+		}
+		else
+		{
+			// The validation failed. Log why.
+			if(!slotCheck[0])
+			{
+				log.log("Invalid Move (" + sourceBarcode + ": " + sourceSlot + " > " + destSlot + "): Unable to check source slot.", 3);
+			}
+
+			if(!slotCheck[1])
+			{
+				log.log("Invalid Move (" + sourceBarcode + ": " + sourceSlot + " > " + destSlot + "): Unable to check destination slot.", 3);
+			}
+
+			if(!slotCheck[2])
+			{
+				log.log("Invalid Move (" + sourceBarcode + ": " + sourceSlot + " > " + destSlot + "): Unable to check reference barcode " + destBarcode + "(" + destSlot2 + ").", 3);
+			}
+
+			if(!success)
+			{
+				log.log("Invalid Move (" + sourceBarcode + ": " + sourceSlot + " > " + destSlot + "): One of the slots checked did not have the expected value.", 3);
+			}
+			return false;
+		}
 	}
 
 	private boolean validateRobot(String robot)

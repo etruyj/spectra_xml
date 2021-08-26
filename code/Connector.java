@@ -36,10 +36,10 @@ public class Connector
 	CookieJar cookies;
 	Logger log;
 
-	public Connector()
+	public Connector(Logger logs)
 	{
 		cookies = new CookieJar();
-		log = new Logger("../logs/slxml-main.log", 102400, 3, 1);
+		log = logs;
 		log.checkLogs();
 	}
 
