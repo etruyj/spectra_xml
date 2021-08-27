@@ -2031,12 +2031,24 @@ public class SpectraController
 		// Determine if the move commands will be issued to the library via
 		// XML or if a move list will be generated in ../output/MoveQueue.txt
 
+		// Filename requirements are specific for the move queue.
+		// It has to have this name to work.
+		String fileName = "../output/MoveQueue.txt";
+		
 		if(output_type.equals("move-queue"))
 		{
-			moveListCreateFile();
+		
+			if(moveListCreateFile(fileName))
+			{
+				log.log("Created move queue file: " + fileName, 1);
+			}
+			else
+			{
+				log.log("Unable to create move queue file: " + fileName, 3);
+			}
 		}	
 
-		moveTape(partition, magazine, maxMoves, output_type, true);
+		moveTape(partition, magazine, maxMoves, output_type, fileName, true);
 
 		if(output_type.equals("move-queue"))
 		{
@@ -2136,7 +2148,7 @@ public class SpectraController
 		
 	}
 
-	public void moveListAppendLine(String source_type, String source, String dest_type, String destination)
+	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
 	{
 		//========================================
 		// moveListAppendLine
@@ -2153,11 +2165,11 @@ public class SpectraController
 		String delimiter = ":";
 		String line = source_type + source + delimiter + dest_type + destination + "\r"; // added the \r to which creates the \r\n DOS endline character. **necessary**
 		FileManager movelist = new FileManager();
-		movelist.appendToFile("../output/MoveQueue.txt", line);
+		movelist.appendToFile(fileName, line);
 
 	}
 
-	public boolean moveListCreateFile()
+	public boolean moveListCreateFile(String fileName)
 	{
 		//=========================================
 		// moveListCreateFile
@@ -2176,7 +2188,8 @@ public class SpectraController
 		//=========================================
 		
 		FileManager newFile = new FileManager();
-		return newFile.createFileDeleteOld("../output/MoveQueue.txt", true);
+		
+		return newFile.createFileDeleteOld(fileName, true);
 	}
 
 	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber, boolean printToShell)
@@ -2759,7 +2772,7 @@ public class SpectraController
 
 	}
 
-	private void moveTape(String partition, TeraPack[] mags, int maxMoves, String output_type, boolean printToShell)
+	private void moveTape(String partition, TeraPack[] mags, int maxMoves, String output_type, String fileName, boolean printToShell)
 	{
 		int source = 0; // Incrementor for source TP
 		int destination = mags.length - 1; // Increment for destination TP
@@ -2768,11 +2781,20 @@ public class SpectraController
 
 		if(source>=destination)
 		{
-			System.out.println("There are no moves to free up any TeraPacks.");
+
+			log.log("There are no moves to free up any TeraPacks.", 1);
+			if(printToShell)
+			{
+				System.out.println("There are no moves to free up any TeraPacks.");
+			}
 		}
 		else if(sourceTapes > maxMoves)
 		{
-			System.out.println("There are " + sourceTapes + " tapes in this TeraPack and only " + maxMoves + " moves allowed with this operation. No TeraPacks will be freed.");
+			log.log("There are " + sourceTapes + " tapes in this TeraPack and only " + maxMoves + " moves allowed with this operation. No TeraPacks will be freed.", 1);
+			if(printToShell)
+			{
+				System.out.println("There are " + sourceTapes + " tapes in this TeraPack and only " + maxMoves + " moves allowed with this operation. No TeraPacks will be freed.");
+			}
 		}
 
 		int tapeSlot = -1;
@@ -2783,13 +2805,18 @@ public class SpectraController
 		String destSlotString = "none";
 
 		// Move validation variables.
-		int checkSlot = -1;
+		int checkSlot; // slot to check for reference tape.
 		String checkBarcode;
 		String checkSlotString;
-		boolean isValidMove = false;
+		boolean isValidMove;
 	
 		while((source < destination) && (moves < maxMoves))
 		{
+			// Variables are set here to reset them
+			// with every iteration.
+			isValidMove = false;
+			checkSlot = -1;
+
 			tapeSlot = mags[source].getNextOccupiedSlot(tapeSlot);
 			emptySlot = mags[destination].getNextEmptySlot(emptySlot);
 		
@@ -2812,7 +2839,11 @@ public class SpectraController
 				// checkSlot - occupied slot in the same TeraPack to
 				// 		anchor the TeraPack to the inventory
 				// 		slot. destSlot is calculated from here.
-				System.out.println("\nPreparing move " + moves);
+				if(printToShell)
+				{
+					System.out.println("\nPreparing move " + moves);
+				}
+
 				sourceSlotString = findSlotString(partition, sourceBarcode);
 				checkSlotString = findSlotString(partition, checkBarcode);
 				destSlotString = findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode);
@@ -2827,6 +2858,17 @@ public class SpectraController
 				// redundant.
 				isValidMove = validateMove(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, true);				
 			}
+			else
+			{
+				// There's an error here where a checkslot is not being returned
+				// and the move queue ends up duplicating the last issued move.
+				log.log("Unable to validate move " + moves + ": cannot locate reference tape to verify destination for " + sourceBarcode + ".", 3);
+				log.log("Check slot " + checkSlot + " returned for destination magazine " + destination, 3);
+			     	if(printToShell)
+				{
+					System.out.println("Unable to validate move " + moves + " for tape " + sourceBarcode + ". Please re-run the command to re-try.");
+				}	
+			}
 
 			// Actually Perform the move
 			if(isValidMove)
@@ -2838,7 +2880,7 @@ public class SpectraController
 			
 				if(output_type.equals("move-queue"))
 				{
-					moveListAppendLine("Slot", sourceSlotString, "Slot", destSlotString);
+					moveListAppendLine("Slot", sourceSlotString, "Slot", destSlotString, fileName);
 				}
 				else
 				{
@@ -2847,7 +2889,11 @@ public class SpectraController
 			}
 			else
 			{
-				System.out.println("Cannot verify slot information for move " + moves + ". Cancelling action.");
+				log.log("Move " + moves + " failed for barcode " + sourceBarcode, 3);
+				if(printToShell)
+				{
+					System.out.println("Cannot verify slot information for move " + moves + ". Cancelling action.");
+				}
 			}
 
 		
