@@ -2026,7 +2026,7 @@ public class SpectraController
 
 	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
 	{
-		TeraPack[] magazine = sortMagazines(partition, true);
+		TeraPack[] magazine = sortMagazines(partition, true, true);
 
 		// Determine if the move commands will be issued to the library via
 		// XML or if a move list will be generated in ../output/MoveQueue.txt
@@ -2048,7 +2048,7 @@ public class SpectraController
 			}
 		}	
 
-		moveTape(partition, magazine, maxMoves, output_type, fileName, true);
+		planCompaction(partition, magazine, maxMoves, output_type, fileName, true);
 
 		if(output_type.equals("move-queue"))
 		{
@@ -2772,7 +2772,33 @@ public class SpectraController
 
 	}
 
-	private void moveTape(String partition, TeraPack[] mags, int maxMoves, String output_type, String fileName, boolean printToShell)
+	public String getMediaType(String partition, boolean printToShell)
+	{
+		String mediaType="none";
+		boolean typeFound = false;
+		int itr = 0;
+
+		XMLResult[] partitionProfile = listPartitionDetails(partition, false);
+
+		while(!typeFound)
+		{
+			if(partitionProfile[itr].headerTag.equalsIgnoreCase("Type"))
+			{
+				mediaType = partitionProfile[itr].value;
+				typeFound = true;
+			}
+			itr++;
+		}	
+
+		if(printToShell)
+		{
+			System.out.println("Partition " + partition + " uses " + mediaType + " media.");
+		}
+
+		return mediaType;
+	}
+	
+	private void planCompaction(String partition, TeraPack[] mags, int maxMoves, String output_type, String fileName, boolean printToShell)
 	{
 		int source = 0; // Incrementor for source TP
 		int destination = mags.length - 1; // Increment for destination TP
@@ -2924,7 +2950,65 @@ public class SpectraController
 
 	}
 	
+	public void prepareSlotIQ(String partition, String output_type, boolean printToShell)
+	{
+		// This command prepares a library for configuration with
+		// SlotIQ. Slot IQ requires at least 1 empty slot to be
+		// available in each TeraPack. This library will move
+		// tapes out of the 8th slot of all full TeraPacks.
+		//
+		// This command should be run before SlotIQ is enabled
+		// on the library.
 
+		log.log("Preparing library for SlotIQ", 1);
+
+		if(printToShell)
+		{
+			System.out.println("Preparing library for SlotIQ...");
+		}
+
+		String mediaType = getMediaType(partition, true);
+
+		TeraPack[] magazines = sortMagazines(partition, false, true); 
+
+		// For debugging.
+		// Delete from final code.
+		for(int i=0; i<magazines.length; i++)
+		{
+			System.out.println(i + ": " + magazines[i].getMagazineBarcode() + " " + magazines[i].getLocation() + " " + magazines[i].getCapacity());
+		}
+		// End debugging.
+
+		if(slotIQIsPossible(magazines, mediaType, true))
+		{
+			System.out.println("Slot IQ preparation is possible.");
+		}
+		else
+		{
+			System.out.println("There are not enough available slots to perform SlotIQ preparation."); 
+		}	
+	}
+
+	//==============================================
+	// QUICK SORT
+	//==============================================
+	//
+	private TeraPack[] quickSort(TeraPack[] mags, int low, int high)
+	{
+		if(low < high)
+		{
+			int pi = partition(mags, low, high);
+
+			// Separately sort elements before
+			// partition and after partition
+			quickSort(mags, low, pi - 1);
+			quickSort(mags, pi + 1, high);
+		}
+
+		return mags;
+	}
+	//
+	// Part of the quick sort algorithm, not anything to do with library partitions.
 	private int partition(TeraPack[] mags, int low, int high)
 	{
 		// Pivot
@@ -2949,21 +3033,11 @@ public class SpectraController
 		swapTeraPacks(mags, i+1, high);
 		return (i + 1);
 	}
-
-	private TeraPack[] quickSort(TeraPack[] mags, int low, int high)
-	{
-		if(low < high)
-		{
-			int pi = partition(mags, low, high);
-
-			// Separately sort elements before
-			// partition and after partition
-			quickSort(mags, low, pi - 1);
-			quickSort(mags, pi + 1, high);
-		}
-
-		return mags;
-	}
+	//
+	//==============================================
+	// END QUICK SORT
+	//==============================================
+	
 
 	private boolean sendMove(String partition, String sourceSlot, String destSlot)
 	{
@@ -2975,7 +3049,57 @@ public class SpectraController
 		return true;	
 	}
 
-	private TeraPack[] sortMagazines(String partition, boolean printToShell)
+	private void slotIQEmptyFull(TeraPack[] mags, String partition, String output_type, boolean printToShell)
+	{
+
+	}
+
+	private boolean slotIQIsPossible(TeraPack[] mags, String mediaType, boolean printToShell)
+	{
+		int tapes_to_move = 0;
+		int slots_available = 0;
+		int max_slots_per_magazine;
+
+		if(mediaType.equals("LTO"))
+		{
+			max_slots_per_magazine = 10;
+		}
+		else
+		{
+			max_slots_per_magazine = 9;
+		}
+
+		for(int i=mags.length-1; i>=0; i--)
+		{
+			if(mags[i].getCapacity()==max_slots_per_magazine && mags[i].getLocation().equals("storage"))
+			{
+				tapes_to_move++;
+			}
+			else if(mags[i].getLocation().equals("storage"))
+			{
+				// Add the amount of available slots in the TeraPack - 1 to the available slots.
+				// We need the -1 because this terapack also needs an open slot for slot iq
+				slots_available = slots_available + (max_slots_per_magazine - mags[i].getCapacity() - 1);
+			}
+		}
+
+		if(printToShell)
+		{
+			System.out.println(tapes_to_move + " moves are needed to prepare this partition for Slot IQ.");
+			System.out.println("There are " + slots_available + " slots available for this task.");
+		}
+
+		if(tapes_to_move <= slots_available)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private TeraPack[] sortMagazines(String partition, boolean omitEmptyFull, boolean printToShell)
 	{
 		// Gathering TeraPack from library.
 		if(printToShell) 
@@ -2990,8 +3114,12 @@ public class SpectraController
 		{
 			System.out.println("Analyzing TeraPack Contents...");
 		}
+
 		// Remove the Empty and full TeraPacks if desired.
-		magazines = filterEmptyFullEntryExit(magazines);
+		if(omitEmptyFull)
+		{
+			magazines = filterEmptyFullEntryExit(magazines);
+		}
 
 		/* Debug Code
 		// Print before and after.

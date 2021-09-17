@@ -205,6 +205,9 @@ public class SpectraXML
 			case "physical-inventory":
 				conn.physicalInventory(option, true);
 				break;
+			case "prepare-slotiq":
+				conn.prepareSlotIQ(option, option3, true);
+				break;
 			case "power-off":
 				conn.getXMLStatusMessage("power-off", option, option2, option3, true);
 				break;

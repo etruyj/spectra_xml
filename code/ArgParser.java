@@ -278,7 +278,7 @@ public class ArgParser
 				case "--number":
 				case "--number-characters":
 				case "--offset": // Terapack offset.
-				case "--output-type": // Change the output format.
+				case "--output-format": // Change the output format.
 				case "--reboot-in": // delay before restart.
 				case "--robot": // Specify the TFIN robot to use.
 				case "--value":
