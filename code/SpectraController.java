@@ -2708,6 +2708,92 @@ public class SpectraController
 		return "none";		
 	}
 
+	private ArrayList<String> findEmptyTeraPacks(String partition, int magazine_size, boolean printToShell)
+	{
+		ArrayList<String> empty_slots = findEmptySlots(partition);
+		ArrayList<String> terapack_slots = new ArrayList<String>();
+		int firstSlot = Integer.valueOf(empty_slots.get(0));
+		
+		int terapack = firstSlot % magazine_size;
+		terapack = (firstSlot - terapack)+1;
+
+		boolean searching = true;
+		int itr = 0;
+
+		while(searching)
+		{
+			// If the slot is the first in the terapack
+			// Check the index + mag size to determine
+			// if all the slots are in the list.
+			if(Integer.valueOf(empty_slots.get(itr)) == terapack)
+			{
+				if(Integer.valueOf(empty_slots.get(itr+magazine_size-1)) == (terapack + magazine_size - 1))
+				{
+					// Add slots to array.
+					for(int i = itr; i<itr+magazine_size; i++)
+					{
+						terapack_slots.add(empty_slots.get(i));
+					}
+				}
+			}
+
+			// If in the last slot of the TP increment the tp.
+			if(Integer.valueOf(empty_slots.get(itr)) == (terapack + magazine_size - 1))
+			{
+				terapack+=magazine_size;
+			}
+
+			// Check to see if we got to the end of the array.
+			// if the last slot in the terapack is higher than the
+			// last value of the list, we're done.
+			if((terapack + magazine_size - 1) > Integer.valueOf(empty_slots.get(empty_slots.size()-1)))
+			{
+				searching = false;
+			}
+
+			itr++;
+		}
+	
+		return terapack_slots;
+	}
+
+	private ArrayList<String> findEmptySlots(String partition)
+	{
+		ArrayList<String> empty_slots = new ArrayList<String>();
+		boolean searching = true;
+		int itr = 0;
+		String checkSlot = "0";
+
+		XMLResult[] response = listInventory(partition, false);
+		
+		// Build a list of all available slots.
+		while(searching)
+		{
+			// Grab a slot number.
+			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>Offset"))
+			{
+				checkSlot = response[itr].value;
+			}
+			
+			// Determine if that slot is occupied.
+			// If not store the number for verificatation.
+			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>full") && response[itr].value.equalsIgnoreCase("No"))
+			{
+				empty_slots.add(checkSlot);
+			}
+
+			// Determine the end of the search.
+			if(response[itr].headerTag.equalsIgnoreCase("partition>entryExitSlot"))
+			{
+				searching = false;
+			}
+
+			itr++;
+		}
+
+		return empty_slots;
+	}	
+
 	private String findSlotString(String partition, String barcode)
 	{
 		// Search the inventory for the barcode.
@@ -2950,7 +3036,7 @@ public class SpectraController
 
 	}
 	
-	public void prepareSlotIQ(String partition, String output_type, boolean printToShell)
+	public void prepareSlotIQ(String partition, int max_moves, String output_format, boolean printToShell)
 	{
 		// This command prepares a library for configuration with
 		// SlotIQ. Slot IQ requires at least 1 empty slot to be
@@ -2971,21 +3057,43 @@ public class SpectraController
 
 		TeraPack[] magazines = sortMagazines(partition, false, true); 
 
-		// For debugging.
-		// Delete from final code.
-		for(int i=0; i<magazines.length; i++)
-		{
-			System.out.println(i + ": " + magazines[i].getMagazineBarcode() + " " + magazines[i].getLocation() + " " + magazines[i].getCapacity());
-		}
-		// End debugging.
-
 		if(slotIQIsPossible(magazines, mediaType, true))
 		{
+			// Filename requirements are specific for the move queue.
+			// It has to have this name to work.
+			String fileName = "../output/MoveQueue.txt";
+		
+			if(output_format.equals("move-queue"))
+			{
+		
+				if(moveListCreateFile(fileName))
+				{
+					log.log("Created move queue file: " + fileName, 1);
+				}
+				else
+				{
+					log.log("Unable to create move queue file: " + fileName, 3);
+				}
+			}
+
 			System.out.println("Slot IQ preparation is possible.");
+			
+			slotIQEmptyFullTerapacks(magazines, partition, mediaType, max_moves, output_format, fileName, true);
+			
+			if(output_format.equals("move-queue"))
+			{
+				System.out.println("\nGeneration of move queue is complete. The file can be found in the ../output directory. Upload the move queue to the library either by USB or the web GUI. When using USB, the file must be named MoveQueue.txt and placed in the root (/) directory to be uploaded. The move queue can be uploaded from the Inventory > Advanced menu.\n");
+			}
+		
 		}
 		else
 		{
-			System.out.println("There are not enough available slots to perform SlotIQ preparation."); 
+			log.log("Unable to prepare library for Slot IQ.", 3); 
+		
+			if(printToShell)
+			{
+				System.out.println("There are not enough available slots to perform SlotIQ preparation."); 
+			}
 		}	
 	}
 
@@ -3049,9 +3157,102 @@ public class SpectraController
 		return true;	
 	}
 
-	private void slotIQEmptyFull(TeraPack[] mags, String partition, String output_type, boolean printToShell)
+	private void slotIQEmptyFullTerapacks(TeraPack[] mags, String partition, String mediaType, int max_moves, String output_format, String fileName, boolean printToShell)
 	{
+		int max_slots_per_terapack;
+		int source_terapack = mags.length-1;
+		int target_terapack = mags.length-1;
+		int moves_to_empty_terapack = 0; // tracking movement into empty terapacks.
+		int move_counter = 0;
+		boolean moving_tapes = true;
 
+		if(mediaType.equals("LTO"))
+		{
+			max_slots_per_terapack=10;
+		}
+		else
+		{
+			max_slots_per_terapack=9;
+		}
+	
+		ArrayList<String> empty_slots = findEmptyTeraPacks(partition, max_slots_per_terapack, printToShell);
+		
+		while(moving_tapes)
+		{
+			// Find next destination terapack.
+			target_terapack = slotIQFindNextAvailableTerapack(mags, max_slots_per_terapack, target_terapack);
+
+			// Determine if moves are possible or end the loop.
+			if(target_terapack == -1 || mags[source_terapack].getCapacity() < max_slots_per_terapack || move_counter >= max_moves)
+			{
+				if(target_terapack == -1)
+				{
+					log.log("Error: Unable to find a destination TeraPack.", 3);
+				}
+				else if(move_counter >= max_moves)
+				{
+					log.log("Maximum requested moves (" + max_moves + ") has been reached.", 3);
+
+					if(printToShell)
+					{
+						System.out.println("Maximum requested moves (" + max_moves + ") has been reached.");
+					}
+				}
+				else
+				{
+					log.log("SlotIQ preparation complete. All TeraPacks have at least 1 open slot.", 3);
+
+					if(printToShell)
+					{
+						System.out.println("SlotIQ preparation complete. All TeraPacks have at least 1 open slot.");
+					}
+				}
+				moving_tapes = false;
+			}
+			else
+			{
+				if(mags[target_terapack].getCapacity()>0)
+				{
+					// There is a tape in the TeraPack to use as an anchor
+					slotIQQueueMovesToOccupied(mags, max_slots_per_terapack, source_terapack, target_terapack, partition, output_format, fileName, printToShell);
+				}
+				else
+				{
+					// Terapack is empty, so use empty terapack slots.
+					// (empty_slots)
+					moves_to_empty_terapack++;
+					slotIQQueueMovesToEmpty(mags, max_slots_per_terapack, source_terapack, target_terapack, empty_slots.get(0), moves_to_empty_terapack, partition, output_format, fileName);
+					empty_slots.remove(0);
+
+					if(moves_to_empty_terapack==(max_slots_per_terapack-1))
+					{
+						// If moves_to_empty_terapack = max_slots - 1, there is only 1 slot left in the TeraPack.
+						// Terapack capacity was incremented to ensure we move to the next target terapack.
+						// Reset this counter to 0.
+						moves_to_empty_terapack=0;
+					}
+				}
+				
+				move_counter++;
+				source_terapack--;
+			}
+		}	
+	}
+
+	private int slotIQFindNextAvailableTerapack(TeraPack[] mags, int mag_size, int index)
+	{
+		if(mags[index].getCapacity()<mag_size-1)
+		{
+			return index;
+		}
+		else if(index-1>=0)
+		{
+			return slotIQFindNextAvailableTerapack(mags, mag_size, index-1);
+		}
+		else
+		{
+			return -1;
+		}
 	}
 
 	private boolean slotIQIsPossible(TeraPack[] mags, String mediaType, boolean printToShell)
@@ -3096,6 +3297,79 @@ public class SpectraController
 		else
 		{
 			return false;
+		}
+	}
+
+	private void slotIQQueueMovesToEmpty(TeraPack[] mags, int magazine_size, int source_terapack, int target_terapack, String target_slot, int slot_number, String partition, String output_format, String fileName)
+	{
+		String source_barcode = mags[source_terapack].getBarcodeAtPosition(0);
+		String source_slot = findSlotString(partition, source_barcode);
+
+		if(output_format.equals("move-queue"))
+		{
+			log.log("Writing move to move queue. (" + source_slot + ": " + source_barcode + ") to " + target_slot + ".", 2);
+			moveListAppendLine("Slot", source_slot, "Slot", target_slot, fileName);
+		}
+		else
+		{
+			log.log("Sending move to move library. (" + source_slot + ": " + source_barcode + ") to " + target_slot + ".", 2);
+			sendMove(partition, source_slot, target_slot);
+		}
+
+		if(slot_number == magazine_size-1)
+		{
+			// Increment the tape number in this terapack so the queue ticks
+			// to the next terapack.
+			mags[target_terapack].addTapeCount(slot_number);
+		}
+	}
+
+	private void slotIQQueueMovesToOccupied(TeraPack[] mags, int magazine_size, int source_terapack, int target_terapack, String partition, String output_format, String fileName, boolean printToShell)
+	{
+		String source_barcode;
+		String source_slot;
+		String target_slot;
+		String check_slot;
+		String check_barcode;
+		int check_slot_int;
+		int target_slot_int;
+
+		source_barcode = mags[source_terapack].getBarcodeAtPosition(0);
+		source_slot = findSlotString(partition, source_barcode);
+
+		check_slot_int = mags[target_terapack].getNextOccupiedSlot(0);
+		check_barcode = mags[target_terapack].getBarcodeAtPosition(check_slot_int);
+		check_slot = findSlotString(partition, check_barcode);
+
+		target_slot_int = mags[target_terapack].getNextEmptySlot(0);
+		target_slot = findDestinationSlot(partition, target_slot_int, check_slot_int, check_barcode);
+
+		// Add an new line character to space out the move validation strings.
+		System.out.print("\n");
+		
+		if(validateMove(partition, source_slot, source_barcode, target_slot, check_slot, check_barcode, printToShell))
+		{
+			mags[target_terapack].addTapeToSlot(source_barcode, target_slot_int);
+
+			if(output_format.equals("move-queue"))
+			{
+				log.log("Writing move to move queue. " + source_slot + " (" + source_barcode + ") to " + target_slot + ".", 2);
+				moveListAppendLine("Slot", source_slot, "Slot", target_slot, fileName);
+			}
+			else
+			{
+				log.log("Sending move to move library. " + source_slot + " (" + source_barcode + ") to " + target_slot + ".", 2);
+				sendMove(partition, source_slot, target_slot);
+			}
+		}
+		else
+		{
+			log.log("Error: Unable to validate move (" + source_slot + ": " + source_barcode + ") to (" + target_slot + ")", 3);
+			
+			if(printToShell)
+			{
+				System.out.println("Error: Unable to validate move " + source_slot + " (" + source_barcode + ") to (" + target_slot + ")");
+			}
 		}
 	}
 

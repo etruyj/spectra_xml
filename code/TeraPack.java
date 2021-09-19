@@ -131,6 +131,18 @@ public class TeraPack
 	// Public Functions
 	//===================================================================
 
+	public void addTapeCount(int extraTapes)
+	{
+		capacity += extraTapes;
+	}
+	
+	public void addTapeToSlot(String barcode, int slot)
+	{
+		tapes[slot] = barcode;
+
+		calculateCapacity();
+	}
+
 	public void calculateCapacity()
 	{
 		int occupied_slots = 0;
