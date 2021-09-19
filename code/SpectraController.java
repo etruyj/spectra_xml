@@ -3211,6 +3211,12 @@ public class SpectraController
 			}
 			else
 			{
+				if(printToShell)
+				{
+					// Starts with newline character to space between outputs for readability.
+					System.out.println("\nPreparing move " + (move_counter + 1) + "...");
+				}
+
 				if(mags[target_terapack].getCapacity()>0)
 				{
 					// There is a tape in the TeraPack to use as an anchor
@@ -3344,9 +3350,7 @@ public class SpectraController
 		target_slot_int = mags[target_terapack].getNextEmptySlot(0);
 		target_slot = findDestinationSlot(partition, target_slot_int, check_slot_int, check_barcode);
 
-		// Add an new line character to space out the move validation strings.
-		System.out.print("\n");
-		
+
 		if(validateMove(partition, source_slot, source_barcode, target_slot, check_slot, check_barcode, printToShell))
 		{
 			mags[target_terapack].addTapeToSlot(source_barcode, target_slot_int);
