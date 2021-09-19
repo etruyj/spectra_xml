@@ -3318,7 +3318,7 @@ public class SpectraController
 		}
 		else
 		{
-			log.log("Sending move to move library. (" + source_slot + ": " + source_barcode + ") to " + target_slot + ".", 2);
+			log.log("Sending move to library. (" + source_slot + ": " + source_barcode + ") to " + target_slot + ".", 2);
 			sendMove(partition, source_slot, target_slot);
 		}
 
@@ -3362,7 +3362,7 @@ public class SpectraController
 			}
 			else
 			{
-				log.log("Sending move to move library. " + source_slot + " (" + source_barcode + ") to " + target_slot + ".", 2);
+				log.log("Sending move to library. " + source_slot + " (" + source_barcode + ") to " + target_slot + ".", 2);
 				sendMove(partition, source_slot, target_slot);
 			}
 		}
