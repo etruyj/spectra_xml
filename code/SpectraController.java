@@ -291,7 +291,7 @@ public class SpectraController
 	private String getMediaExchangeCleanURL(String partition, String tap)
 	{
 		return libraryAddress + "mediaExcahnge.xml?action=clean&partition="
-			+ partition + "&TAPDevice=" + tap;
+			+ partition.replace(" ", "%20") + "&TAPDevice=" + tap;
 	}
 
 	private String getMediaExchangeTAPStateURL(String tap, String drawer)
@@ -331,7 +331,7 @@ public class SpectraController
 		// 		valid inputs are SLOT, EE, DRIVE
 		// destNumber - What is the Slot (offset) of the destination.
 
-		return libraryAddress + "inventory.xml?action=move&partition=" + partition 
+		return libraryAddress + "inventory.xml?action=move&partition=" + partition.replace(" ", "%20") 
 			+ "&sourceID=" + sourceID + "&sourceNumber=" + sourceNumber 
 			+ "&destinationID=" + destID + "&destinationNumber=" + destNumber;
 	}
