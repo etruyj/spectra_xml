@@ -8,7 +8,9 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
-import com.socialvagrancy.spectraxml.commands.URLs;
+import com.socialvagrancy.spectraxml.structures.XMLResult;
+import com.socialvagrancy.spectraxml.utils.Connector;
+import com.socialvagrancy.spectraxml.utils.XMLParser;
 
 import com.socialvagrancy.utils.FileManager;
 import com.socialvagrancy.utils.Logger;
@@ -33,7 +35,9 @@ public class BasicXMLCommands
 		// in connector to allow logging of issues within the commands.
 		log = new Logger("../logs/slxml-main.log", 102400, 3, 1);
 		cxn = new Connector(log);
-		
+	
+		String libraryAddress;
+
 		if(secure)
 		{
 			libraryAddress = "https://";
@@ -66,30 +70,30 @@ public class BasicXMLCommands
 		{
 			case "ASL":
 			case "asl":
-				url = getASLProgressURL();
+				url = url_list.getASLProgressURL();
 				break;
 			case "controller":
-				url = getControllerProgressURL();
+				url = url_list.getControllerProgressURL();
 				break;
 			case "drive":
 			case "driveList":
 			case "drive-list":
-				url = getDriveListProgressURL();
+				url = url_list.getDriveListProgressURL();
 				break;
 			case "etherlib":
 			case "etherLib":
-				url = getEtherLibProgressURL();
+				url = url_list.getEtherLibProgressURL();
 				break;
 			case "library":
 			case "library-refresh":
-				url = getLibraryProgressURL();
+				url = url_list.getLibraryProgressURL();
 				break;
 			case "package":
 			case "package-update":
-				url = getPackageProgressURL();
+				url = url_list.getPackageProgressURL();
 				break;
 			case "utils":
-				url = getUtilsProgressURL();
+				url = url_list.getUtilsProgressURL();
 				break;
 		}
 
@@ -131,7 +135,7 @@ public class BasicXMLCommands
 					"directionToStartReportingCharacters",
 					"maxNumberOfCharacters"};
 
-		String url = getUtilsDisplayBarcodeReportingURL();
+		String url = url_list.getUtilsDisplayBarcodeReportingURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -153,7 +157,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"state"};
 
-		String url = getUtilsDisplayTapeBarcodeVerificationURL();
+		String url = url_list.getUtilsDisplayTapeBarcodeVerificationURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -175,7 +179,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"loadCount"};
 
-		String url = getDriveLoadCountURL(option);
+		String url = url_list.getDriveLoadCountURL(option);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -195,95 +199,22 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"status","message"};
 
-		String url = getASLDownloadURL(aslName);
+		String url = url_list.getASLDownloadURL(aslName);
 		
 		cxn.downloadFromLibrary(url, "../output/", aslName);
 	}
 
 	public void downloadDriveTrace()
 	{
-		String url = getDriveTraceRetrieveTracesURL("download", "none");
+		String url = url_list.getDriveTraceRetrieveTracesURL("download", "none");
 		cxn.downloadFromLibrary(url, "../output/", "drive_traces.zip");	
 	}
 
 	public void downloadTrace(String traceType, String name)
 	{
-		String url = getTracesDownloadURL(traceType, name);
+		String url = url_list.getTracesDownloadURL(traceType, name);
 		cxn.downloadFromLibrary(url, "../output/", name);
 	}
-
-	public void ejectEmpty(String partition, boolean printToShell)
-	{
-		// ejectEmpty
-		//  Prepares an export list of empty terapacks in the 
-		//  storage partition and uploads it into the library.
-		//  The actual eject must be done from the library's
-		//  front panel.
-
-		int emptyTeraPacks = 0;
-		int tempOffset = 0;
-		StringBuilder offset = new StringBuilder();
-		TeraPack[] magazines = magazineContents(partition, false);
-		XMLResult[] response = new XMLResult[1];
-		String url = "none";
-
-		for(int i=0; i<magazines.length; i++)
-		{
-			if(magazines[i].getLocation().equalsIgnoreCase("storage") && magazines[i].getCapacity() == 0)
-			{
-				// Fun fact, the offset returned by XML is base 1.
-				// The offset used by XML for identifying TeraPacks is
-				// base 0.
-				// All offsets must have -1 applied to reference the
-				// correct TeraPack.
-				tempOffset = Integer.parseInt(magazines[i].getOffset());
-				tempOffset--; 
-				
-				offset.append(Integer.toString(tempOffset) + ",");
-				emptyTeraPacks++;
-			}
-
-
-		}
-			
-		if(emptyTeraPacks>0)
-		{
-			// Shave off the last comma.
-			offset.setLength(offset.length()-1);
-		
-			String xmlOutput;
-
-			XMLParser xmlparser = new XMLParser();
-			String[] searchTerms = {"status", "message"};
-
-			url = getImportExportListURL(partition, "storage", offset.toString());
-			xmlOutput = cxn.queryLibrary(url);
-
-			xmlparser.setXML(xmlOutput);
-			response = xmlparser.parseXML(searchTerms);
-		}
-
-		if(printToShell)
-		{
-			if(emptyTeraPacks>0)
-			{
-				for(int i=0; i<response.length; i++)
-				{
-					System.out.println(response[i].value);
-				}
-				
-				if(response[0].value.equalsIgnoreCase("OK"))
-				{
-					System.out.println("To export the specified TeraPacks, please log into the front panel of your Spectra tape library and access the Advanced Import/Export menu. Press the Populate button to load the moves and click Start Moves.");
-				}
-			}
-			else
-			{
-				System.out.println("There are no empty TeraPacks in the storage chambers to export.");
-			}
-		}
-	}
-
 	public void etherLibStatus(boolean printToShell)
 	{
 		String xmlOutput;
@@ -296,7 +227,7 @@ public class BasicXMLCommands
 					"target",
 					"connected"};
 
-		String url = getEtherLibStatusURL();
+		String url = url_list.getEtherLibStatusURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -316,7 +247,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"status", "message"};
 		
-		String url = getASLGenerateURL();
+		String url = url_list.getASLGenerateURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -345,7 +276,7 @@ public class BasicXMLCommands
 					"updateStatus",
 					"rebootInProgress"};
 
-		String url = getPackageResultsURL();
+		String url = url_list.getPackageResultsURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -379,7 +310,7 @@ public class BasicXMLCommands
 					"minute",
 					"second"};
 
-		String url = getSystemMessagesURL();
+		String url = url_list.getSystemMessagesURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -406,7 +337,7 @@ public class BasicXMLCommands
 					"rotaryPosition"};
 
 		tap = convertTAPString(tap);
-		String url = getMediaExchangeTAPStateURL(tap, drawer);
+		String url = url_list.getMediaExchangeTAPStateURL(tap, drawer);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -422,7 +353,7 @@ public class BasicXMLCommands
 	public void getTraceType(String type, boolean printToShell)
 	{
 		String stringOutput;
-		String url = getTraceTypeURL(type);
+		String url = url_list.getTraceTypeURL(type);
 
 		stringOutput = cxn.queryLibrary(url);
 
@@ -446,128 +377,128 @@ public class BasicXMLCommands
 		{
 			case "abort-audit":
 				// Security audit not inventory audit.
-				url = getSecurityAuditAbortURL();
+				url = url_list.getSecurityAuditAbortURL();
 				break;
 			case "add-key":
-				url = getOptionKeyAddURL(option1);
+				url = url_list.getOptionKeyAddURL(option1);
 				break;
 			case "audit-inventory":
-				url = getInventoryAuditURL(option1, option2, option3);
+				url = url_list.getInventoryAuditURL(option1, option2, option3);
 				break;
 			case "audit-inventory-result":
-				url = getInventoryAuditResultsURL();
+				url = url_list.getInventoryAuditResultsURL();
 				break;
 			case "audit-status":
 				// Security audit, not inventory audit.
-				url = getSecurityAuditStatusURL();
+				url = url_list.getSecurityAuditStatusURL();
 				break;
 			case "controller-disable":
-				url = getControllerDisableFailoverURL(option1);
+				url = url_list.getControllerDisableFailoverURL(option1);
 				break;		
 			case "controller-enable":
-				url = getControllerEnableFailoverURL(option1, option2);
+				url = url_list.getControllerEnableFailoverURL(option1, option2);
 				break;
 			case "create-partition-auto":
-				url = getPartitionAutoCreateURL(option1, option2);
+				url = url_list.getPartitionAutoCreateURL(option1, option2);
 				break;
 			case "delete-partition":
-				url = getPartitionDeleteURL(option1, option2);
+				url = url_list.getPartitionDeleteURL(option1, option2);
 				break;
 			case "download-drive-trace":
-				url = getDriveTraceRetrieveTracesURL(option1, option2);
+				url = url_list.getDriveTraceRetrieveTracesURL(option1, option2);
 			case "empty-bulk-tap":
 				// clean up the option values.
 				option2 = convertTAPString(option2);
-				url = getMediaExchangeCleanURL(option1, option2);
+				url = url_list.getMediaExchangeCleanURL(option1, option2);
 				break;
 			case "gather-trace":
-				url = getTracesGatherURL(option1, option3);
+				url = url_list.getTracesGatherURL(option1, option3);
 				break;
 			case "generate-asl":
-				url = getASLGenerateURL();
+				url = url_list.getASLGenerateURL();
 				break;
 			case "generate-drive-trace":
-				url = getDriveTracesURL(option1);
+				url = url_list.getDriveTracesURL(option1);
 				break;
 			case "lock-tension-rods":
-				url = getUtilsLockTensionRodsURL(option1);
+				url = url_list.getUtilsLockTensionRodsURL(option1);
 				break;
 			case "modify-barcode-settings":
-				url = getUtilsModifyBarcodeReportingURL(option1, option2, option3);
+				url = url_list.getUtilsModifyBarcodeReportingURL(option1, option2, option3);
 				break;
 			case "modify-tape-verification":
-				url = getUtilsModifyTapeBarcodeVerifyURL(option1);
+				url = url_list.getUtilsModifyTapeBarcodeVerifyURL(option1);
 				break;
 			case "move-result":
-				url = getInventoryMoveResultURL(option1);
+				url = url_list.getInventoryMoveResultURL(option1);
 				break;
 			case "power-off":
-				url = getPowerOffURL(option3);
+				url = url_list.getPowerOffURL(option3);
 				break;
 			case "refresh-ec-info":
-				url = getLibraryRefreshECInfoURL();
+				url = url_list.getLibraryRefreshECInfoURL();
 				break;
 			case "refresh-environment":
-				url = getLibraryRefreshEnvironmentURL();
+				url = url_list.getLibraryRefreshEnvironmentURL();
 				break;
 			case "refresh-etherlib":
-				url = getEtherLibRefreshURL();
+				url = url_list.getEtherLibRefreshURL();
 				break;
 			case "remove-all-partitions":
-				url = getUtilsRemoveAllPartitionsURL();
+				url = url_list.getUtilsRemoveAllPartitionsURL();
 				break;
 			case "replace-drive":
-				url = getDriveTraceReplaceDriveURL(option1);
+				url = url_list.getDriveTraceReplaceDriveURL(option1);
 				break;
 			case "reset-controller":
-				url = getUtilsResetControllerURL(option1);
+				url = url_list.getUtilsResetControllerURL(option1);
 				break;
 			case "reset-drive":
-				url = getDriveTraceResetDriveURL(option1);
+				url = url_list.getDriveTraceResetDriveURL(option1);
 				break;
 			case "reset-inventory":
-				url = getUtilsResetInventoryURL();
+				url = url_list.getUtilsResetInventoryURL();
 				break;
 			case "reset-robot":
-				url = getUtilsResetRobotURL(option1);
+				url = url_list.getUtilsResetRobotURL(option1);
 				break;
 			case "reset-robot-calibration":
-				url = getUtilsResetRobotCalibrationURL(option3);
+				url = url_list.getUtilsResetRobotCalibrationURL(option3);
 				break;
 			case "resize-partition":
-				url = getPartitionResizeSlotsURL(option1, option2, option3);
+				url = url_list.getPartitionResizeSlotsURL(option1, option2, option3);
 				break;
 			case "return-from-service":
-				url = getRobotReturnFromServiceURL(option3);
+				url = url_list.getRobotReturnFromServiceURL(option3);
 				break;
 			case "save-robot-state":
-				url = getUtilsRobotStateURL(option3);
+				url = url_list.getUtilsRobotStateURL(option3);
 				break;
 			case "selective-snowplow":
-				url = getUtilsSetSnowplowURL(option1);
+				url = url_list.getUtilsSetSnowplowURL(option1);
 				break;
 			case "send-to-service":
-				url = getRobotSendToServiceURL(option3);
+				url = url_list.getRobotSendToServiceURL(option3);
 				break;
 			case "set-mlm":
 				option1 = convertMLMSetting(option1);
-				url = getMLMSettingUpdateURL(option1, option3);
+				url = url_list.getMLMSettingUpdateURL(option1, option3);
 				break;
 			case "stage-package":
-				url = getPackageStageURL(option1);
+				url = url_list.getPackageStageURL(option1);
 				break;
 			case "start-audit":
 				// security audit, not inventory audit.
-				url = getSecurityAuditStartURL();
+				url = url_list.getSecurityAuditStartURL();
 				break;
 			case "update-package":
-				url = getPackageUpdateURL(option1);
+				url = url_list.getPackageUpdateURL(option1);
 				break;
 			case "update-setting":
-				url = getLibraryUpdateSettingURL(option1, option3);
+				url = url_list.getLibraryUpdateSettingURL(option1, option3);
 				break;
 			case "verify-mag-barcodes":
-				url = getUtilsVerifyMagazineBarcodesURL();
+				url = url_list.getUtilsVerifyMagazineBarcodesURL();
 				break;
 		}	
 		
@@ -605,7 +536,7 @@ public class BasicXMLCommands
 					"number",
 					"lastOperation"};
 
-		String url = getLibraryMoveDetailsURL();
+		String url = url_list.getLibraryMoveDetailsURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -632,7 +563,7 @@ public class BasicXMLCommands
 					"motionStatus",
 					"repeaterStatus"};
 
-		String url = getLibraryRCMStatusURL(rcm);
+		String url = url_list.getLibraryRCMStatusURL(rcm);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -777,7 +708,7 @@ public class BasicXMLCommands
 					"poweredOn"};					
 
 
-		String url = getLibraryStatusURL();
+		String url = url_list.getLibraryStatusURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -799,7 +730,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"ASLName"};
 		
-		String url = getASLNamesURL();
+		String url = url_list.getASLNamesURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -831,7 +762,7 @@ public class BasicXMLCommands
 					"initiatorEnabled",
 					"fibreConnectionMode"};
 
-		String url = getControllerListURL();
+		String url = url_list.getControllerListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -875,7 +806,7 @@ public class BasicXMLCommands
 					"percentStaged",
 					"committing"};
 
-		String url = getDriveListURL();
+		String url = url_list.getDriveListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -905,7 +836,7 @@ public class BasicXMLCommands
 					"currentThreshold",
 					"postedDate"};
 
-		String url = getHHMListURL();
+		String url = url_list.getHHMListURL();
 		xmlOutput = cxn.queryLibrary(url);
 		
 		xmlparser.setXML(xmlOutput);
@@ -935,7 +866,7 @@ public class BasicXMLCommands
 					"isQueued",
 					"full"};
 	
-		String url = getInventoryListURL(partition);
+		String url = url_list.getInventoryListURL(partition);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -976,7 +907,7 @@ public class BasicXMLCommands
 					"start",
 					"stop"};
 
-		String url = getMLMSettingsListURL();
+		String url = url_list.getMLMSettingsListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1002,7 +933,7 @@ public class BasicXMLCommands
 					"action",
 					"daysRemaining"};
 
-		String url = getOptionKeyListURL();
+		String url = url_list.getOptionKeyListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1026,7 +957,7 @@ public class BasicXMLCommands
 					"list",
 					"name"};
 
-		String url = getPackageListURL();
+		String url = url_list.getPackageListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1055,7 +986,7 @@ public class BasicXMLCommands
 					"packageVersion",
 					"fullyStaged"};
 
-		String url = getPackageDetailsURL(pack);
+		String url = url_list.getPackageDetailsURL(pack);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1082,7 +1013,7 @@ public class BasicXMLCommands
 					"currentVersion",
 					"packageVersion"};
 
-		String url = getPackageFirmwareURL();
+		String url = url_list.getPackageFirmwareURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1125,7 +1056,7 @@ public class BasicXMLCommands
 					"id",
 					"type"};
 			
-		String url = getPartitionListURL();
+		String url = url_list.getPartitionListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1155,7 +1086,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"partitionName"};
 
-		String url = getPartitionNamesListURL();
+		String url = url_list.getPartitionNamesListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1186,7 +1117,7 @@ public class BasicXMLCommands
 					"description",
 					"ipAddress"};
 
-		String url = getLibrarySettingsURL();
+		String url = url_list.getLibrarySettingsURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1217,7 +1148,7 @@ public class BasicXMLCommands
 					"description",
 					"extraInformation"};
 
-		String url = getTaskListURL();
+		String url = url_list.getTaskListURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1240,7 +1171,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"logName", "gathered"};
 
-		String url = getTracesNamesURL(traceType);
+		String url = url_list.getTracesNamesURL(traceType);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1269,7 +1200,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"status"};
 
-		String url = getLoginURL(user, password);
+		String url = url_list.getLoginURL(user, password);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1289,106 +1220,10 @@ public class BasicXMLCommands
 	{
 		String xmlOutput;
 
-		String url = getLogoutURL();
+		String url = url_list.getLogoutURL();
 		xmlOutput = cxn.queryLibrary(url);
 		
 		return true;
-	}
-
-	public void magazineCapacity(String partition, boolean printToShell)
-	{
-		// This prints a summary of the magazine contents.
-		float utilization = 0;
-		TeraPack[] magazines = magazineContents(partition, false);
-
-		int full = 0;
-		int empty = 0;
-		int almostEmpty = 0;
-		int quarter = 0;
-		int half = 0;
-		int threeQuarter = 0;
-
-		for(int i=0; i<magazines.length; i++)
-		{
-			utilization = (float)magazines[i].getCapacity() / magazines[i].getNumSlots();
-			if(utilization == 1) { full++; }
-			else if(utilization >= .75) { threeQuarter++; }
-			else if(utilization >= .5) { half++; }
-			else if(utilization >= .25) { quarter++; }
-			else if(utilization > 0) { almostEmpty++; }
-			else if(utilization == 0) { empty++; }
-			
-		}
-
-		if(printToShell)
-		{
-			partition = partition.replace("%20", " ");
-			System.out.println("There are " + magazines.length + " TeraPacks in partition " + partition);
-			if(full>0) { System.out.println("Full: " + full); }
-			if(threeQuarter>0) { System.out.println(">75%: " + threeQuarter); }
-			if(half>0) { System.out.println(">50%: " + half); }
-			if(quarter>0) { System.out.println(">25%: " + quarter); }
-			if(almostEmpty>0) { System.out.println("<25%: " + almostEmpty); }
-			if(empty>0) { System.out.println("Empty: " + empty); }
-		}
-
-	}
-
-	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
-	{
-		TeraPack[] magazine = sortMagazines(partition, true, true);
-
-		// Determine if the move commands will be issued to the library via
-		// XML or if a move list will be generated in ../output/MoveQueue.txt
-
-		// Filename requirements are specific for the move queue.
-		// It has to have this name to work.
-		String fileName = "../output/MoveQueue.txt";
-		
-		if(output_type.equals("move-queue"))
-		{
-		
-			if(moveListCreateFile(fileName))
-			{
-				log.log("Created move queue file: " + fileName, 1);
-			}
-			else
-			{
-				log.log("Unable to create move queue file: " + fileName, 3);
-			}
-		}	
-
-		planCompaction(partition, magazine, maxMoves, output_type, fileName, true);
-
-		if(output_type.equals("move-queue"))
-		{
-			System.out.println("\nGeneration of move queue is complete. The file can be found in the ../output directory. Upload the move queue to the library either by USB or the web GUI. When using USB, the file must be named MoveQueue.txt and placed in the root (/) directory to be uploaded. The move queue can be uploaded from the Inventory > Advanced menu.\n");
-		}
-	}
-
-
-	public void maintenanceHHMReset(boolean printToShell)
-	{
-		String libraryType = getLibraryType(printToShell);
-		String robot = "none";
-		int iterations = 1;
-
-		if(libraryType.equalsIgnoreCase("TFinity"))
-		{
-			iterations = 2;
-		}
-
-		for(int i=0; i<iterations; i++)
-		{
-			if(libraryType.equalsIgnoreCase("TFinity"))
-			{
-				robot = "Robot " + Integer.toString(i+1);
-			}
-
-			resetHHMCounter("Vertical Axis", "Trip 1", robot, printToShell);
-			resetHHMCounter("Vertical Axis", "Trip 2", robot, printToShell);
-		}
-		
 	}
 
 	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
@@ -1455,7 +1290,7 @@ public class BasicXMLCommands
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"status", "message"};
 
-		String url = getMoveURL(partition, sourceID, sourceNumber, destID, destNumber);
+		String url = url_list.getMoveURL(partition, sourceID, sourceNumber, destID, destNumber);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1488,7 +1323,7 @@ public class BasicXMLCommands
 					"barcode",
 					"barcodeValid"};
 
-		String url = getPhysicalInventoryURL(partition);
+		String url = url_list.getPhysicalInventoryURL(partition);
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1695,7 +1530,7 @@ public class BasicXMLCommands
 			XMLParser xmlparser = new XMLParser();
 			String[] searchTerms = {"status", "message"};
 
-			String url = getHHMResetCounterURL(type, subtype, robot);
+			String url = url_list.getHHMResetCounterURL(type, subtype, robot);
 			xmlOutput = cxn.queryLibrary(url);
 
 			xmlparser.setXML(xmlOutput);
@@ -1719,7 +1554,7 @@ public class BasicXMLCommands
 					"hourStartingAt",
 					"percentUtilization"};
 
-		String url = getRobotUtilizationURL();
+		String url = url_list.getRobotUtilizationURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
@@ -1775,7 +1610,7 @@ public class BasicXMLCommands
 			XMLParser xmlparser = new XMLParser();
 			String[] searchTerms = {"status", "message"};
 
-			String url = getHHMResetCounterURL(event, keepDefault, value);
+			String url = url_list.getHHMResetCounterURL(event, keepDefault, value);
 			xmlOutput = cxn.queryLibrary(url);
 
 			xmlparser.setXML(xmlOutput);
@@ -1791,7 +1626,7 @@ public class BasicXMLCommands
 
 	public void uploadPackageUpdate(String filename, boolean printToShell)
 	{
-		String url = getPostPackageUpdateURL();
+		String url = url_list.getPostPackageUpdateURL();
 		String response;
 
 		response = cxn.postPackageToLibrary(url, filename);
@@ -1902,7 +1737,6 @@ public class BasicXMLCommands
 		return result;
 	}
 
-/*
 	private boolean validateHHMEvent(String event)
 	{
 		boolean isValid = false;
@@ -2017,9 +1851,6 @@ public class BasicXMLCommands
 
 		return isValid;
 	}
-
-*/
-
 }
 
 
