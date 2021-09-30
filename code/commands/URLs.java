@@ -687,6 +687,45 @@ public class URLs
 		return libraryAddress + "utils.xml?action=verifyMagazineBarcodes";
 	}
 
+	//==============================================
+	// INPUT VALIDATION FUNCTIONS
+	// 	Validates inputs for the URLs
+	//==============================================
+
+
+	private String validateSetting(String setting)
+	{
+		String url;
+
+		switch(setting)
+		{
+			case "name":
+				url = "LibraryName=";
+				break;
+			case "auto-logout":
+				url = "autoLogoutTimoutInMinutes=";
+				break;
+			case "online-access":
+				url = "onlineAccessEnabled=";
+				break;
+			case "drive-performance":
+			case "monitor-drive-performance":
+				url = "drivePerformanceMonitoringEnabled=";
+				break;
+			case "snmp":
+			case "SNMP":
+				url = "SNMPSettings=";
+				break;
+			case "auto-powerup":
+				url = "automaticallyPowerUpAfterPowerFailureEnabled=";
+				break;
+			default:
+				url = "none";
+				break;
+		}
+
+		return url;
+	}
 }
 
 
