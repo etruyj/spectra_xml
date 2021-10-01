@@ -847,7 +847,7 @@ public class BasicXMLCommands
 		return response;
 	}
 
-	public XMLResult[] listHHMData(boolean printToShell)
+	public XMLResult[] listHHMData()
 	{
 		String xmlOutput;
 		XMLResult[] response;
@@ -868,11 +868,6 @@ public class BasicXMLCommands
 		
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
-
-		if(printToShell)
-		{
-			printOutput(response, "typeName", true);
-		}	
 
 		return response;
 	}

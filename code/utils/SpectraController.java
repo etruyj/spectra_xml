@@ -156,9 +156,9 @@ public class SpectraController
 		return library.listDrives(printToShell);
 	}
 
-	public XMLResult[] listHHMData(boolean printToShell)
+	public XMLResult[] listHHMData()
 	{
-		return library.listHHMData(printToShell);
+		return library.listHHMData();
 	}
 
 	public XMLResult[] listInventory(String partition)

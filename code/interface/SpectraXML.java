@@ -170,7 +170,9 @@ public class SpectraXML
 				conn.listDrives(true);
 				break;
 			case "list-hhm-data":
-				conn.listHHMData(true);
+				result = conn.listHHMData();
+				printOutput = true;
+				includeHeaders = true;
 				break;
 			case "list-inventory":
 				result = conn.listInventory(option);
