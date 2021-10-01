@@ -4,7 +4,9 @@
 // 		This is the main class in the Spectra_XML Tape Library Manager. 
 //============================================================================
 
-package com.socialvagrancy.spectraxml.interface;
+package com.socialvagrancy.spectraxml.ui;
+
+import com.socialvagrancy.spectraxml.utils.SpectraController;
 
 public class SpectraXML
 {

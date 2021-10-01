@@ -6,7 +6,7 @@
 // 		for those flags. 
 //============================================================================
 
-package com.socialvagrancy.spectraxml.interface;
+package com.socialvagrancy.spectraxml.ui;
 
 import java.io.File;
 import java.io.FileNotFoundException;

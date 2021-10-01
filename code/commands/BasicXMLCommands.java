@@ -29,11 +29,11 @@ public class BasicXMLCommands
 	// Constructor
 	//====================================================================
 	
-	public BasicXMLCommands(String server, boolean secure)
+	public BasicXMLCommands(String server, boolean secure, Logger logbook)
 	{
 		// Declared logger in SpectraController as opposed to 
 		// in connector to allow logging of issues within the commands.
-		log = new Logger("../logs/slxml-main.log", 102400, 3, 1);
+		log = logbook;
 		cxn = new Connector(log);
 	
 		String libraryAddress;
@@ -122,6 +122,33 @@ public class BasicXMLCommands
 		else // Something went wrong.
 		{
 			return false;
+		}
+	}
+
+	public int countMagazines(String partition)
+	{
+		// Queries the library for 
+		// Counts the number of magazines in the partition.
+
+		String xmlOutput;
+		XMLResult[] response;
+
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"offset"};
+
+		String url = url_list.getPhysicalInventoryURL(partition);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		if(response[0].value.equals("no results"))
+		{
+			return 0;
+		}
+		else
+		{
+			return response.length;
 		}
 	}
 
@@ -1333,6 +1360,20 @@ public class BasicXMLCommands
 		{
 			printOutput(response, "magazine", true);
 		}
+
+		return response;
+	}
+
+	public XMLResult[] prepareImportExportList(String partition, String domain, String terapacks)
+	{
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status", "message"};
+
+		String url = url_list.getImportExportListURL(partition, domain, terapacks);
+		String xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		XMLResult[] response = xmlparser.parseXML(searchTerms);
 
 		return response;
 	}
