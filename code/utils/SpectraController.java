@@ -161,9 +161,9 @@ public class SpectraController
 		return library.listHHMData(printToShell);
 	}
 
-	public XMLResult[] listInventory(String partition, boolean printToShell)
+	public XMLResult[] listInventory(String partition)
 	{
-		return library.listInventory(partition, printToShell);
+		return library.listInventory(partition);
 	}
 
 	public XMLResult[] listMLMSettings(boolean printToShell)
@@ -196,9 +196,9 @@ public class SpectraController
 		return library.listPartitionDetails(option, printToShell);
 	}
 
-	public void listPartitions(boolean printToShell)
+	public XMLResult[] listPartitions()
 	{
-		library.listPartitions(printToShell);
+		return library.listPartitions();
 	}
 
 	public XMLResult[] listSettings(boolean printToShell)

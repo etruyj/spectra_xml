@@ -21,6 +21,7 @@ public class ArgParser
 	private String cmd_option;
 	private String cmd_option2;
 	private String cmd_option3;
+	private String output_format;
 	private int maxMoves;
 	private boolean helpSelected;
 	private boolean secure_https;
@@ -47,6 +48,7 @@ public class ArgParser
 		cmd_option = "none";
 		cmd_option2 = "none";
 		cmd_option3 = "none";
+		output_format = "shell";
 		maxMoves = 10;
 		helpSelected = false;
 		secure_https = true;
@@ -75,6 +77,7 @@ public class ArgParser
 	public String getCmdOption() { return cmd_option; }
 	public String getCmdOption2() { return cmd_option2; }
 	public String getCmdOption3() { return cmd_option3; }
+	public String getOutputFormat() { return output_format; }
 	public int getMaxMoves() { return maxMoves; }
 
 	//===================================================================
@@ -280,7 +283,6 @@ public class ArgParser
 				case "--number":
 				case "--number-characters":
 				case "--offset": // Terapack offset.
-				case "--output-format": // Change the output format.
 				case "--reboot-in": // delay before restart.
 				case "--robot": // Specify the TFIN robot to use.
 				case "--value":
@@ -304,6 +306,13 @@ public class ArgParser
 						i++;
 					}
 					setCmdOption3(option);
+					break;
+				case "--output-format": // Change the output format.
+					if((i+1)<args.length)
+					{
+						output_format = args[i+1];
+						i++;
+					}
 					break;
 				case "-p":
 				case "--pass":

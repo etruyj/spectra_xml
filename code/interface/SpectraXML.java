@@ -7,9 +7,19 @@
 package com.socialvagrancy.spectraxml.ui;
 
 import com.socialvagrancy.spectraxml.utils.SpectraController;
+import com.socialvagrancy.spectraxml.structures.XMLResult;
 
 public class SpectraXML
 {
+	private Output output;
+	private SpectraController conn;
+
+	public SpectraXML(String ipaddress, boolean isSecure)
+	{
+		conn = new SpectraController(ipaddress, isSecure);
+		output = new Output();
+	}
+
 	public static void main(String[] args)
 	{
 		ArgParser aparser = new ArgParser();
@@ -21,12 +31,12 @@ public class SpectraXML
 
 		if(aparser.checkValidInput())
 		{
-			SpectraController conn = new SpectraController(aparser.getIPAddress(), aparser.getSecureHTTPS());
-	
-			if(conn.login(aparser.getUsername(), aparser.getPassword()))
+			SpectraXML ui = new SpectraXML(aparser.getIPAddress(), aparser.getSecureHTTPS());	
+
+			if(ui.login(aparser.getUsername(), aparser.getPassword()))
 			{
-				performCommand(conn, aparser.getCommand(), aparser.getCmdOption(), aparser.getCmdOption2(), aparser.getCmdOption3(), aparser.getMaxMoves());
-				conn.logout();
+				ui.performCommand(aparser.getCommand(), aparser.getCmdOption(), aparser.getCmdOption2(), aparser.getCmdOption3(), aparser.getMaxMoves(), aparser.getOutputFormat());
+				ui.logout();
 			}
 			else
 			{
@@ -39,8 +49,22 @@ public class SpectraXML
 		}
 	}
 
-	public static void performCommand(SpectraController conn, String command, String option, String option2, String option3, int moves)
+	public boolean login(String username, String password)
 	{
+		return conn.login(username, password);
+	}
+
+	public boolean logout()
+	{
+		return conn.logout();
+	}
+
+	public void performCommand(String command, String option, String option2, String option3, int moves, String output_format)
+	{
+		boolean printOutput = false;
+		boolean includeHeaders = false;
+		XMLResult[] result = new XMLResult[1];
+
 		switch(command)
 		{
 			case "abort-audit":
@@ -149,7 +173,9 @@ public class SpectraXML
 				conn.listHHMData(true);
 				break;
 			case "list-inventory":
-				conn.listInventory(option, true);
+				result = conn.listInventory(option);
+				printOutput = true;
+				includeHeaders = true;
 				break;
 			case "list-mlm":
 				conn.listMLMSettings(true);
@@ -161,7 +187,8 @@ public class SpectraXML
 				conn.listPackages(true);
 				break;
 			case "list-partitions":
-				conn.listPartitions(true);
+				result = conn.listPartitions();
+				printOutput = true;
 				break;
 			case "list-settings":
 				conn.listSettings(true);
@@ -325,6 +352,11 @@ public class SpectraXML
 				System.out.println("Invalid command use -c help to see a list of valid commands.");
 				break;
 
+		}
+
+		if(printOutput)
+		{
+			output.print(result, output_format, includeHeaders);
 		}
 	}
 }

@@ -877,13 +877,14 @@ public class BasicXMLCommands
 		return response;
 	}
 
-	public XMLResult[] listInventory(String partition, boolean printToShell)
+	public XMLResult[] listInventory(String partition)
 	{
 		String xmlOutput;
 		XMLResult[] response;
 
 		XMLParser xmlparser = new XMLParser();
 		String[] searchTerms = {"partition",
+					"name",
 					"storageSlot",
 					"entryExitSlot",
 					"drive",
@@ -898,11 +899,6 @@ public class BasicXMLCommands
 
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
-
-		if(printToShell)
-		{
-			printOutput(response, "partition", true);
-		}
 
 		return response;
 	}
@@ -1104,7 +1100,7 @@ public class BasicXMLCommands
 		return response;
 	}
 
-	public void listPartitions(boolean printToShell)
+	public XMLResult[] listPartitions()
 	{
 		// Print a list of partitions
 		String xmlOutput;
@@ -1119,10 +1115,7 @@ public class BasicXMLCommands
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
 
-		if(printToShell)
-		{
-			printOutput(response, "name", false);
-		}
+		return response;
 	}
 
 	public XMLResult[] listSettings(boolean printToShell)
