@@ -56,7 +56,7 @@ public class BasicXMLCommands
 	// 	These are the public functions callable by the script.
 	//====================================================================
 
-	public boolean checkProgress(String operationName, boolean printToShell)
+	public XMLResult[] checkProgress(String operationName)
 	{
 		String xmlOutput;
 		XMLResult[] response;
@@ -102,27 +102,7 @@ public class BasicXMLCommands
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
 
-		if(response.length>0)
-		{
-
-			if(printToShell)
-			{
-				printOutput(response, "none", true);
-			}
-
-			if(response[0].value.equalsIgnoreCase("OK"))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else // Something went wrong.
-		{
-			return false;
-		}
+		return response;
 	}
 
 	public int countMagazines(String partition)
@@ -152,7 +132,7 @@ public class BasicXMLCommands
 		}
 	}
 
-	public XMLResult[] displayBarcodeReporting(boolean printToShell)
+	public XMLResult[] displayBarcodeReporting()
 	{
 		String xmlOutput;
 		XMLResult[] response;
@@ -168,32 +148,22 @@ public class BasicXMLCommands
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
 
-		if(printToShell)
-		{
-			printOutput(response, "none", true);
-		}
-
 		return response;
 	}
 
-	public XMLResult[] displayBarcodeVerification(boolean printToShell)
+	public XMLResult[] displayBarcodeVerification()
 	{
 		String xmlOutput;
 		XMLResult[] response;
 
 		XMLParser xmlparser = new XMLParser();
-		String[] searchTerms = {"state"};
+		String[] searchTerms = {"state", "message"};
 
 		String url = url_list.getUtilsDisplayTapeBarcodeVerificationURL();
 		xmlOutput = cxn.queryLibrary(url);
 
 		xmlparser.setXML(xmlOutput);
 		response = xmlparser.parseXML(searchTerms);
-
-		if(printToShell)
-		{
-			printOutput(response, "none", false);
-		}
 
 		return response;
 	}

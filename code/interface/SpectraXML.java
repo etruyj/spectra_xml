@@ -85,7 +85,8 @@ public class SpectraXML
 				conn.getXMLStatusMessage("audit-status", option, option2, option3, true);
 				break;
 			case "check-progress":
-				conn.checkProgress(option, true);
+				result = conn.checkProgress(option);
+				printOutput = true;
 				break;
 			case "create-partition-auto":
 				conn.getXMLStatusMessage("create-partition-auto", option, option2, option3, true);
@@ -97,10 +98,13 @@ public class SpectraXML
 				conn.getXMLStatusMessage("controller-disable", option, option2, option3, true);
 				break;
 			case "display-barcode-settings":
-				conn.displayBarcodeReporting(true);
+				result = conn.displayBarcodeReporting();
+				printOutput = true;
+				includeHeaders = true;
 				break;
 			case "display-tape-verification":
-				conn.displayBarcodeVerification(true);
+				result = conn.displayBarcodeVerification();
+				printOutput = true;
 				break;
 			case "download-asl":
 				conn.downloadASL(option3, true);

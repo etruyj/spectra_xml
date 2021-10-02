@@ -45,20 +45,20 @@ public class SpectraController
 	// 	These are the public functions callable by the script.
 	//====================================================================
 
-	public boolean checkProgress(String operationName, boolean printToShell)
+	public XMLResult[] checkProgress(String operationName)
 	{
-		return library.checkProgress(operationName, printToShell);
+		return library.checkProgress(operationName);
 
 	}
 
-	public XMLResult[] displayBarcodeReporting(boolean printToShell)
+	public XMLResult[] displayBarcodeReporting()
 	{
-		return library.displayBarcodeReporting(printToShell);
+		return library.displayBarcodeReporting();
 	}
 
-	public XMLResult[] displayBarcodeVerification(boolean printToShell)
+	public XMLResult[] displayBarcodeVerification()
 	{
-		return library.displayBarcodeVerification(printToShell);
+		return library.displayBarcodeVerification();
 	}
 
 	public void driveLoadCount(String option, boolean printToShell)
