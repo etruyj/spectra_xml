@@ -86,10 +86,7 @@ public class Output
 				{
 					for(int j=0; j<itr; j++)
 					{
-						if(j>0)
-						{
 							System.out.print("\t");
-						}
 					}
 
 					System.out.println(headers[itr] + ": ");

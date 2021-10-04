@@ -180,7 +180,9 @@ public class Connector
 
 			writeChannel.transferFrom(readChannel, 0, Long.MAX_VALUE);
 
-			return "<status>OK</status>";
+			log.log("File " + filename + " successfully downloaded to " + path, 2);
+			return "<message>File " + filename + " successfully downloaded to " 
+				+ path + "</message>";
 		}
 		catch(IOException e)
 		{
