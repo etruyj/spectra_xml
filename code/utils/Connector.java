@@ -158,7 +158,7 @@ public class Connector
 		}
 	}
 
-	public void downloadFromLibrary(String httpRequest, String path, String filename)
+	public String downloadFromLibrary(String httpRequest, String path, String filename)
 	{
 		try
 		{
@@ -180,12 +180,15 @@ public class Connector
 
 			writeChannel.transferFrom(readChannel, 0, Long.MAX_VALUE);
 
+			return "<status>OK</status>";
 		}
 		catch(IOException e)
 		{
 			log.log("Error with HTTP request: " + httpRequest, 3);
 			log.log(e.getMessage(), 3);
 			System.out.println(e);
+			
+			return "<status>FAILED</status>"; 
 		}
 	}
 	

@@ -61,24 +61,24 @@ public class SpectraController
 		return library.displayBarcodeVerification();
 	}
 
-	public void driveLoadCount(String option, boolean printToShell)
+	public XMLResult[] driveLoadCount(String option)
 	{
-		library.driveLoadCount(option, printToShell);
+		return library.driveLoadCount(option);
 	}
 
-	public void downloadASL(String aslName, boolean printToShell)
+	public XMLResult[] downloadASL(String aslName)
 	{
-		library.downloadASL(aslName, printToShell);
+		return library.downloadASL(aslName);
 	}
 
-	public void downloadDriveTrace()
+	public XMLResult[] downloadDriveTrace()
 	{
-		library.downloadDriveTrace();
+		return library.downloadDriveTrace();
 	}
 
-	public void downloadTrace(String traceType, String name)
+	public XMLResult[] downloadTrace(String traceType, String name)
 	{
-		library.downloadTrace(traceType, name);
+		return library.downloadTrace(traceType, name);
 	}
 
 	public void ejectEmpty(String partition, boolean printToShell)
@@ -86,14 +86,14 @@ public class SpectraController
 		advanced.ejectEmpty(partition, printToShell);
 	}
 
-	public void etherLibStatus(boolean printToShell)
+	public XMLResult[] etherLibStatus()
 	{
-		library.etherLibStatus(printToShell);
+		return library.etherLibStatus();
 	}
 
-	public void generateASL(boolean printToShell)
+	public XMLResult[] generateASL()
 	{
-		library.generateASL(printToShell);
+		return library.generateASL();
 	}
 
 	public void getLibraryType(boolean printToShell)
@@ -101,59 +101,59 @@ public class SpectraController
 		advanced.getLibraryType(printToShell);
 	}
 
-	public XMLResult[] getPackageResults(boolean printToShell)
+	public XMLResult[] getPackageResults()
 	{
-		return library.getPackageResults(printToShell);
+		return library.getPackageResults();
 	}
 
-	public XMLResult[] getSystemMessages(boolean printToShell)
+	public XMLResult[] getSystemMessages()
 	{
-		return library.getSystemMessages(printToShell);
+		return library.getSystemMessages();
 	}
 
-	public void getTapState(String tap, String drawer, boolean printToShell)
+	public XMLResult[] getTapState(String tap, String drawer)
 	{
-		library.getTapState(tap, drawer, printToShell);
+		return library.getTapState(tap, drawer);
 	}
 
-	public void getTraceType(String type, boolean printToShell)
+	public void getTraceType(String type)
 	{
-		library.getTraceType(type, printToShell);
+		library.getTraceType(type);
 	}
 
-	public void getXMLStatusMessage(String query, String option1, String option2, String option3, boolean printToShell)
+	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3)
 	{
-		library.getXMLStatusMessage(query, option1, option2, option3, printToShell);
+		return library.getXMLStatusMessage(query, option1, option2, option3);
 	}
 
-	public XMLResult[] libraryMoveDetails(boolean printToShell)
+	public XMLResult[] libraryMoveDetails()
 	{
-		return library.libraryMoveDetails(printToShell);
+		return library.libraryMoveDetails();
 	}
 
-	public XMLResult[] libraryRCMStatus(String rcm, boolean printToShell)
+	public XMLResult[] libraryRCMStatus(String rcm)
 	{
-		return library.libraryRCMStatus(rcm, printToShell);
+		return library.libraryRCMStatus(rcm);
 	}
 
-	public XMLResult[] libraryStatus(boolean printToShell)
+	public XMLResult[] libraryStatus()
 	{
-		return library.libraryStatus(printToShell);
+		return library.libraryStatus();
 	}
 
-	public void listASLs(boolean printToShell)
+	public XMLResult[] listASLs()
 	{
-		library.listASLs(printToShell);
+		return library.listASLs();
 	}
 	
-	public void listControllers(boolean printToShell)
+	public XMLResult[] listControllers()
 	{
-		library.listControllers(printToShell);
+		return library.listControllers();
 	}
 
-	public XMLResult[] listDrives(boolean printToShell)
+	public XMLResult[] listDrives()
 	{
-		return library.listDrives(printToShell);
+		return library.listDrives();
 	}
 
 	public XMLResult[] listHHMData()
@@ -166,34 +166,34 @@ public class SpectraController
 		return library.listInventory(partition);
 	}
 
-	public XMLResult[] listMLMSettings(boolean printToShell)
+	public XMLResult[] listMLMSettings()
 	{
-		return library.listMLMSettings(printToShell);
+		return library.listMLMSettings();
 	}
 
-	public XMLResult[] listOptionKeys(boolean printToShell)
+	public XMLResult[] listOptionKeys()
 	{
-		return library.listOptionKeys(printToShell);
+		return library.listOptionKeys();
 	}
 
-	public XMLResult[] listPackages(boolean printToShell)
+	public XMLResult[] listPackages()
 	{
-		return library.listPackages(printToShell);
+		return library.listPackages();
 	}
 
-	public XMLResult[] listPackageDetails(String pack, boolean printToShell)
+	public XMLResult[] listPackageDetails(String pack)
 	{
-		return library.listPackageDetails(pack, printToShell);
+		return library.listPackageDetails(pack);
 	}
 
-	public XMLResult[] listPackageFirmware(boolean printToShell)
+	public XMLResult[] listPackageFirmware()
 	{
-		return library.listPackageFirmware(printToShell);
+		return library.listPackageFirmware();
 	}
 	
-	public XMLResult[] listPartitionDetails(String option, boolean printToShell)
+	public XMLResult[] listPartitionDetails(String option)
 	{
-		return library.listPartitionDetails(option, printToShell);
+		return library.listPartitionDetails(option);
 	}
 
 	public XMLResult[] listPartitions()
@@ -201,19 +201,19 @@ public class SpectraController
 		return library.listPartitions();
 	}
 
-	public XMLResult[] listSettings(boolean printToShell)
+	public XMLResult[] listSettings()
 	{
-		return library.listSettings(printToShell);
+		return library.listSettings();
 	}
 
-	public XMLResult[] listTasks(boolean printToShell)
+	public XMLResult[] listTasks()
 	{
-		return library.listTasks(printToShell);
+		return library.listTasks();
 	}
 
-	public XMLResult[] listTraceNames(String traceType, boolean printToShell)
+	public XMLResult[] listTraceNames(String traceType)
 	{
-		return library.listTraceNames(traceType, printToShell);
+		return library.listTraceNames(traceType);
 	}
 
 	public boolean login(String user, String password)
@@ -256,34 +256,34 @@ public class SpectraController
 		return advanced.moveListCreateFile(fileName);
 	}
 
-	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber, boolean printToShell)
+	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
 	{
-		return library.moveTape(partition, sourceID, sourceNumber, destID, destNumber, printToShell);
+		return library.moveTape(partition, sourceID, sourceNumber, destID, destNumber);
 	}
 
-	public XMLResult[] physicalInventory(String partition, boolean printToShell)
+	public XMLResult[] physicalInventory(String partition)
 	{
-		return library.physicalInventory(partition, printToShell);
+		return library.physicalInventory(partition);
 	}
 
-	public void resetHHMCounter(String type, String subtype, String robot, boolean printToShell)
+	public XMLResult[] resetHHMCounter(String type, String subtype, String robot)
 	{
-		library.resetHHMCounter(type, subtype, robot, printToShell);
+		return library.resetHHMCounter(type, subtype, robot);
 	}
 
-	public XMLResult[] robotUtilization(boolean printToShell)
+	public XMLResult[] robotUtilization()
 	{
-		return library.robotUtilization(printToShell);
+		return library.robotUtilization();
 	}
 
-	public void setHHMThreshold(String event, String keepDefault, String value, boolean printToShell)
+	public XMLResult[] setHHMThreshold(String event, String keepDefault, String value)
 	{
-		library.setHHMThreshold(event, keepDefault, value, printToShell);
+		return library.setHHMThreshold(event, keepDefault, value);
 	}
 
-	public void uploadPackageUpdate(String filename, boolean printToShell)
+	public XMLResult[] uploadPackageUpdate(String filename)
 	{
-		library.uploadPackageUpdate(filename, printToShell);
+		return library.uploadPackageUpdate(filename);
 	}
 
 	public void prepareSlotIQ(String partition, int max_moves, String output_format, boolean printToShell)
