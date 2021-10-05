@@ -65,8 +65,6 @@ public class SpectraXML
 		boolean includeHeaders = false;
 		XMLResult[] result = new XMLResult[1];
 
-		System.out.println(command);
-
 		switch(command)
 		{
 			case "abort-audit":
@@ -172,7 +170,7 @@ public class SpectraXML
 				}
 				break;
 			case "get-trace-info":
-				conn.getTraceType(option);
+				result = conn.getTraceType(option, option2);
 				break;
 			case "library-status":
 				result = conn.libraryStatus();

@@ -116,9 +116,9 @@ public class SpectraController
 		return library.getTapState(tap, drawer);
 	}
 
-	public void getTraceType(String type)
+	public XMLResult[] getTraceType(String type, String controller)
 	{
-		library.getTraceType(type);
+		return library.getTraceType(type, controller);
 	}
 
 	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3)

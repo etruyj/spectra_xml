@@ -8,6 +8,7 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
+import com.socialvagrancy.spectraxml.commands.sub.TraceType;
 import com.socialvagrancy.spectraxml.structures.XMLResult;
 import com.socialvagrancy.spectraxml.utils.Connector;
 import com.socialvagrancy.spectraxml.utils.XMLParser;
@@ -341,12 +342,45 @@ public class BasicXMLCommands
 		return response;	
 	}
 
-	public void getTraceType(String type)
+	public XMLResult[] getTraceType(String type, String controller)
 	{
-		String stringOutput;
-		String url = url_list.getTraceTypeURL(type);
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"message"};
+		String result;
 
-		stringOutput = cxn.queryLibrary(url);
+		TraceType trace = new TraceType();
+		String url;
+
+		log.log("Formatting input type " + type, 2);
+		type = trace.formatType(type);
+		
+		if(!type.equals("invalid"))
+		{
+			if(type.equals("QIP") || type.equals("QIPDump"))
+			{
+
+				url = url_list.getTraceTypeURL(type + ":" + controller);		
+			}
+			else
+			{
+				url = url_list.getTraceTypeURL(type);
+			}
+			
+			String fileName = trace.formatFileName(type, controller);
+
+			result = cxn.downloadFromLibrary(url, "../output/", fileName);
+		
+		}
+		else
+		{
+			log.log("Unable to format desired trace type.", 3);
+			result =  "<message>Unable to format desired trace type.</message>";
+		}
+
+		xmlparser.setXML(result);
+		XMLResult[] response = xmlparser.parseXML(searchTerms);
+
+		return response;
 
 	}
 
