@@ -146,6 +146,23 @@ public class ArgParser
 		return isValid;
 	}
 
+	public String formatController(String controller)
+	{
+		String[] location = controller.split(":");
+
+		if(location.length==3)
+		{
+			return "FR" + location[0] + "/DBA" + location[1] + "/F-QIP" + location[2];
+		}
+		else
+		{
+			// Invalid controller submitted.
+			System.out.println("Unable to format controller. Please use #:#:# format when describring.");
+			isValid = false;
+			return "none";
+		}
+	}
+
 	public void parseArguments(String[] args)
 	{
 		String option;
@@ -213,13 +230,11 @@ public class ArgParser
 				case "-o":
 				case "--option": // generic option command (original input flag).
 				case "--checksum":
-				case "--controller":
 				case "--drive": // specify the drive
 				case "--event": // spcify HHM event type (set-hhm-threshold)
 				case "--key": // option key.
 				case "--package": // package name.
 				case "--partition": // specify library partition.
-				case "--qip":
 				case "--rcm":
 				case "--setting": // Specify the setting to update with update-setting
 				case "--type": // specify HHM counter type. (reset-hhm-counter)
@@ -245,11 +260,13 @@ public class ArgParser
 					setCmdOption(option);
 					break;
 				case "--option2": // Heading is more to categorize and organize.
+				case "--controller":
 				case "--direction":
 				case "--element": // Storage or EE
 				case "--element-type":
 				case "--email":
 				case "--email-address":
+				case "--qip":
 				case "--save-to": // for autocreate-partition this value can be an email address or USB, so saving it to the same variable as email.
 				case "--spare":
 				case "--subtype":
@@ -262,7 +279,14 @@ public class ArgParser
 					{
 						if(option.equals("none"))
 						{
+
 							option = args[i+1];
+							
+							// Format the qip string to be the required format.
+							if(args[i].equals("--controller") || args[i].equals("--qip"))
+							{
+								option = formatController(option);
+							}
 						}
 						else
 						{
