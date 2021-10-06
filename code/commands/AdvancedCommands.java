@@ -265,50 +265,6 @@ public class AdvancedCommands
 		
 	}
 
-	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
-	{
-		//========================================
-		// moveListAppendLine
-		//	This function creates the MoveQueue.txt
-		//	file for the BlueScale move list.
-		//	This MoveList can be uploaded from
-		//	the web GUI or the LCM via USB to
-		//	issue moves.
-		//
-		//	This command adds a move command
-		//	line to the MoveQueue.txt file.
-		//========================================
-
-		String delimiter = ":";
-		String line = source_type + source + delimiter + dest_type + destination + "\r"; // added the \r to which creates the \r\n DOS endline character. **necessary**
-		FileManager movelist = new FileManager();
-		movelist.appendToFile(fileName, line);
-
-	}
-
-	public boolean moveListCreateFile(String fileName)
-	{
-		//=========================================
-		// moveListCreateFile
-		// 	This function creates the MoveQueue.txt
-		// 	for a BlueScale move list. This move
-		// 	List can be be uploaded from the web
-		// 	GUI or to the LCM via USB to issue
-		// 	moves.
-		//
-		// 	Since we're issueing commands to the
-		// 	library, we need to make sure the old
-		// 	file is deleted before starting.
-		//
-		// 	File name is specified per the T950
-		// 	user guide.
-		//=========================================
-		
-		FileManager newFile = new FileManager();
-		
-		return newFile.createFileDeleteOld(fileName, true);
-	}
-
 	private TeraPack[] filterEmptyFullEntryExit(TeraPack[] mags)
 	{
 		// Filter out empty, full, and entry exit terapacks.
@@ -746,57 +702,7 @@ public class AdvancedCommands
 			}
 		}	
 	}
-
-	//==============================================
-	// QUICK SORT
-	//==============================================
-	//
-	private TeraPack[] quickSort(TeraPack[] mags, int low, int high)
-	{
-		if(low < high)
-		{
-			int pi = partition(mags, low, high);
-
-			// Separately sort elements before
-			// partition and after partition
-			quickSort(mags, low, pi - 1);
-			quickSort(mags, pi + 1, high);
-		}
-
-		return mags;
-	}
-	//
-	// Part of the quick sort algorithm, not anything to do with library partitions.
-	private int partition(TeraPack[] mags, int low, int high)
-	{
-		// Pivot
-		int pivot = mags[high].getCapacity();
-
-		// Index of smaller element and 
-		// indicates the right position of the
-		// pivot found so far
-		int i = (low - 1);
-
-		for(int j = low; j < high; j++)
-		{
-			// If the current element is smaller
-			// than the pivot
-			if(mags[j].getCapacity() < pivot)
-			{
-				i++;
-				swapTeraPacks(mags, i, j);
-			}
-		}
-
-		swapTeraPacks(mags, i+1, high);
-		return (i + 1);
-	}
-	//
-	//==============================================
-	// END QUICK SORT
-	//==============================================
 	
-
 	private boolean sendMove(String partition, String sourceSlot, String destSlot)
 	{
 		// Send the move to the library.
@@ -1072,17 +978,6 @@ public class AdvancedCommands
 
 		return magazines;
 	}
-
-	private void swapTeraPacks(TeraPack[] terapacks, int i, int j)
-	{
-		// Swaps the TeraPack at position i with the 
-		// TeraPack at position j in the terapacks array.
-		TeraPack temp;
-		temp = terapacks[i];
-		terapacks[i] = terapacks[j];
-		terapacks[j] = temp;
-	}
-
 
 	private boolean validateMove(String partition, String sourceSlot, String sourceBarcode, String destSlot, String destSlot2, String destBarcode, boolean printToShell)
 	{
