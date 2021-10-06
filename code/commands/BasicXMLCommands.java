@@ -384,7 +384,7 @@ public class BasicXMLCommands
 
 	}
 
-	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3)
+	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4)
 	{
 		String xmlOutput;
 		XMLResult[] response;
@@ -429,8 +429,8 @@ public class BasicXMLCommands
 				url = url_list.getDriveTraceRetrieveTracesURL(option1, option2);
 			case "empty-bulk-tap":
 				// clean up the option values.
-				option2 = convertTAPString(option2);
-				url = url_list.getMediaExchangeCleanURL(option1, option2);
+				option4 = convertTAPString(option4);
+				url = url_list.getMediaExchangeCleanURL(option1, option4);
 				break;
 			case "gather-trace":
 				url = url_list.getTracesGatherURL(option1, option3);
@@ -1195,6 +1195,22 @@ public class BasicXMLCommands
 		return newFile.createFileDeleteOld(fileName, true);
 	}
 
+	public XMLResult[] mediaExchange(String partition, String slotType, String tap, String timeout, String terapack_list)
+	{
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"mediaExchange", "message", "status"};
+
+		tap = convertTAPString(tap);
+
+		String url = url_list.getMediaExchangeImportExportURL(partition, slotType, tap, timeout, terapack_list);
+
+		String result = cxn.queryLibrary(url);
+
+		xmlparser.setXML(result);
+		
+		return xmlparser.parseXML(searchTerms);
+	}
+	
 	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
 	{
 		// Issue a move command on the library.

@@ -271,6 +271,14 @@ public class URLs
 			+ partition.replace(" ", "%20") + "&TAPDevice=" + tap;
 	}
 
+	public String getMediaExchangeImportExportURL(String partition, String slotType, String tap, String timeout, String terapack_list)
+	{
+		return libraryAddress + "mediaExchange.xml?action=importExport&partion=" 
+			+ partition + "&slotType=" + slotType + "&TAPdevice=" 
+			+ tap + "&timeoutInMinutes=" + timeout + "TeraPackOffsets=" 
+			+ terapack_list;
+	}
+	
 	public String getMediaExchangeTAPStateURL(String tap, String drawer)
 	{
 		String url = libraryAddress + "mediaExchange.xml?action=getTAPState&TAPDevice=" 

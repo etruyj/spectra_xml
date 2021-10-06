@@ -21,6 +21,8 @@ public class ArgParser
 	private String cmd_option;
 	private String cmd_option2;
 	private String cmd_option3;
+	private String cmd_option4;
+	private String cmd_option5;
 	private String output_format;
 	private int maxMoves;
 	private boolean helpSelected;
@@ -34,6 +36,8 @@ public class ArgParser
 	private boolean option_set;
 	private boolean option2_set;
 	private boolean option3_set;
+	private boolean option4_set;
+	private boolean option5_set;
 
 	//===================================================================
 	// Constructor
@@ -48,6 +52,8 @@ public class ArgParser
 		cmd_option = "none";
 		cmd_option2 = "none";
 		cmd_option3 = "none";
+		cmd_option4 = "none";
+		cmd_option5 = "none";
 		output_format = "shell";
 		maxMoves = 10;
 		helpSelected = false;
@@ -62,6 +68,8 @@ public class ArgParser
 		option_set = false;
 		option2_set = false;
 		option3_set = false;
+		option4_set = false;
+		option5_set = false;
 	}
 
 	//===================================================================
@@ -77,6 +85,8 @@ public class ArgParser
 	public String getCmdOption() { return cmd_option; }
 	public String getCmdOption2() { return cmd_option2; }
 	public String getCmdOption3() { return cmd_option3; }
+	public String getCmdOption4() { return cmd_option4; }
+	public String getCmdOption5() { return cmd_option5; }
 	public String getOutputFormat() { return output_format; }
 	public int getMaxMoves() { return maxMoves; }
 
@@ -119,6 +129,34 @@ public class ArgParser
 		{
 			cmd_option3 = option3;
 			option3_set = true;
+		}
+		else
+		{
+			isValid = false;
+		}
+	}
+
+	public void setCmdOption4(String option4)
+	{
+		// Option3 hasn't been set already.
+		if(!option4_set)
+		{
+			cmd_option4 = option4;
+			option4_set = true;
+		}
+		else
+		{
+			isValid = false;
+		}
+	}
+
+	public void setCmdOption5(String option5)
+	{
+		// Option3 hasn't been set already.
+		if(!option5_set)
+		{
+			cmd_option5 = option5;
+			option5_set = true;
 		}
 		else
 		{
@@ -268,9 +306,9 @@ public class ArgParser
 				case "--email-address":
 				case "--qip":
 				case "--save-to": // for autocreate-partition this value can be an email address or USB, so saving it to the same variable as email.
+				case "--source":
 				case "--spare":
 				case "--subtype":
-				case "--tap":
 					option = "none";
 					// Allow multi-word options, specifically
 					// for partition names.
@@ -309,6 +347,9 @@ public class ArgParser
 				case "--offset": // Terapack offset.
 				case "--reboot-in": // delay before restart.
 				case "--robot": // Specify the TFIN robot to use.
+				case "--target":
+				case "--terapack":
+				case "--terapacks":
 				case "--value":
 					option = "none";
 					// Allow multi-word options, specifically
@@ -337,6 +378,54 @@ public class ArgParser
 						output_format = args[i+1];
 						i++;
 					}
+					break;
+				case "--option4":
+				case "--source-type":
+				case "--tap":
+					option = "none";
+					// Allow multi-word options, specifically
+					// for partition names.
+					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
+					//if((i+1)<args.length)
+					{
+						if(option.equals("none"))
+						{
+							option = args[i+1];
+						}
+						else
+						{
+							// The %20 is required for the
+							// library to properly parse
+							// the text.
+							option += " " + args[i+1];
+						}
+						i++;
+					}
+					setCmdOption4(option);
+					break;
+				case "--option5":
+				case "--target-type":
+				case "--timeout":
+					option = "none";
+					// Allow multi-word options, specifically
+					// for partition names.
+					while(((i+1)<args.length) && !args[i+1].substring(0,1).equals("-"))
+					//if((i+1)<args.length)
+					{
+						if(option.equals("none"))
+						{
+							option = args[i+1];
+						}
+						else
+						{
+							// The %20 is required for the
+							// library to properly parse
+							// the text.
+							option += " " + args[i+1];
+						}
+						i++;
+					}
+					setCmdOption5(option);
 					break;
 				case "-p":
 				case "--pass":

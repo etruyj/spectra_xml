@@ -3,7 +3,8 @@
 // 	Description:
 // 		This class functions as an overlay for the varios command calls
 // 		in order to abstract the layout of the different subclasses from
-// 		the interface.e
+// 		the interface. It also handles data validation for the various
+// 		inputs before handing them off to the commands.
 //============================================================================
 
 package com.socialvagrancy.spectraxml.utils;
@@ -121,9 +122,9 @@ public class SpectraController
 		return library.getTraceType(type, controller);
 	}
 
-	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3)
+	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4)
 	{
-		return library.getXMLStatusMessage(query, option1, option2, option3);
+		return library.getXMLStatusMessage(query, option1, option2, option3, option4);
 	}
 
 	public XMLResult[] libraryMoveDetails()
@@ -244,6 +245,11 @@ public class SpectraController
 	public void maintenanceHHMReset(boolean printToShell)
 	{
 		advanced.maintenanceHHMReset(printToShell);
+	}
+
+	public XMLResult[] mediaExchange(String partition, String slot, String terapacks, String tap, String timeout)
+	{
+		return library.mediaExchange(partition, slot, tap, timeout, terapacks);
 	}
 
 	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
