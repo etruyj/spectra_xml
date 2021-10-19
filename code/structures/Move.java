@@ -9,7 +9,7 @@ package com.socialvagrancy.spectraxml.structures;
 
 public class Move
 {
-	public String barcode;
-	public String source_slot;
-	public String target_slot;
+	public String barcode="none";
+	public String source_slot="none";
+	public String target_slot="none";
 }

@@ -17,7 +17,9 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
+import com.socialvagrancy.spectraxml.commands.sub.Inventory;
 import com.socialvagrancy.spectraxml.commands.sub.MagazineCompaction;
+import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
 import com.socialvagrancy.spectraxml.commands.sub.SortMagazines;
 import com.socialvagrancy.spectraxml.structures.Move;
 import com.socialvagrancy.spectraxml.structures.TeraPack;
@@ -306,6 +308,41 @@ public class AdvancedCommands
 			library.resetHHMCounter("Vertical Axis", "Trip 2", robot);
 		}
 		
+	}
+
+	public void prepareSlotIQ(String partition, int max_moves, String output_format, boolean printToShell)
+	{
+		ArrayList<Move> move_list;
+		log.log("Preparing library for SlotIQ", 1);
+
+		if(printToShell)
+		{
+			System.out.println("Preparing library for SlotIQ...");
+		}
+		
+		String mediaType = getMediaType(partition, true);
+		TeraPack[] magazines = magazineContents(partition, false); 
+		magazines = SortMagazines.sort(magazines, false, true);
+		
+		if(SlotIQ.isPossible(magazines, mediaType, true))
+		{
+			log.log("SlotIQ preparation is possible", 1);
+			
+			int slots_per_mag = Inventory.findMagazineSize(mediaType);
+
+			move_list = SlotIQ.prepareMoves(library, partition, magazines, slots_per_mag, max_moves, log, printToShell);
+			
+		}
+		else
+		{
+			log.log("Unable to prepare library for SlotIQ", 3);
+
+			if(printToShell)
+			{
+				System.out.println("There are not enough available slots to perform SlotIQ preparation.");
+			}
+		}
+
 	}
 
 	public String getLibraryType(boolean printToShell)
