@@ -170,19 +170,10 @@ public class SlotIQ
 
 		Move move = new Move();
 
-		/*if(output_format.equals("move-queue"))
-		{
-			log.log("Writing move to move queue. (" + source_slot + ": " + source_barcode + ") to " + target_slot + ".", 2);
-			moveListAppendLine("Slot", source_slot, "Slot", target_slot, fileName);
-		}
-		else
-		{
-			log.log("Sending move to library. (" + source_slot + ": " + source_barcode + ") to " + target_slot + ".", 2);
-			sendMove(partition, source_slot, target_slot);
-		}
-*/
 		move.barcode = source_barcode;
+		move.source_type = "slot";
 		move.source_slot = source_slot;
+		move.target_type = "slot";
 		move.target_slot = target_slot;
 
 		if(slot_number == magazine_size-1)
@@ -221,20 +212,11 @@ public class SlotIQ
 		if(VerifyMove.validate(partition, source_slot, source_barcode, target_slot, check_slot, check_barcode, library, log, printToShell))
 		{
 			mags[target_terapack].addTapeToSlot(source_barcode, target_slot_int);
-/*
-			if(output_format.equals("move-queue"))
-			{
-				log.log("Writing move to move queue. " + source_slot + " (" + source_barcode + ") to " + target_slot + ".", 2);
-				moveListAppendLine("Slot", source_slot, "Slot", target_slot, fileName);
-			}
-			else
-			{
-				log.log("Sending move to library. " + source_slot + " (" + source_barcode + ") to " + target_slot + ".", 2);
-				sendMove(partition, source_slot, target_slot);
-			}
-*/
+			
 			move.barcode = source_barcode;
+			move.source_type = "slot";
 			move.source_slot = source_slot;
+			move.target_type = "slot";
 			move.target_slot = target_slot;
 		}
 		else

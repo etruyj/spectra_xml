@@ -19,6 +19,7 @@ package com.socialvagrancy.spectraxml.commands;
 
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
 import com.socialvagrancy.spectraxml.commands.sub.MagazineCompaction;
+import com.socialvagrancy.spectraxml.commands.sub.MoveQueue;
 import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
 import com.socialvagrancy.spectraxml.commands.sub.SortMagazines;
 import com.socialvagrancy.spectraxml.structures.Move;
@@ -215,6 +216,17 @@ public class AdvancedCommands
 			}
 
 			ArrayList<Move> move_list = MagazineCompaction.prepareMoves(magazines, maxMoves, partition, library, log, printToShell);
+		
+			if(output_type.equals("move-queue"))
+			{
+				// Save moves to move queue.
+				MoveQueue.storeMoves("../output/MoveQueues.txt", move_list);
+			}
+			else
+			{
+				// send moves to library
+				sendMoves(partition, move_list, printToShell);
+			}
 		}
 	}
 
@@ -332,6 +344,17 @@ public class AdvancedCommands
 
 			move_list = SlotIQ.prepareMoves(library, partition, magazines, slots_per_mag, max_moves, log, printToShell);
 			
+			if(output_format.equals("move-queue"))
+			{
+				// Save the moves to a move-queue file.
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+			}
+			else
+			{
+				// Or send the moves directly to the library.
+				sendMoves(partition, move_list, printToShell);
+			}
+
 		}
 		else
 		{
@@ -398,12 +421,30 @@ public class AdvancedCommands
 		return mediaType;
 	}
 	
-	private boolean sendMove(String partition, String sourceSlot, String destSlot)
+	private boolean sendMoves(String partition, ArrayList<Move> move_list, boolean printToShell)
 	{
 		// Send the move to the library.
 		// Wait until the move is complete before exiting function.
 
-		library.moveTape(partition, "SLOT", sourceSlot, "SLOT", destSlot);
+		for(int i=0; i< move_list.size(); i++)
+		{
+			log.log("Sending move " + i + ": (" + move_list.get(i).barcode 
+					+ ") " + move_list.get(i).source_type + " " 
+					+ move_list.get(i).source_slot + " to " 
+					+ move_list.get(i).target_type + " " 
+					+ move_list.get(i).target_slot, 2);
+
+			if(printToShell)
+			{
+				System.out.println("Sending move " + i + ": (" + move_list.get(i).barcode 
+					+ ") " + move_list.get(i).source_type + " " 
+					+ move_list.get(i).source_slot + " to " 
+					+ move_list.get(i).target_type + " " 
+					+ move_list.get(i).target_slot);
+			}
+
+			library.moveTape(partition, move_list.get(i).source_type, move_list.get(i).source_slot, move_list.get(i).target_type, move_list.get(i).target_slot);
+		}
 
 		return true;	
 	}

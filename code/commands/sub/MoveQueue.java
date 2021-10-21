@@ -7,28 +7,16 @@
 
 package com.socialvagrancy.spectraxml.commands.sub;
 
+import com.socialvagrancy.spectraxml.structures.Move;
+
 import com.socialvagrancy.utils.FileManager;
 import com.socialvagrancy.utils.Logger;
 
+import java.util.ArrayList;
+
 public class MoveQueue
 {
-	private Logger log;
-
-	//====================================================================
-	// Constructor
-	//====================================================================
-	
-	public MoveQueue(Logger logbook)
-	{
-		log = logbook;
-	}
-
-	//====================================================================
-	// Control Functions
-	// 	These are the public functions callable by the script.
-	//====================================================================
-
-	public void appendLine(String source_type, String source, String dest_type, String destination, String fileName)
+	public static void appendLine(String source_type, String source, String dest_type, String destination, String fileName)
 	{
 		//========================================
 		// moveListAppendLine
@@ -49,7 +37,7 @@ public class MoveQueue
 
 	}
 
-	public boolean createFile(String fileName)
+	public static boolean createFile(String fileName)
 	{
 		//=========================================
 		// moveListCreateFile
@@ -72,6 +60,17 @@ public class MoveQueue
 		return newFile.createFileDeleteOld(fileName, true);
 	}
 
+	public static void storeMoves(String fileName, ArrayList<Move> move_list)
+	{
+		// Call this function to create the file and store the moves.
+
+		createFile(fileName);
+
+		for(int i=0; i<move_list.size(); i++)
+		{
+			appendLine(move_list.get(i).source_type, move_list.get(i).source_slot, move_list.get(i).target_type, move_list.get(i).target_slot, fileName);
+		}
+	}
 }
 
 

@@ -174,7 +174,9 @@ public class MagazineCompaction
 			{
 				queued_move = new Move();
 				queued_move.barcode = sourceBarcode;
+				queued_move.source_type = "slot";
 				queued_move.source_slot = sourceSlotString;
+				queued_move.target_type = "slot";
 				queued_move.target_slot = destSlotString;
 
 				move_queue.add(queued_move);
