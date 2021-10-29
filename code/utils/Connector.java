@@ -34,18 +34,60 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+
 public class Connector
 {
 	URL tapeLibrary;
-	URLConnection tapeConn;
+	HttpURLConnection tapeConn;
 	CookieJar cookies;
 	Logger log;
 
-	public Connector(Logger logs)
+	public Connector(boolean ignoreSSL, Logger logs)
 	{
 		cookies = new CookieJar();
 		log = logs;
 		log.checkLogs();
+
+		// Ignore SSL certifications but maintain HTTPS connection
+		// this is used if the SSL certificate on the library is
+		// flagged by Java.
+		if(ignoreSSL)
+		{
+			TrustManager[] trustAllCerts = new TrustManager[] { 
+				new X509TrustManager() {
+					public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+					public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+					public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+				}
+			};
+
+			// Install the all-trusting trust manager
+			try
+			{
+				SSLContext sc = SSLContext.getInstance("SSL");
+				sc.init(null, trustAllCerts, new java.security.SecureRandom());
+				HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+		
+				// Create all-trusting host name verifier
+				HostnameVerifier allHostsValid = new HostnameVerifier() {
+					public boolean verify(String hostname, SSLSession session) { return true; }
+				};
+
+				// Install the all-trustng host verifier
+				HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+			}
+			catch(Exception e)
+			{
+				System.out.println(e.getMessage());
+			}
+		}
 	}
 
 	public String queryLibrary(String httpRequest)
@@ -68,9 +110,9 @@ public class Connector
 
 			tapeLibrary = new URL(httpRequest);
 
-			tapeConn = tapeLibrary.openConnection();
+			tapeConn = (HttpURLConnection)tapeLibrary.openConnection();
 			// Five second connection timeout.
-			tapeConn.setConnectTimeout(5000);
+			tapeConn.setConnectTimeout(50000);
 			// Ten second read timeout
 			tapeConn.setReadTimeout(50000);
 			if(!cookies.getName(0).equals("none"))
@@ -166,7 +208,7 @@ public class Connector
 			log.log("HTTP Request: " + httpRequest, 2);	
 
 			URL tapeLibrary = new URL(httpRequest);
-			tapeConn = tapeLibrary.openConnection();
+			tapeConn = (HttpURLConnection)tapeLibrary.openConnection();
 
 			if(!cookies.getName(0).equals("none"))
 			{

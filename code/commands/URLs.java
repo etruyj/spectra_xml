@@ -203,6 +203,11 @@ public class URLs
 			+ partition.replace(" ", "%20");
 	}
 
+	public String getInventoryProgressURL()
+	{
+		return libraryAddress + "inventory.xml?progress";
+	}
+
 	public String getLibraryStatusURL()
 	{
 		return libraryAddress + "libraryStatus.xml";

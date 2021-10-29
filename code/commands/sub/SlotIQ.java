@@ -171,9 +171,9 @@ public class SlotIQ
 		Move move = new Move();
 
 		move.barcode = source_barcode;
-		move.source_type = "slot";
+		move.source_type = "SLOT";
 		move.source_slot = source_slot;
-		move.target_type = "slot";
+		move.target_type = "SLOT";
 		move.target_slot = target_slot;
 
 		if(slot_number == magazine_size-1)

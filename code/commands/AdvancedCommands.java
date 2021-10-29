@@ -17,7 +17,9 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
+import com.socialvagrancy.spectraxml.commands.sub.EjectListedTapes;
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
+import com.socialvagrancy.spectraxml.commands.sub.LoadFile;
 import com.socialvagrancy.spectraxml.commands.sub.MagazineCompaction;
 import com.socialvagrancy.spectraxml.commands.sub.MoveQueue;
 import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
@@ -33,6 +35,7 @@ import com.socialvagrancy.utils.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AdvancedCommands
 {
@@ -118,6 +121,95 @@ public class AdvancedCommands
 		}
 	}
 
+	public void ejectListedTapes(String partition, String file_name, boolean printToShell)
+	{
+	
+		String mediaType = getMediaType(partition, false);
+		int slots_per_terapack = Inventory.findMagazineSize(mediaType);
+		
+		TeraPack mags[] = magazineContents(partition, false);
+		mags = SortMagazines.sort(mags, false, true);
+		String offset_list = EjectListedTapes.prepareImportExportList(partition, mags, slots_per_terapack, file_name, log); 
+	
+		library.prepareImportExportList(partition, "storage", offset_list);
+
+		log.log("Export list created for TeraPack offsets " + offset_list, 2);
+
+		if(printToShell)
+		{
+			System.out.println("\nImport export list uploaded to library. To export the specified TeraPacks, navigated to the Advanced menu from the General > Import/Export menu. Choose partition " + partition + " and then click on the populate button.\n");
+		}
+	}
+
+	public void ejectTeraPack(String partition, String terapack, String tape, boolean printToShell)
+	{
+
+		String offset;
+
+
+		TeraPack[] mags = magazineContents(partition, false);
+
+		if(!terapack.equals("none"))
+		{
+			log.log("Ejecting Terapack [" + terapack + "]", 1);
+			offset = EjectListedTapes.getTeraPackOffset(mags, terapack);
+		}
+		else
+		{
+			log.log("Ejecting Terapack with specified tape [" + tape + "]", 1);
+			String mediaType = getMediaType(partition, false);
+			int slots_per_terapack = Inventory.findMagazineSize(mediaType);
+			offset = EjectListedTapes.getTeraPackOffset(mags, tape, slots_per_terapack);
+		}
+
+		if(offset.length()>0)
+		{
+			log.log("TeraPack found (" + offset + ")", 1);
+			
+			if(printToShell)
+			{
+				System.out.println("TeraPack found.");
+			}
+
+			library.prepareImportExportList(partition, "storage", offset);
+		
+			log.log("Export list created for TeraPack offset " + offset, 2);
+
+			if(printToShell)
+			{
+				System.out.println("\nImport export list uploaded to library. To export the specified TeraPacks, navigated to the Advanced menu from the General > Import/Export menu. Choose partition " + partition + " and then click on the populate button.\n");
+			}
+		}
+		else
+		{
+			log.log("TeraPack not found (" + offset + ")", 1);
+
+			if(printToShell)
+			{
+				System.out.println("Unable to locate specified TeraPack.");
+			}
+		}
+	}
+
+	public void groupListedTapes(String partition, String file_name, int max_moves, String output_format, boolean printToShell)
+	{
+		// Groups the listed tapes in the specified TeraPacks.
+		String mediaType = getMediaType(partition, true);
+		int slots_per_terapack = Inventory.findMagazineSize(mediaType);
+		
+		ArrayList<Move> move_list = EjectListedTapes.prepareMoveToTeraPacks(partition, file_name, max_moves, slots_per_terapack, library, printToShell, log);
+
+		// Send moves
+		if(output_format.equals("move-queue"))
+		{
+			MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+		}
+		else
+		{
+			sendMoves(partition, move_list, printToShell);
+		}
+	}
+
 	public void magazineCapacity(String partition, boolean printToShell)
 	{
 		// This prints a summary of the magazine contents.
@@ -159,6 +251,7 @@ public class AdvancedCommands
 
 	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
 	{
+
 		// Get list of Terapacks.
 		if(printToShell)
 		{
@@ -207,7 +300,7 @@ public class AdvancedCommands
 			log.log("Available target slots: " + requirements[1], 2);
 			log.log("TeraPacks that can be freed: " + requirements[2], 2);
 
-			if(printToShell)
+			if(false) // replace with printToShell
 			{
 				System.out.println("\nMaximum moves: " + maxMoves);
 				System.out.println("Available moves: " + requirements[0]);
@@ -216,11 +309,11 @@ public class AdvancedCommands
 			}
 
 			ArrayList<Move> move_list = MagazineCompaction.prepareMoves(magazines, maxMoves, partition, library, log, printToShell);
-		
+	
 			if(output_type.equals("move-queue"))
 			{
 				// Save moves to move queue.
-				MoveQueue.storeMoves("../output/MoveQueues.txt", move_list);
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
 			}
 			else
 			{
@@ -228,6 +321,7 @@ public class AdvancedCommands
 				sendMoves(partition, move_list, printToShell);
 			}
 		}
+
 	}
 
 	public TeraPack[] magazineContents(String partition, boolean printToShell)
@@ -420,33 +514,107 @@ public class AdvancedCommands
 
 		return mediaType;
 	}
-	
-	private boolean sendMoves(String partition, ArrayList<Move> move_list, boolean printToShell)
+
+	private boolean readyForMove(boolean printToShell)
+	{
+		XMLResult[] response = library.checkProgress("inventory");
+
+		for(int i=0; i<response.length; i++)
+		{
+			if(response[i].headerTag.equalsIgnoreCase("message"))
+			{
+				if(response[i].value.equalsIgnoreCase("No Pending actions"))
+				{
+					if(printToShell)
+					{
+						System.out.println("\t[READY]");
+					}
+
+					return true;
+				}
+				else
+				{
+					System.out.print(".");
+					
+					try
+					{
+						TimeUnit.SECONDS.sleep(10);
+
+						return readyForMove(printToShell);
+					}
+					catch(Exception e)
+					{
+						if(printToShell)
+						{
+							System.out.println("\t[FAILED]");
+						}
+
+						return false;
+					}
+				}
+			}
+			
+		}
+
+		System.out.println("ERROR checking library status");
+		return false;
+	}
+
+	private void sendMoves(String partition, ArrayList<Move> move_list, boolean printToShell)
 	{
 		// Send the move to the library.
 		// Wait until the move is complete before exiting function.
 
+		XMLResult[] response;
+
 		for(int i=0; i< move_list.size(); i++)
 		{
-			log.log("Sending move " + i + ": (" + move_list.get(i).barcode 
-					+ ") " + move_list.get(i).source_type + " " 
-					+ move_list.get(i).source_slot + " to " 
-					+ move_list.get(i).target_type + " " 
-					+ move_list.get(i).target_slot, 2);
 
 			if(printToShell)
 			{
-				System.out.println("Sending move " + i + ": (" + move_list.get(i).barcode 
-					+ ") " + move_list.get(i).source_type + " " 
-					+ move_list.get(i).source_slot + " to " 
-					+ move_list.get(i).target_type + " " 
-					+ move_list.get(i).target_slot);
+				System.out.print("Waiting for library");
 			}
 
-			library.moveTape(partition, move_list.get(i).source_type, move_list.get(i).source_slot, move_list.get(i).target_type, move_list.get(i).target_slot);
+			if(readyForMove(printToShell))
+			{
+				log.log("Sending move " + i + ": (" + move_list.get(i).barcode 
+						+ ") " + move_list.get(i).source_type + " " 
+						+ move_list.get(i).source_slot + " to " 
+						+ move_list.get(i).target_type + " " 
+						+ move_list.get(i).target_slot, 2);
+
+				if(printToShell)
+				{
+					System.out.println("Sending move " + i + ": (" + move_list.get(i).barcode 
+						+ ") " + move_list.get(i).source_type + " " 
+						+ move_list.get(i).source_slot + " to " 
+						+ move_list.get(i).target_type + " " 
+						+ move_list.get(i).target_slot);
+				}
+
+				// Reference by slot if available otherwise reference the source by barcode.
+				if(!move_list.get(i).source_slot.equals("none"))
+				{
+					response = library.moveTape(partition, move_list.get(i).source_type, move_list.get(i).source_slot, move_list.get(i).target_type, move_list.get(i).target_slot);
+				}
+				else
+				{
+					response = library.moveTape(partition, "BC", move_list.get(i).barcode, move_list.get(i).target_type, move_list.get(i).target_slot); 
+				}
+
+		/*		if(response[0].headerTag.equalsIgnoreCase("message"))
+				{
+					log.log(response[0].value, 2);
+					
+					if(printToShell)
+					{
+						System.out.println(response[0].value);
+					}
+				}
+	*/
+			}
 		}
 
-		return true;	
 	}
 
 }

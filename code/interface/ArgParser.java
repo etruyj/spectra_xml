@@ -27,6 +27,7 @@ public class ArgParser
 	private int maxMoves;
 	private boolean helpSelected;
 	private boolean secure_https;
+	private boolean ignore_ssl;
 
 	// These are for tracking the assignment of flags.
 	// for ease of coding, multiple flags map to the same
@@ -57,7 +58,8 @@ public class ArgParser
 		output_format = "shell";
 		maxMoves = 10;
 		helpSelected = false;
-		secure_https = true;
+		secure_https = true; // https connection
+		ignore_ssl = false; // ignore ssl certificates.
 	
 		// isValid
 		// 	Used to verify and validate the entered command.
@@ -77,6 +79,7 @@ public class ArgParser
 	//===================================================================
 
 	public boolean getHelpSelected() { return helpSelected; }
+	public boolean getIgnoreSSL() { return ignore_ssl; }
 	public boolean getSecureHTTPS() { return secure_https; }
 	public String getIPAddress() { return ip_address; }
 	public String getUsername() { return username; }
@@ -244,6 +247,9 @@ public class ArgParser
 				case "--insecure":
 					secure_https = false;
 					break;
+				case "--ignore-ssl":
+					ignore_ssl = false;
+					break;
 				case "--keep-default": // Keep default HHM values (set-hhm-threshold)
 					setCmdOption2("true");
 					break;
@@ -298,6 +304,7 @@ public class ArgParser
 					setCmdOption(option);
 					break;
 				case "--option2": // Heading is more to categorize and organize.
+				case "--barcode":
 				case "--controller":
 				case "--direction":
 				case "--element": // Storage or EE
@@ -309,6 +316,7 @@ public class ArgParser
 				case "--source":
 				case "--spare":
 				case "--subtype":
+				case "--tape":
 					option = "none";
 					// Allow multi-word options, specifically
 					// for partition names.

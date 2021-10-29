@@ -68,8 +68,17 @@ public class MoveQueue
 
 		for(int i=0; i<move_list.size(); i++)
 		{
-			appendLine(move_list.get(i).source_type, move_list.get(i).source_slot, move_list.get(i).target_type, move_list.get(i).target_slot, fileName);
+			if(!move_list.get(i).source_slot.equals("none"))
+			{
+				appendLine(move_list.get(i).source_type, move_list.get(i).source_slot, move_list.get(i).target_type, move_list.get(i).target_slot, fileName);
+			}
+			else
+			{
+				appendLine("BC", move_list.get(i).barcode, move_list.get(i).target_type, move_list.get(i).target_slot, fileName);
+			}
 		}
+
+		System.out.println("\nGeneration of move queue is complete. The file can be found at " + fileName + ". Upload the move queue to the library either by USB or the web GUI. When useing USB, the file must by named MoveQueue.txt and placed in the root (/) directory to be uploaded. The moved queue can be uploaded from the Web GUI from the Inventory > Advanced menu.\n");
 	}
 }
 

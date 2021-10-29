@@ -44,8 +44,13 @@ public class Inventory
 			{
 				searching = false;
 			}
-
+			
 			itr++;
+
+			if(itr >= response.length)
+			{
+				searching = false;
+			}
 		}
 	
 		return empty_slots;	
@@ -66,6 +71,12 @@ public class Inventory
 
 		while(searching)
 		{
+			// If in the last slot of the Tp increment the tp
+			if(Integer.valueOf(empty_slots.get(itr)) > (terapack + magazine_size - 1))
+			{
+				terapack = Integer.valueOf(empty_slots.get(itr)) - Integer.valueOf(empty_slots.get(itr)) % magazine_size + 1;
+			}
+			
 			// If the slot is the first in the terapack
 			// check the index + mag size to determine
 			// if all the slots are in the list.
@@ -82,11 +93,6 @@ public class Inventory
 				}
 			}
 
-			// If in the last slot of the Tp increment the tp
-			if(Integer.valueOf(empty_slots.get(itr)) == (terapack + magazine_size - 1))
-			{
-				terapack +=magazine_size;
-			}
 			
 			// Check to see if we got tot he end of the array.
 			// if the last slot in the terapack is higher than
@@ -97,6 +103,11 @@ public class Inventory
 			}
 			
 			itr++;
+
+			if(itr>=empty_slots.size())
+			{
+				searching = false;
+			}
 		}
 
 		return terapack_slots;

@@ -30,12 +30,12 @@ public class BasicXMLCommands
 	// Constructor
 	//====================================================================
 	
-	public BasicXMLCommands(String server, boolean secure, Logger logbook)
+	public BasicXMLCommands(String server, boolean secure, boolean ignoreSSL, Logger logbook)
 	{
 		// Declared logger in SpectraController as opposed to 
 		// in connector to allow logging of issues within the commands.
 		log = logbook;
-		cxn = new Connector(log);
+		cxn = new Connector(ignoreSSL, log);
 	
 		String libraryAddress;
 
@@ -63,7 +63,7 @@ public class BasicXMLCommands
 		XMLResult[] response;
 
 		XMLParser xmlparser = new XMLParser();
-		String[] searchTerms = {"status"};
+		String[] searchTerms = {"status", "message"};
 
 		String url = "none";
 
@@ -84,6 +84,9 @@ public class BasicXMLCommands
 			case "etherlib":
 			case "etherLib":
 				url = url_list.getEtherLibProgressURL();
+				break;
+			case "inventory":
+				url = url_list.getInventoryProgressURL();
 				break;
 			case "library":
 			case "library-refresh":

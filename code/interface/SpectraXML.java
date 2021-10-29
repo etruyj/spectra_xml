@@ -14,9 +14,9 @@ public class SpectraXML
 	private Output output;
 	private SpectraController conn;
 
-	public SpectraXML(String ipaddress, boolean isSecure)
+	public SpectraXML(String ipaddress, boolean isSecure, boolean ignoreSSL)
 	{
-		conn = new SpectraController(ipaddress, isSecure);
+		conn = new SpectraController(ipaddress, isSecure, ignoreSSL);
 		output = new Output();
 	}
 
@@ -31,7 +31,7 @@ public class SpectraXML
 
 		if(aparser.checkValidInput())
 		{
-			SpectraXML ui = new SpectraXML(aparser.getIPAddress(), aparser.getSecureHTTPS());	
+			SpectraXML ui = new SpectraXML(aparser.getIPAddress(), aparser.getSecureHTTPS(), aparser.getIgnoreSSL());	
 
 			if(ui.login(aparser.getUsername(), aparser.getPassword()))
 			{
@@ -123,8 +123,19 @@ public class SpectraXML
 				result = conn.driveLoadCount(option);
 				includeHeaders = true;
 				break;
+			case "eject-empty":
 			case "eject-empty-terapacks":
 				conn.ejectEmpty(option, true);
+				printOutput = false;
+				break;
+			case "eject-list":
+			case "eject-listed":
+			case "eject-listed-tapes":
+				conn.ejectListed(option, option3, true);
+				printOutput = false;
+				break;
+			case "eject-terapack":
+				conn.ejectTeraPack(option, option2, option3, true);
 				printOutput = false;
 				break;
 			case "empty-bulk":
@@ -171,6 +182,11 @@ public class SpectraXML
 				break;
 			case "get-trace-info":
 				result = conn.getTraceType(option, option2);
+				break;
+			case "group-listed":
+			case "group-listed-tapes":
+				conn.groupListedTapes(option, option3, moves, output_format, true);
+				printOutput = false;
 				break;
 			case "library-status":
 				result = conn.libraryStatus();
@@ -236,7 +252,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "magazine-compaction":
-				conn.magazineCompaction(option, moves, option3, true);
+				conn.magazineCompaction(option, moves, output_format, true);
 				printOutput = false;
 				break;
 			case "magazine-contents":
@@ -286,7 +302,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "prepare-slotiq":
-				conn.prepareSlotIQ(option, moves, option3, true);
+				conn.prepareSlotIQ(option, moves, output_format, true);
 				break;
 			case "power-off":
 				result = conn.getXMLStatusMessage("power-off", option, option2, option3, option4);

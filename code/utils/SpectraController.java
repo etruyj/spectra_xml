@@ -31,13 +31,13 @@ public class SpectraController
 	// Constructor
 	//====================================================================
 	
-	public SpectraController(String server, boolean secure)
+	public SpectraController(String server, boolean secure, boolean ignoreSSL)
 	{
 		// Declared logger in SpectraController as opposed to 
 		// in connector to allow logging of issues within the commands.
 		logbook = new Logger("../logs/slxml-main.log", 102400, 3, 1);
 
-		library = new BasicXMLCommands(server, secure, logbook);
+		library = new BasicXMLCommands(server, secure, ignoreSSL, logbook);
 		advanced = new AdvancedCommands(library, logbook);
 	}
 
@@ -87,6 +87,16 @@ public class SpectraController
 		advanced.ejectEmpty(partition, printToShell);
 	}
 
+	public void ejectListed(String partition, String file_name, boolean printToShell)
+	{
+		advanced.ejectListedTapes(partition, file_name, printToShell);
+	}
+
+	public void ejectTeraPack(String partition, String tape, String terapack, boolean printToShell)
+	{
+		advanced.ejectTeraPack(partition, terapack, tape, printToShell);
+	}
+
 	public XMLResult[] etherLibStatus()
 	{
 		return library.etherLibStatus();
@@ -125,6 +135,11 @@ public class SpectraController
 	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4)
 	{
 		return library.getXMLStatusMessage(query, option1, option2, option3, option4);
+	}
+
+	public void groupListedTapes(String partition, String file_name, int max_moves, String output_format, boolean printToShell)
+	{
+		advanced.groupListedTapes(partition, file_name, max_moves, output_format, printToShell);
 	}
 
 	public XMLResult[] libraryMoveDetails()
@@ -252,7 +267,7 @@ public class SpectraController
 		return library.mediaExchange(partition, slot, tap, timeout, terapacks);
 	}
 
-	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
+/*	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
 	{
 		advanced.moveListAppendLine(source_type, source, dest_type, destination, fileName);
 	}
@@ -261,7 +276,7 @@ public class SpectraController
 	{
 		return advanced.moveListCreateFile(fileName);
 	}
-
+*/
 	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
 	{
 		return library.moveTape(partition, sourceID, sourceNumber, destID, destNumber);
