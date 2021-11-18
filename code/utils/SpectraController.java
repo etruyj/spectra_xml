@@ -46,6 +46,11 @@ public class SpectraController
 	// 	These are the public functions callable by the script.
 	//====================================================================
 
+	public void calibrateDrives(String partition, String output_format, boolean printToShell)
+	{
+		advanced.calibrateDrives(partition, output_format, printToShell);
+	}
+
 	public XMLResult[] checkProgress(String operationName)
 	{
 		return library.checkProgress(operationName);
@@ -147,6 +152,11 @@ public class SpectraController
 		return library.libraryMoveDetails();
 	}
 
+	public void libraryProfile(boolean printToShell)
+	{
+		advanced.profileLibrary(printToShell);
+	}
+	
 	public XMLResult[] libraryRCMStatus(String rcm)
 	{
 		return library.libraryRCMStatus(rcm);
@@ -267,16 +277,6 @@ public class SpectraController
 		return library.mediaExchange(partition, slot, tap, timeout, terapacks);
 	}
 
-/*	public void moveListAppendLine(String source_type, String source, String dest_type, String destination, String fileName)
-	{
-		advanced.moveListAppendLine(source_type, source, dest_type, destination, fileName);
-	}
-
-	public boolean moveListCreateFile(String fileName)
-	{
-		return advanced.moveListCreateFile(fileName);
-	}
-*/
 	public XMLResult[] moveTape(String partition, String sourceID, String sourceNumber, String destID, String destNumber)
 	{
 		return library.moveTape(partition, sourceID, sourceNumber, destID, destNumber);

@@ -219,7 +219,10 @@ public class Output
 				if(results[i].value != null)
 				{
 					System.out.print("<" + headers[headers.length-1] + ">");
-					System.out.print(results[i].value.replaceAll("\\s", ""));
+					System.out.print(results[i].value.trim());
+					// Don't remeber why this was necessary. Removed it as it 
+					// cleared all the spaces out of XML output.
+					// System.out.print(results[i].value.replaceAll("\\s", ""));
 					System.out.println("</" + headers[headers.length-1] + ">");
 				}
 			}

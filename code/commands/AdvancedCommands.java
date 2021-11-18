@@ -17,10 +17,13 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
+import com.socialvagrancy.spectraxml.commands.sub.CalibrateDrives;
 import com.socialvagrancy.spectraxml.commands.sub.EjectListedTapes;
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
+import com.socialvagrancy.spectraxml.commands.sub.LibraryProfile;
 import com.socialvagrancy.spectraxml.commands.sub.LoadFile;
 import com.socialvagrancy.spectraxml.commands.sub.MagazineCompaction;
+import com.socialvagrancy.spectraxml.commands.sub.MagazineUtilization;
 import com.socialvagrancy.spectraxml.commands.sub.MoveQueue;
 import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
 import com.socialvagrancy.spectraxml.commands.sub.SortMagazines;
@@ -57,6 +60,31 @@ public class AdvancedCommands
 	// Control Functions
 	// 	These are the public functions callable by the script.
 	//====================================================================
+
+	public void calibrateDrives(String partition, String output_format, boolean printToShell)
+	{
+		// Calibrate the partitions drives by moving a tape to each
+		// partition.
+		log.log("Calibrating drives for partition " + partition, 1);
+		ArrayList<Move> move_list = CalibrateDrives.prepareMoves(library, partition, log);
+		
+
+		if(move_list.size()>0)
+		{
+			if(output_format.equals("move-queue"))
+			{
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);		
+			}
+			else
+			{
+				sendMoves(partition, move_list, printToShell);
+			}
+		}
+		else
+		{
+			log.log("No moves queued.", 2);
+		}
+	}
 
 	public void ejectEmpty(String partition, boolean printToShell)
 	{
@@ -212,7 +240,14 @@ public class AdvancedCommands
 
 	public void magazineCapacity(String partition, boolean printToShell)
 	{
-		// This prints a summary of the magazine contents.
+		String mediaType = getMediaType(partition, false);
+		int slots_per_terapack = Inventory.findMagazineSize(mediaType);
+
+		TeraPack[] magazines = magazineContents(partition, false);
+
+		int[][] magazine_summary = MagazineUtilization.generateSummary(magazines, slots_per_terapack, log, printToShell);
+		
+/*		// This prints a summary of the magazine contents.
 		float utilization = 0;
 		TeraPack[] magazines = magazineContents(partition, false);
 
@@ -246,7 +281,7 @@ public class AdvancedCommands
 			if(almostEmpty>0) { System.out.println("<25%: " + almostEmpty); }
 			if(empty>0) { System.out.println("Empty: " + empty); }
 		}
-
+*/
 	}
 
 	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
@@ -460,6 +495,11 @@ public class AdvancedCommands
 			}
 		}
 
+	}
+
+	public void profileLibrary(boolean printToShell)
+	{
+		LibraryProfile.fullSystem(library);
 	}
 
 	public String getLibraryType(boolean printToShell)

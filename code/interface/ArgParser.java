@@ -248,7 +248,7 @@ public class ArgParser
 					secure_https = false;
 					break;
 				case "--ignore-ssl":
-					ignore_ssl = false;
+					ignore_ssl = true;
 					break;
 				case "--keep-default": // Keep default HHM values (set-hhm-threshold)
 					setCmdOption2("true");

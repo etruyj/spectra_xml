@@ -89,6 +89,10 @@ public class SpectraXML
 				result = conn.getXMLStatusMessage("audit-status", option, option2, option3, option4);
 				includeHeaders = true;
 				break;
+			case "calibrate-drives":
+				conn.calibrateDrives(option, output_format, true);
+				printOutput = false;
+				break;
 			case "check-progress":
 				result = conn.checkProgress(option);
 				includeHeaders = true;
@@ -186,6 +190,10 @@ public class SpectraXML
 			case "group-listed":
 			case "group-listed-tapes":
 				conn.groupListedTapes(option, option3, moves, output_format, true);
+				printOutput = false;
+				break;
+			case "library-profile":
+				conn.libraryProfile(true);
 				printOutput = false;
 				break;
 			case "library-status":

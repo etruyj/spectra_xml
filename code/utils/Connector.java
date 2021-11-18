@@ -60,6 +60,7 @@ public class Connector
 		// flagged by Java.
 		if(ignoreSSL)
 		{
+			log.log("Ignoring SSL certificate.", 3);
 			TrustManager[] trustAllCerts = new TrustManager[] { 
 				new X509TrustManager() {
 					public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
@@ -112,9 +113,9 @@ public class Connector
 
 			tapeConn = (HttpURLConnection)tapeLibrary.openConnection();
 			// Five second connection timeout.
-			tapeConn.setConnectTimeout(50000);
+			tapeConn.setConnectTimeout(500000);
 			// Ten second read timeout
-			tapeConn.setReadTimeout(50000);
+			tapeConn.setReadTimeout(500000);
 			if(!cookies.getName(0).equals("none"))
 			{
 				// If a cookie exists, pass it.
