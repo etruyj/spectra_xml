@@ -238,7 +238,7 @@ public class AdvancedCommands
 		}
 	}
 
-	public void magazineCapacity(String partition, boolean printToShell)
+	public int[][] magazineCapacity(String partition, boolean printToShell)
 	{
 		String mediaType = getMediaType(partition, false);
 		int slots_per_terapack = Inventory.findMagazineSize(mediaType);
@@ -247,41 +247,7 @@ public class AdvancedCommands
 
 		int[][] magazine_summary = MagazineUtilization.generateSummary(magazines, slots_per_terapack, log, printToShell);
 		
-/*		// This prints a summary of the magazine contents.
-		float utilization = 0;
-		TeraPack[] magazines = magazineContents(partition, false);
-
-		int full = 0;
-		int empty = 0;
-		int almostEmpty = 0;
-		int quarter = 0;
-		int half = 0;
-		int threeQuarter = 0;
-
-		for(int i=0; i<magazines.length; i++)
-		{
-			utilization = (float)magazines[i].getCapacity() / magazines[i].getNumSlots();
-			if(utilization == 1) { full++; }
-			else if(utilization >= .75) { threeQuarter++; }
-			else if(utilization >= .5) { half++; }
-			else if(utilization >= .25) { quarter++; }
-			else if(utilization > 0) { almostEmpty++; }
-			else if(utilization == 0) { empty++; }
-			
-		}
-
-		if(printToShell)
-		{
-			partition = partition.replace("%20", " ");
-			System.out.println("There are " + magazines.length + " TeraPacks in partition " + partition);
-			if(full>0) { System.out.println("Full: " + full); }
-			if(threeQuarter>0) { System.out.println(">75%: " + threeQuarter); }
-			if(half>0) { System.out.println(">50%: " + half); }
-			if(quarter>0) { System.out.println(">25%: " + quarter); }
-			if(almostEmpty>0) { System.out.println("<25%: " + almostEmpty); }
-			if(empty>0) { System.out.println("Empty: " + empty); }
-		}
-*/
+		return magazine_summary;
 	}
 
 	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)

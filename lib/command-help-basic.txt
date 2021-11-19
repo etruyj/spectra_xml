@@ -1,6 +1,6 @@
 
 Basic XML Commands
-	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is cleaned and printed to the shell.
+	These commands are used to execute the XML commands listed in Spectra Logic's Tape XML guide. Output is printed without xml tags by default. XML formatting can be maintained with the --output-format xml flag. Spectra's XML Command Reference Guide can be located under the Documentation page of support.spectralogic.com.
 
 	abort-audit		Aborts an in-progress security audit. Not to be used with audit-inventory command.
 	add-key			Add an option key to the library. Specify the key with the --key flag.

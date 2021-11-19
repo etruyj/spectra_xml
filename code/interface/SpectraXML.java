@@ -450,7 +450,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			default:
-				System.out.println("Invalid command use -c help to see a list of valid commands.");
+				System.out.println("Invalid command use -c help-basic to see a list of basic XML commands or -c help-advanced to get a list of the advanced XML options.");
 				printOutput = false;
 				break;
 

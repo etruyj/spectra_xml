@@ -217,10 +217,14 @@ public class ArgParser
 					if((i+1)<args.length)
 					{
 						// Check to see if the user requested help
-						if(args[i+1].equals("help"))
+						if(args[i+1].equals("help-basic"))
 						{
 							helpSelected = true;
 							printFile("command-help-basic.txt");
+						}
+						else if(args[i+1].equals("help-advanced"))
+						{
+							helpSelected = true;
 							printFile("command-help-advanced.txt");
 						}
 						else
@@ -380,13 +384,6 @@ public class ArgParser
 					}
 					setCmdOption3(option);
 					break;
-				case "--output-format": // Change the output format.
-					if((i+1)<args.length)
-					{
-						output_format = args[i+1];
-						i++;
-					}
-					break;
 				case "--option4":
 				case "--source-type":
 				case "--tap":
@@ -413,7 +410,7 @@ public class ArgParser
 					break;
 				case "--option5":
 				case "--target-type":
-				case "--timeout":
+				case "--timeout": // Add to help.txt when you remember what it is
 					option = "none";
 					// Allow multi-word options, specifically
 					// for partition names.
@@ -434,6 +431,13 @@ public class ArgParser
 						i++;
 					}
 					setCmdOption5(option);
+					break;
+				case "--output-format": // Change the output format.
+					if((i+1)<args.length)
+					{
+						output_format = args[i+1];
+						i++;
+					}
 					break;
 				case "-p":
 				case "--pass":
