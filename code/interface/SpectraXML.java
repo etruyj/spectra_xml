@@ -311,6 +311,7 @@ public class SpectraXML
 				break;
 			case "prepare-slotiq":
 				conn.prepareSlotIQ(option, moves, output_format, true);
+				printOutput = false;
 				break;
 			case "power-off":
 				result = conn.getXMLStatusMessage("power-off", option, option2, option3, option4);

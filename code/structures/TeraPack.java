@@ -141,8 +141,8 @@ public class TeraPack
 	public void addTapeToSlot(String barcode, int slot)
 	{
 		tapes[slot] = barcode;
-
-		calculateCapacity();
+		
+		capacity++;
 	}
 
 	public void calculateCapacity()

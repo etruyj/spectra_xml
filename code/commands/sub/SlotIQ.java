@@ -35,6 +35,8 @@ public class SlotIQ
 			// Find next destination terapack.
 			target_terapack = findNextAvailableTerapack(mags, max_slots_per_terapack, target_terapack);
 
+			log.log("TeraPack (" + mags[target_terapack].getMagazineBarcode() + ") identified with " + mags[target_terapack].getCapacity() + "/" + max_slots_per_terapack + " slots occupied.", 1);
+
 			// Determine if moves are possible or end the loop.
 			if(target_terapack == -1 || mags[source_terapack].getCapacity() < max_slots_per_terapack || move_counter >= max_moves)
 			{
@@ -46,30 +48,30 @@ public class SlotIQ
 				{
 					log.log("Maximum requested moves (" + max_moves + ") has been reached.", 3);
 
-			/*		if(printToShell)
+					if(printToShell)
 					{
-						System.out.println("Maximum requested moves (" + max_moves + ") has been reached.");
+						System.out.println("\nMaximum requested moves (" + max_moves + ") has been reached.");
 					}
-			*/	}
+				}
 				else
 				{
 					log.log("SlotIQ preparation complete. All TeraPacks have at least 1 open slot.", 3);
 
-			/*		if(printToShell)
+					if(printToShell)
 					{
-						System.out.println("SlotIQ preparation complete. All TeraPacks have at least 1 open slot.");
+						System.out.println("\nSlotIQ preparation complete. All TeraPacks have at least 1 open slot.");
 					}
-			*/	}
+				}
 				moving_tapes = false;
 			}
 			else
 			{
-			/*	if(printToShell)
+				if(printToShell)
 				{
 					// Starts with newline character to space between outputs for readability.
 					System.out.println("\nPreparing move " + (move_counter + 1) + "...");
 				}
-*/
+
 				if(mags[target_terapack].getCapacity()>0)
 				{
 					// There is a tape in the TeraPack to use as an anchor
@@ -91,8 +93,13 @@ public class SlotIQ
 						moves_to_empty_terapack=0;
 					}
 				}
-				
-				move_list.add(move);
+			
+				// Only queue valid moves
+				if(!move.source_slot.equals("none"))
+				{	
+					move_list.add(move);
+				}
+
 				move_counter++;
 				source_terapack--;
 			}
@@ -193,7 +200,7 @@ public class SlotIQ
 		String target_slot;
 		String check_slot;
 		String check_barcode;
-		int check_slot_int;
+		int check_slot_int = -1;
 		int target_slot_int;
 
 		Move move = new Move();
@@ -201,8 +208,13 @@ public class SlotIQ
 		source_barcode = mags[source_terapack].getBarcodeAtPosition(0);
 		source_slot = VerifyMove.findSlotString(partition, source_barcode, library);
 
-		check_slot_int = mags[target_terapack].getNextOccupiedSlot(0);
-		check_barcode = mags[target_terapack].getBarcodeAtPosition(check_slot_int);
+		do
+		{
+			check_slot_int++;
+			check_slot_int = mags[target_terapack].getNextOccupiedSlot(check_slot_int);
+			check_barcode = mags[target_terapack].getBarcodeAtPosition(check_slot_int);
+		} while(check_barcode.equals("HOLD")); // repeat if we pull a slot that is on-hold as it can't be validated against the inventory
+		
 		check_slot = VerifyMove.findSlotString(partition, check_barcode, library);
 
 		target_slot_int = mags[target_terapack].getNextEmptySlot(0);
@@ -211,7 +223,12 @@ public class SlotIQ
 
 		if(VerifyMove.validate(partition, source_slot, source_barcode, target_slot, check_slot, check_barcode, library, log, printToShell))
 		{
-			mags[target_terapack].addTapeToSlot(source_barcode, target_slot_int);
+			// Increment the capacity count instead of moving the tape between TeraPacks.
+			// As tapes aren't being moved until after this section of the script activates, changes to the mags variable aren't
+			// reflected in inventory. If tape 1 is moved and then used as a reference point for tape 2, moves would be unpredictable
+			// and could potentially fail as they would target tape 1's old TeraPack. Not updating the barcode in the next magazine
+			// should resolve this issue.
+			mags[target_terapack].addTapeToSlot("HOLD", target_slot_int);
 			
 			move.barcode = source_barcode;
 			move.source_type = "slot";
@@ -225,7 +242,7 @@ public class SlotIQ
 			
 			if(printToShell)
 			{
-				System.out.println("Error: Unable to validate move " + source_slot + " (" + source_barcode + ") to (" + target_slot + ")");
+				System.out.println("Error: Unable to validate move (" + source_slot + ": " + source_barcode + ") to (" + target_slot + ")");
 			}
 		}
 
