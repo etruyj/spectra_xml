@@ -17,6 +17,7 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
+import com.socialvagrancy.spectraxml.commands.sub.ArrangeTapes;
 import com.socialvagrancy.spectraxml.commands.sub.CalibrateDrives;
 import com.socialvagrancy.spectraxml.commands.sub.EjectListedTapes;
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
@@ -28,6 +29,7 @@ import com.socialvagrancy.spectraxml.commands.sub.MoveQueue;
 import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
 import com.socialvagrancy.spectraxml.commands.sub.SortMagazines;
 import com.socialvagrancy.spectraxml.structures.Move;
+import com.socialvagrancy.spectraxml.structures.SlotPair;
 import com.socialvagrancy.spectraxml.structures.TeraPack;
 import com.socialvagrancy.spectraxml.structures.XMLResult;
 import com.socialvagrancy.spectraxml.utils.XMLParser;
@@ -60,6 +62,81 @@ public class AdvancedCommands
 	// Control Functions
 	// 	These are the public functions callable by the script.
 	//====================================================================
+
+	public void arrangeTapes(String partition, int max_moves, String output_format, boolean printToShell)
+	{
+		// Arrange the tapes in ascending order in the library.
+
+		log.log("Organizing library inventory...", 1);
+
+		if(printToShell)
+		{
+			System.err.println("Organizing library inventory.");
+		}
+
+		XMLResult[] inv = library.listInventory(partition);
+
+		log.log("Finding empty slots...", 1);
+		ArrayList<String> empty_slots = Inventory.findEmptySlots(inv);
+
+		log.log("Found (" + empty_slots.size() + ") empty slots.", 1);
+
+		if(printToShell)
+		{
+			System.err.println("Found (" + empty_slots.size() + ") empty slots in partition " + partition);
+		}
+
+		if(empty_slots.size()==0)
+		{
+			log.log("Unable to proceed. At least 1 slot is required.", 2);
+			if(printToShell)
+			{
+				System.err.println("Unable to move tapes. At least one empty slot is required.");
+			}
+		}
+		else
+		{
+			log.log("Retrieving ordered list of tapes...", 1);
+			ArrayList<SlotPair> ordered_tapes = ArrangeTapes.getOrderedBarcodeList(inv);
+			
+			log.log("There are (" + ordered_tapes.size() + ") tapes in this partition.", 1);	
+			log.log("Queuing moves...", 1);
+			ArrayList<Move> move_list = ArrangeTapes.queueMoves(ordered_tapes, empty_slots, max_moves, log);
+		
+			if(move_list.size() == 0)
+			{
+				log.log("No moves queued.", 2);
+
+				if(printToShell)
+				{
+					System.err.println("No moves queued.");
+				}
+			}
+			else
+			{
+				if(move_list.size() == max_moves)
+				{
+					log.log("Queued the maximum number of moves specified (" + max_moves + ")", 2);
+				}
+				else
+				{
+					log.log("Queued " + move_list.size() + " moves of the " + max_moves + " moves allowed.", 2);
+				}
+
+				if(output_format.equals("move-queue"))
+				{
+					log.log("Generatiing move queue...", 1);
+					MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+				}
+				else
+				{
+					log.log("Sending moves to library...", 1);
+					sendMoves(partition, move_list, printToShell);
+				}
+			}
+		}
+		
+	}
 
 	public void calibrateDrives(String partition, String output_format, boolean printToShell)
 	{

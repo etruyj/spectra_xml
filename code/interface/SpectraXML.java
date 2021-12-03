@@ -297,6 +297,10 @@ public class SpectraXML
 			case "move-tape":
 				result = conn.moveTape(option, option4, option4, option5, option3);
 				break;
+			case "organize-inventory":
+				conn.organizeTapes(option, moves, output_format, true);
+				printOutput = false;
+				break;
 			case "package-details":
 				result = conn.listPackageDetails(option);
 				includeHeaders = true;

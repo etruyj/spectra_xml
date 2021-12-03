@@ -282,6 +282,11 @@ public class SpectraController
 		return library.moveTape(partition, sourceID, sourceNumber, destID, destNumber);
 	}
 
+	public void organizeTapes(String partition, int max_moves, String output_format, boolean printToShell)
+	{
+		advanced.arrangeTapes(partition, max_moves, output_format, printToShell);
+	}
+
 	public XMLResult[] physicalInventory(String partition)
 	{
 		return library.physicalInventory(partition);

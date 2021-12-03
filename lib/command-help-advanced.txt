@@ -12,4 +12,5 @@ Advanced XML Commands
 	magazine-contents	Prints a list of magazine contents to the shell. The information included in this output is the magazine-barcode, number of slots utilized (utilizaton), and the tape barcode in each slot. Similar output to the basic XML command physicalInventory.xml. Partition must be specified with the --partition flag.
 	magazine-utilization	Generates a breakdown of Terapacks based on how full they are. Can be used to determine the availability of slots in the library and if there are any empty TeraPacks. Output includes Entry/Exit Slots. Partition must be specified with the --partition flag.
 	maintenance-hhm-reset	Resets the applicable HHM counters after a preventative maintenance engagement.
+	organize-inventory	Sort the inventory to be in numeric/alphabetic order. Must specify --partition and --max-moves. --output-format move-queue can be used to generate a MoveQueue.txt file.
 	prepare-slotiq		Prepares a library for enabling Slot IQ by ensuring each TeraPack has at least 1 open slot. Requires --partition, --moves flag. Can generate move queue instead of sending moves with --output-type move-queue flag.
