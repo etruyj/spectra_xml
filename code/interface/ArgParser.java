@@ -25,6 +25,7 @@ public class ArgParser
 	private String cmd_option5;
 	private String output_format;
 	private int maxMoves;
+	private int library_maximum;
 	private boolean helpSelected;
 	private boolean secure_https;
 	private boolean ignore_ssl;
@@ -57,6 +58,7 @@ public class ArgParser
 		cmd_option5 = "none";
 		output_format = "shell";
 		maxMoves = 10;
+		library_maximum = 100;
 		helpSelected = false;
 		secure_https = true; // https connection
 		ignore_ssl = false; // ignore ssl certificates.
@@ -171,6 +173,16 @@ public class ArgParser
 	// functions 
 	//===================================================================
 
+	private void checkMaxMoves()
+	{
+		if(output_format.equals("move-queue") && maxMoves > library_maximum)
+		{
+			System.err.println("Invalid number of moves specified. The maximum accepted moves for a move queue file is " + library_maximum + ". " + maxMoves + " moves were specified. Setting maximum moves to library maximum.");
+			maxMoves = library_maximum;
+
+		}
+	}
+
 	public boolean checkValidInput()
 	{
 		// Verify the input hasn't already failed the test with the entered command options.
@@ -263,16 +275,10 @@ public class ArgParser
 				case "--max-moves":
 					if((i+1)<args.length)
 					{
-						int library_maximum = 100; // Maximum number of moves available for a MoveQueue.txt file.
-
 						maxMoves = Integer.parseInt(args[i+1]);
 						i++;
-						
-						if(maxMoves > library_maximum)
-						{
-							System.out.println("The maximum number of moves allowed is 100. Setting move count to 100");
-							maxMoves = 100;
-						}
+					
+						checkMaxMoves();
 					}
 					break;
 				case "-o":
@@ -437,6 +443,8 @@ public class ArgParser
 					{
 						output_format = args[i+1];
 						i++;
+
+						checkMaxMoves();
 					}
 					break;
 				case "-p":

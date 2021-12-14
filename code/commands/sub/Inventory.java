@@ -56,6 +56,46 @@ public class Inventory
 		return empty_slots;	
 	}
 
+	public static ArrayList<String> findEmptySlots(XMLResult[] response)
+	{
+		ArrayList<String> empty_slots = new ArrayList<String>();
+		boolean searching = true;
+		int itr = 0;
+		String checkSlot = "0";
+
+		// Build a list of all available slots
+		while(searching)
+		{
+			// Grab a slot number
+			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>Offset"))
+			{
+				checkSlot = response[itr].value;
+			}
+
+			// Determine if that slot is occupied.
+			// If not store the number for verification.
+			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>full") && response[itr].value.equalsIgnoreCase("No"))
+			{
+				empty_slots.add(checkSlot);
+			}
+
+			// Determine the end of the search
+			if(response[itr].headerTag.equalsIgnoreCase("partition>entryExitSlot"))
+			{
+				searching = false;
+			}
+			
+			itr++;
+
+			if(itr >= response.length)
+			{
+				searching = false;
+			}
+		}
+	
+		return empty_slots;	
+	}
+
 	public static ArrayList<String> findEmptyTeraPacks(BasicXMLCommands library, String partition, int magazine_size)
 	{
 		ArrayList<String> empty_slots = findEmptySlots(library, partition);

@@ -621,7 +621,7 @@ public class AdvancedCommands
 					
 					try
 					{
-						TimeUnit.SECONDS.sleep(10);
+						TimeUnit.SECONDS.sleep(15);
 
 						return readyForMove(printToShell);
 					}
