@@ -164,4 +164,68 @@ public class Inventory
 			return 9;
 		}
 	}
+
+	public static ArrayList<String> findStorageSlots(XMLResult[] inv)
+	{
+		ArrayList<String> slot_list = new ArrayList<String>();
+		boolean searching = true;
+		int itr = 0;
+
+		// Build a list of all available slots
+		while(searching)
+		{
+			// Grab a slot number
+			if(inv[itr].headerTag.equalsIgnoreCase("partition>storageSlot>Offset"))
+			{
+				slot_list.add(inv[itr].value);
+			}
+
+			// Determine the end of the search
+			if(inv[itr].headerTag.equalsIgnoreCase("partition>entryExitSlot"))
+			{
+				searching = false;
+			}
+			
+			itr++;
+
+			if(itr >= inv.length)
+			{
+				searching = false;
+			}
+		}
+	
+		return slot_list;	
+	}
+
+	public static ArrayList<String> findTapes(XMLResult[] inv)
+	{
+		ArrayList<String> tape_list = new ArrayList<String>();
+		boolean searching = true;
+		int itr = 0;
+
+		// Build a list of all available slots
+		while(searching)
+		{
+			// Grab a slot number
+			if(inv[itr].headerTag.equalsIgnoreCase("partition>storageSlot>barcode"))
+			{
+				tape_list.add(inv[itr].value.trim());
+			}
+
+			// Determine the end of the search
+			if(inv[itr].headerTag.equalsIgnoreCase("partition>entryExitSlot"))
+			{
+				searching = false;
+			}
+			
+			itr++;
+
+			if(itr >= inv.length)
+			{
+				searching = false;
+			}
+		}
+	
+		return tape_list;	
+	}
 }

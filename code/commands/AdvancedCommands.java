@@ -67,7 +67,7 @@ public class AdvancedCommands
 	{
 		// Arrange the tapes in ascending order in the library.
 
-		log.log("Organizing library inventory...", 1);
+//		log.log("Organizing library inventory...", 1);
 
 		if(printToShell)
 		{
@@ -76,7 +76,34 @@ public class AdvancedCommands
 
 		XMLResult[] inv = library.listInventory(partition);
 
-		log.log("Finding empty slots...", 1);
+		//===============================
+		// Algorithm 2
+		//===============================
+
+		ArrayList<Move> move_list = ArrangeTapes.alphabetizeInventory(inv, max_moves, log);
+		
+		if(move_list.size()>0)
+		{
+			log.INFO("(" + move_list.size() + ") moves queued.");
+				
+			if(output_format.equals("move-queue"))
+			{
+				log.log("Generating move queue...", 1);
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+			}
+			else
+			{
+				log.log("Sending moves to library...", 1);
+				sendMoves(partition, move_list, printToShell);
+			}
+		}
+		else
+		{
+			log.WARN("No moves queued.");
+		}
+	
+
+/*		log.log("Finding empty slots...", 1);
 		ArrayList<String> empty_slots = Inventory.findEmptySlots(inv);
 
 		log.log("Found (" + empty_slots.size() + ") empty slots.", 1);
@@ -135,7 +162,7 @@ public class AdvancedCommands
 				}
 			}
 		}
-		
+*/		
 	}
 
 	public void calibrateDrives(String partition, String output_format, boolean printToShell)
@@ -685,6 +712,15 @@ public class AdvancedCommands
 					response = library.moveTape(partition, "BC", move_list.get(i).barcode, move_list.get(i).target_type, move_list.get(i).target_slot); 
 				}
 
+				// Try adding a delay to not hammer the LCM.
+				try
+				{
+					TimeUnit.SECONDS.sleep(15);
+				}
+				catch(Exception e)
+				{
+					System.err.println(e.getMessage());
+				}
 		/*		if(response[0].headerTag.equalsIgnoreCase("message"))
 				{
 					log.log(response[0].value, 2);

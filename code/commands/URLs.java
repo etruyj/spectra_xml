@@ -142,7 +142,7 @@ public class URLs
 	{
 		// This command corresponds to the HHM: Set counters advanced utility in the BlueScale user interface.
 		String url = libraryAddress + "HHMData.xml?action=resetCounterData&type=" + type.replace(" ", "%20") 
-		       		+ "&subtype=" + subtype;
+		       		+ "&subType=" + subtype;
 
 		// Robot value only needs to be specified for TFINITY
 		if(!robot.equals("none"))
