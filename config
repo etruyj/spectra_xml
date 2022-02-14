@@ -1,0 +1,12 @@
+#####################################################################
+# Configuration File for Spectra XML script.
+# 	
+#
+#####################################################################
+#
+# LOGGING
+log_path: ../logs/slxml-main.log
+log_count: 3
+log_size: 102400
+min_level: INFO
+#

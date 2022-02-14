@@ -14,15 +14,15 @@ public class SpectraXML
 	private Output output;
 	private SpectraController conn;
 
-	public SpectraXML(String ipaddress, boolean isSecure, boolean ignoreSSL)
+	public SpectraXML(String ipaddress, boolean isSecure, boolean ignoreSSL, String log_path, int log_level, int log_size, int log_count)
 	{
-		conn = new SpectraController(ipaddress, isSecure, ignoreSSL);
+		conn = new SpectraController(ipaddress, isSecure, ignoreSSL, log_path, log_level, log_size, log_count);
 		output = new Output();
 	}
 
 	public static void main(String[] args)
 	{
-		ArgParser aparser = new ArgParser();
+		ArgParser aparser = new ArgParser("../config");
 
 		if(args.length>0)
 		{
@@ -31,7 +31,7 @@ public class SpectraXML
 
 		if(aparser.checkValidInput())
 		{
-			SpectraXML ui = new SpectraXML(aparser.getIPAddress(), aparser.getSecureHTTPS(), aparser.getIgnoreSSL());	
+			SpectraXML ui = new SpectraXML(aparser.getIPAddress(), aparser.getSecureHTTPS(), aparser.getIgnoreSSL(), aparser.getLogPath(), aparser.getLogLevel(), aparser.getLogSize(), aparser.getLogCount());	
 
 			if(ui.login(aparser.getUsername(), aparser.getPassword()))
 			{

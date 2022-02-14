@@ -8,6 +8,9 @@
 
 package com.socialvagrancy.spectraxml.ui;
 
+import com.socialvagrancy.spectraxml.structures.Configuration;
+import com.socialvagrancy.spectraxml.utils.Load;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -29,6 +32,12 @@ public class ArgParser
 	private boolean helpSelected;
 	private boolean secure_https;
 	private boolean ignore_ssl;
+
+	// Logging vars
+	private String log_path;
+	private int log_level;
+	private int log_count;
+	private int log_size;
 
 	// These are for tracking the assignment of flags.
 	// for ease of coding, multiple flags map to the same
@@ -63,6 +72,12 @@ public class ArgParser
 		secure_https = true; // https connection
 		ignore_ssl = false; // ignore ssl certificates.
 	
+		// Logging
+		log_path = "../logs/slxml-main.log";
+		log_count = 3;
+		log_level = 1;
+		log_size = 10240;
+		
 		// isValid
 		// 	Used to verify and validate the entered command.
 		// 	Defaults to ture as this is used to check the		
@@ -74,6 +89,46 @@ public class ArgParser
 		option3_set = false;
 		option4_set = false;
 		option5_set = false;
+	}
+
+	public ArgParser(String config_path)
+	{
+		Configuration config = Load.config(config_path);
+
+		ip_address = "none";
+		username = "none";
+		password = "";
+		command = "none";
+		cmd_option = "none";
+		cmd_option2 = "none";
+		cmd_option3 = "none";
+		cmd_option4 = "none";
+		cmd_option5 = "none";
+		output_format = "shell";
+		maxMoves = 10;
+		library_maximum = 100;
+		helpSelected = false;
+		secure_https = true; // https connection
+		ignore_ssl = false; // ignore ssl certificates.
+	
+		// Logging
+		log_path = config.log_path;
+		log_count = config.log_count;
+		log_level = config.getLogLevel();
+		log_size = config.log_size;
+
+		// isValid
+		// 	Used to verify and validate the entered command.
+		// 	Defaults to ture as this is used to check the		
+		// 	option values. Options may not be
+		// 	required for specific commands.
+		isValid = true;  
+		option_set = false;
+		option2_set = false;
+		option3_set = false;
+		option4_set = false;
+		option5_set = false;
+	
 	}
 
 	//===================================================================
@@ -92,6 +147,10 @@ public class ArgParser
 	public String getCmdOption3() { return cmd_option3; }
 	public String getCmdOption4() { return cmd_option4; }
 	public String getCmdOption5() { return cmd_option5; }
+	public String getLogPath() { return log_path; }
+	public int getLogCount() { return log_count; }
+	public int getLogLevel() { return log_level; }
+	public int getLogSize() { return log_size; }
 	public String getOutputFormat() { return output_format; }
 	public int getMaxMoves() { return maxMoves; }
 

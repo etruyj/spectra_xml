@@ -679,7 +679,22 @@ public class AdvancedCommands
 
 		for(int i=0; i< move_list.size(); i++)
 		{
+/*
+ *		In case we need to give the LCM a break after so many moves.
+ *		Testing without and removing comments if needed.
+ 			if(i>0 && (i%1500==0))
+			{
+				log.INFO(i + " moves have been processed. Pausing for 1 hour.");
 
+				if(printToShell)
+				{
+					System.out.println(i + " moves have been processed. Pausing for 1 hour.");
+				}
+
+				try { TimeUnit.HOURS.sleep(1); }
+				catch(Exception e) { System.err.println(e.getMessage()); }
+			}
+*/
 			if(printToShell)
 			{
 				System.out.print("Waiting for library");

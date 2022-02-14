@@ -31,11 +31,11 @@ public class SpectraController
 	// Constructor
 	//====================================================================
 	
-	public SpectraController(String server, boolean secure, boolean ignoreSSL)
+	public SpectraController(String server, boolean secure, boolean ignoreSSL, String log_path, int log_level, int log_size, int log_count)
 	{
 		// Declared logger in SpectraController as opposed to 
 		// in connector to allow logging of issues within the commands.
-		logbook = new Logger("../logs/slxml-main.log", 102400, 3, 1);
+		logbook = new Logger(log_path, log_size, log_count, log_level);
 
 		library = new BasicXMLCommands(server, secure, ignoreSSL, logbook);
 		advanced = new AdvancedCommands(library, logbook);

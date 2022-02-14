@@ -248,11 +248,17 @@ public class ArrangeTapes
 			else if(slot == empty)
 			{
 				// This slot is empty. Skip.
-				e++;
+				if(e < empty_slots.size())
+				{
+					e++;
+				}
 			}
 
 			// Increment slot at the end.
-			s++;
+			if(s<all_slots.size())
+			{
+				s++;
+			}
 		}
 
 		// Alphabetize barcodes
