@@ -201,7 +201,7 @@ public class MagazineCompaction
 			if(sourceTapes<1)
 			{
 				source++;
-			//	sourceTapes = mags[source].getCapacity();
+				sourceTapes = mags[source].getCapacity();
 				tapeSlot = -1;
 			}
 
@@ -212,7 +212,7 @@ public class MagazineCompaction
 			if(destSlots<1)
 			{
 				destination--;
-			//	destSlots = mags[destination].getNumSlots() - mags[destination].getCapacity();
+				destSlots = mags[destination].getNumSlots() - mags[destination].getCapacity();
 				emptySlot = -1;
 			}
 

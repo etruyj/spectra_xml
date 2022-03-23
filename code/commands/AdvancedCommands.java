@@ -381,8 +381,9 @@ public class AdvancedCommands
 		// Sort list.
 
 		log.log("Calling SortMagazines.sort()", 2);
+		
 		magazines = SortMagazines.sort(magazines, true, true);
-
+		
 		int[] requirements = MagazineCompaction.checkMoves(magazines, maxMoves);
 
 		if(requirements[0] == 0)
@@ -391,7 +392,7 @@ public class AdvancedCommands
 
 			if(printToShell)
 			{
-				System.out.println("No TeraPacks can be freed by magazine compaction.");
+				System.err.println("No TeraPacks can be freed by magazine compaction.");
 			}
 		}
 		else if(requirements[0] < 0)
@@ -402,7 +403,7 @@ public class AdvancedCommands
 
 			if(printToShell)
 			{
-				System.out.println("Not enough moves allowed. Maximum of " + maxMoves 
+				System.err.println("Not enough moves allowed. Maximum of " + maxMoves 
 					+ " specified when " + -requirements[0] 
 					+ "moves are required to free 1 magazine.");
 			}
