@@ -291,12 +291,12 @@ public class ArgParser
 						if(args[i+1].equals("help-basic"))
 						{
 							helpSelected = true;
-							printFile("command-help-basic.txt");
+							printFile("help/command-help-basic.txt");
 						}
 						else if(args[i+1].equals("help-advanced"))
 						{
 							helpSelected = true;
-							printFile("command-help-advanced.txt");
+							printFile("help/command-help-advanced.txt");
 						}
 						else
 						{
@@ -316,7 +316,7 @@ public class ArgParser
 				case "-h":
 				case "--help":
 					helpSelected = true;
-					printFile("help.txt");
+					printFile("help/help.txt");
 					break;
 				case "--http":
 				case "--insecure":
@@ -523,6 +523,10 @@ public class ArgParser
 						username = args[i+1];
 						i++;
 					}
+					break;
+				case "--version":
+					helpSelected = true;
+					printFile("help/version.txt");
 					break;
 				default:
 					i++;

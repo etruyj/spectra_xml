@@ -1,0 +1,48 @@
+
+Spectra XML Command Parser
+	This command line application is designed to be used with the XML interface of Spectra Logic tape libraries. This script supports both the basic XML commands listed in the Spectra's Tape XML guide as well as a few more complex operations which build on the XML commands to perform taks. Detailed information on Spectra Logic's XML interface can be found at support.spectralogic.com under the Documentation tab.
+
+Available Options:
+	-c, --command	*REQUIRED* Enter the command you would like to execute. Examples list-partitions, get-inventory, physical-inventory. Type help after this flag for a list of available commands.
+	--checksum	Specify the checksum reporting for the modify-barcode-reporting command. Valid options are nonChecksummedBarcodes, checksummedBarcodes, and ignoreChecksumBarcodes.
+	--controller	Specify the controller/exporter to be used as the primary device for the command.
+	--delay		Specify the length of time the library will be off before restarting. 
+	--direction	Specify the direction the library will read barcodes in the modify-barcode-reporting command. Valid options are left or right.
+	--drawer	Specify the TAP drawer to use with the empty-bulk-tap and tap-status commands. This is the chamber of the TAP.
+	--drive		Specify the drive in FR[#]/DBA[#]/DR[#] format where [#] specifies the number and placement in the library.
+	--element-type	Specify the element type the operation is specifying. Storage or IE.
+	--email		Specify the email address to be used. Email must already be configured in the library UI.
+	-e, --endpoint	*REQUIRED* Specify the IP address of the library's Web UI.
+	--event		HHM Threshold event. Valid options are Service HAX, Check Contact Brushes, Service HAX Belt, Service VAX, Service VAX Belt, Service VAX Cable, Service Transporter, Service Required.
+	--file		Specify file name. Used with upload-package.
+	--http,		Use a non-SSL connection (http) to connect to the library. This is the same as --insecure. Only one of these flags is needed.
+	--insecure	Use a non-SSL connection (http) to connect to the library. This is the same as --http. Only one is needed.
+	--ignore-ssl	Does not validate SSL certificate for HTTPS connections.
+	--key-default	Keep default HHM values for set-hhm-threshold
+	--key		Specify the option key to be used with add-key.
+	-m, --max-moves	Specify the maximum number of tape moves the library can perform during the execution of the command. This is intended to prevent complex move commands issued against a production library from bogarting the robots, causing production move failures.
+	--number	Specify the number of characters to be reported by the library in the modify-barcode-reporting command. Valid values are 1 to 16. (--number-characters is also valid.)
+	--offset	Specify the magazine offset. Magazine offsets can be found with the physical-inventory command. The offset provided by physical-inventory is actually one-higher (+1) from the value required by offset. Subtract one (-1) from the value returned by physical-inventory to have the proper offset.
+	-o, --option	Specify options for the command. Most common option is partition name.
+	--output-format	For basic commands, the type of output (shell, xml) or for moves (move-queue).
+	--package	Specify the package to be used with the package commands.
+	--partition	Specify the partition in which the operation will occur.
+	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
+	--qip		Specify the QIP/RCM
+	--rcm		Specify the RCM for the rcm-status command.
+	--reboot-in	Specify the length of tme the library will be off before restarting.
+	--robot		Specify the robot to be used with the command. TFINITY only. Valid inputs Robot 1 or Robot 2.
+	--save-to	Specify where the setting will be saved to, i.e. usb or sent to an email address.
+	--setting	Specify the setting to modify in the update-setting command. Valid inputs are libraryName, auto-logout, online-access, monitor-drive-performance, SNMP, auto-powerup.
+	--source-type	The type of source for the move ie. bc (barcdoe), slot, ee (entry/exit), or drive.
+	--spare		Specify the backup controller/export for the enable controller failover command.
+	--subtype	Specify the subtype of the HHM counter being specified. Valid inputs Trip1 or Trip2.
+	--tape		Specify the tape barcode.
+	--tap		Specify the TAP to be used with the empty-bulk-tap and tap-status commands. Valid inputs are left, right, both, and main.
+	--target	Specify the target/destination slot or drive of a move.
+	--target-type	Specify the type of the move target, i.e. slot, ee (entry/exit), or drive
+	--terapacks	Specify the terapack(s) offsets
+	--type		Specify the HHM counter type for reset-hhm-counter command. Valid inputs Horizontal Axis, Vertical Axis, Picker Axis, Rotational Axis, Magazine Axis, Toggle Axis, Side Axis, Drive to Drive Move, Drive to Slot Move, Slot to Slot Move, Slot to Drive Move TAP In Move, TAP Out Move.
+	-u, --username	Specify the username for the connection/query.
+	--value		Specify the value the HHM counter should be set to.
+	--version	Prints the current code level for the script.

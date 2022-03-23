@@ -40,12 +40,12 @@ public class SpectraXML
 			}
 			else
 			{
-				System.out.println("Unable to login to the Spectra Logic tape library at " + aparser.getIPAddress() + " with specified username " + aparser.getUsername() + ".");
+				System.err.println("Unable to login to the Spectra Logic tape library at " + aparser.getIPAddress() + " with specified username " + aparser.getUsername() + ".");
 			}
 		}
 		else if(!aparser.getHelpSelected())
 		{
-			System.out.println("Invalid options selected. Please use -h or --help to determine the commands.");
+			System.err.println("Invalid options selected. Please use -h or --help to determine the commands.");
 		}
 	}
 
@@ -298,7 +298,7 @@ public class SpectraXML
 				result = conn.moveTape(option, option4, option4, option5, option3);
 				break;
 			case "organize-inventory":
-				conn.organizeTapes(option, moves, output_format, true);
+				conn.organizeTapes(option, option3, moves, output_format, true);
 				printOutput = false;
 				break;
 			case "package-details":
@@ -455,7 +455,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			default:
-				System.out.println("Invalid command use -c help-basic to see a list of basic XML commands or -c help-advanced to get a list of the advanced XML options.");
+				System.err.println("Invalid command use -c help-basic to see a list of basic XML commands or -c help-advanced to get a list of the advanced XML options.");
 				printOutput = false;
 				break;
 

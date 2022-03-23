@@ -163,13 +163,22 @@ public class ArrangeTapes
 
 		ArrayList<String> empty_slots = Inventory.findEmptySlots(inv);
 		ArrayList<String> all_slots = Inventory.findStorageSlots(inv);
+		ArrayList<String> tape_list = Inventory.findTapes(inv);	
 
 		logs.INFO("There are (" + empty_slots.size() + ") empty slots in the library.");
 
 		if(empty_slots.size()>0)
 		{
 			logs.INFO("Mapping inventory...");
-			HashMap<String, String> tape_slot_map = mapSlotsToTapes(inv, empty_slots, all_slots);
+			
+			// Build Source Map
+			HashMap<String, String> tape_slot_map = mapSourceSlots(empty_slots, all_slots, tape_list);
+			
+			// Alphabetize Tapes
+			Collections.sort(tape_list);
+
+			// Build Target Map
+			tape_slot_map.putAll(mapTargetSlots(all_slots, tape_list));
 
 			ArrayList<Move> move_list = queueMoves(tape_slot_map, empty_slots, all_slots, max_moves, logs);
 
@@ -194,8 +203,8 @@ public class ArrangeTapes
 			// If not, move it to the last open slot to allow more moves.
 
 			// target slot = tape_map('t' + barcode) || barcode = tape_map('s' + slot)
-			if(!all_slots.get(i).equals(tape_map.get("t" + tape_map.get('s' + all_slots.get(i)))))
-			{
+			// also ensuring tape_map has a value for the specified key. Otherwise the slot should be empty.
+			if(!all_slots.get(i).equals(tape_map.get("t" + tape_map.get("s" + all_slots.get(i)))))			{
 				move = new Move();
 				move.barcode = tape_map.get('s' + all_slots.get(i));
 				move.source_type = "SLOT";
@@ -212,16 +221,12 @@ public class ArrangeTapes
 		return move;
 	}
 
-	public static HashMap<String, String> mapSlotsToTapes(XMLResult[] inv, ArrayList<String> empty_slots, ArrayList<String> all_slots)
+	public static HashMap<String, String> mapSourceSlots(ArrayList<String> empty_slots, ArrayList<String> all_slots, ArrayList<String> tape_list)
 	{
 		// This one is complex. We're creating a map of source:barcode, barcode:source, target:barcode, 
 		// and barcode:target to allow us to quickly parse the information. To differentiate between
 		// the two values 's' will be prepended to the slot or barcode for the source pairs and 't' will
 		// be prepended for the target pairs. This reduces the number of variables being passed around. 
-
-		// grab a list of all slots from the inventory as slots aren't re-indexed
-		// after TeraPacks are removed from the library.
-		ArrayList<String> tape_list = Inventory.findTapes(inv);
 
 		HashMap<String, String> tape_slot_map = new HashMap<String, String>();
 
@@ -232,10 +237,13 @@ public class ArrangeTapes
 		int e = 0;
 		int s = 0;
 		int t = 0;
+
 		while(t<tape_list.size())
 		{
 			slot = Integer.valueOf(all_slots.get(s));
 			empty = Integer.valueOf(empty_slots.get(e));
+			
+			System.err.println(e + "/" + empty_slots.size() + "\t" + s + "/" + all_slots.size() + "\t" + t + "/" + tape_list.size() + "\t" + slot + ":" + empty);
 
 			if(slot<empty)
 			{
@@ -248,22 +256,26 @@ public class ArrangeTapes
 			else if(slot == empty)
 			{
 				// This slot is empty. Skip.
-				if(e < empty_slots.size())
+				if(e < empty_slots.size()-1)
 				{
 					e++;
 				}
 			}
 
 			// Increment slot at the end.
-			if(s<all_slots.size())
+			if(s<all_slots.size()-1)
 			{
 				s++;
 			}
 		}
 
-		// Alphabetize barcodes
-		Collections.sort(tape_list);
-	
+		return tape_slot_map;
+	}
+
+	public static HashMap<String, String> mapTargetSlots(ArrayList<String> all_slots, ArrayList<String> tape_list)
+	{
+		HashMap<String, String> tape_slot_map = new HashMap<String, String>();
+
 		for(int i=0; i<tape_list.size(); i++)
 		{
 			// Assuming the number of tapes in the storage partition is less than the
@@ -272,12 +284,7 @@ public class ArrangeTapes
 			tape_slot_map.put("t" + all_slots.get(i), tape_list.get(i));
 			tape_slot_map.put("t" + tape_list.get(i), all_slots.get(i));
 		}
-
-		if((tape_slot_map.size()/4) != tape_list.size())
-		{
-			System.err.println("ERROR: Map constructed incorrectly.");
-		}
-
+		
 		return tape_slot_map;
 	}
 
@@ -292,7 +299,7 @@ public class ArrangeTapes
 		int tape_count = tape_slot_map.size()/4; // As there are 4 entries per tape (source:tape, target:tape, tape:source, tape:target)
 
 		log.INFO("Queuing moves...");
-
+		
 		while((move_counter < max_moves) && !finished)
 		{
 			// <= is used as slots start at index 1 not 0.
@@ -306,8 +313,15 @@ public class ArrangeTapes
 				move.target_slot = empty_slots.get(move_counter);
 				
 				// Add the last move to the back of the list.
-				empty_slots.add(move_counter+1, tape_slot_map.get('s' + move.barcode));		
-		
+				if(Integer.valueOf(tape_slot_map.get('s' + move.barcode)) <= tape_count)
+				{
+					empty_slots.add(move_counter+1, tape_slot_map.get('s' + move.barcode));		
+				}
+				else
+				{
+					empty_slots.add(tape_slot_map.get('s' + move.barcode));
+				}
+
 				// update the tape positions in the map
 				updateMap(tape_slot_map, move.barcode, move.target_slot);
 
@@ -355,5 +369,154 @@ public class ArrangeTapes
 		// Update the source location to where the tape is being moved.
 		tape_map.put("s" + target, barcode);
 		tape_map.put("s" + barcode, target);
+	}
+
+	//===========================================================
+	//	GroupListed
+	//		This is an alternative and hopefully faster
+	//		method to group the listed number of tapes.
+	//
+	//		It creates two lists of tapes, to be ejected
+	//		and to remain and appends them after one
+	//		another with the required gap to make sure
+	//		the two sets don't share a TeraPack.
+	//
+	//		// Inventory: [not listed][gap][listed]
+	//===========================================================
+	
+	public static ArrayList<Move> groupListed(XMLResult[] inv, String file_path, int magazine_size, int max_moves, Logger logs)
+	{
+		logs.INFO("Grouping listed tapes at beginning of inventory...");
+
+		ArrayList<String> empty_slots = Inventory.findEmptySlots(inv);
+		ArrayList<String> all_slots = Inventory.findStorageSlots(inv);
+		ArrayList<String> tape_list = Inventory.findTapes(inv);
+		ArrayList<String> tapes_to_eject = LoadFile.tapeList(file_path);
+
+		logs.INFO("There are (" + empty_slots.size() + ") empty slots in the library.");
+
+		if(empty_slots.size()>0)
+		{
+			logs.INFO("Mapping inventory...");
+
+			// Map Source Slots
+			System.err.println("tape_slot_map");
+			HashMap<String, String> tape_slot_map = mapSourceSlots(empty_slots, all_slots, tape_list);
+
+			// Organize Tape List
+			System.err.println("tape_list");
+			tape_list = sortOutListedTapes(tape_list, tapes_to_eject);			
+
+			// Map Target Slots
+			System.err.println("target_slots");
+			tape_slot_map.putAll(mapTargetSlots(all_slots, tape_list));
+
+			// Add first moves.
+			System.err.println("move_list");
+			ArrayList<Move> move_list = queueMoves(tape_slot_map, empty_slots, all_slots, max_moves, logs);
+
+			// Create the gap slots if moves remain.
+			if(move_list.size() < max_moves)
+			{
+				int first_empty_slot = (tape_list.size() - tapes_to_eject.size());
+				int number_of_empties = magazine_size - (first_empty_slot % magazine_size);
+				
+				int itr=0;
+
+				while(itr < empty_slots.size())	
+				{
+					if(Integer.valueOf(empty_slots.get(itr)) < (first_empty_slot + number_of_empties + 1))
+					{
+						empty_slots.remove(itr);
+					}
+					else
+					{
+						itr++;
+					}
+				}
+				
+				Collections.sort(empty_slots);
+
+				if(number_of_empties < empty_slots.size())
+				{
+					logs.INFO("Clearing gap slots to ensure magazine isolation...");
+					move_list.addAll(queueEmptySlotMoves(first_empty_slot+1, number_of_empties, empty_slots, max_moves - move_list.size()));
+				}
+				else
+				{
+					logs.WARN("Unable to clear gap slots. Grouped tapes share a magazine.");
+					System.err.println("Unable to clear gap slots. Grouped tapes share a magazine.");
+				}
+			}
+
+			return move_list;
+		}
+		else
+		{
+			logs.ERR("Unable to organize inventory. At least 1 empty slot is required.");
+		
+			return null;
+		}
+	}
+
+	public static ArrayList<Move> queueEmptySlotMoves(int start_slot, int empties, ArrayList<String> empty_slots, int moves_remaining)
+	{
+		ArrayList<Move> final_moves = new ArrayList<Move>();
+		Move move;
+
+
+		for(int i = 0;  i < empties; i++)
+		{
+		
+			move = new Move();
+			move.source_type = "SLOT";
+			move.source_slot = String.valueOf((start_slot + i));
+			move.target_type = "SLOT";
+			move.target_slot = empty_slots.get(i);
+
+			final_moves.add(move);
+		}
+
+		return final_moves;
+	}
+
+	public static ArrayList<String> sortOutListedTapes(ArrayList<String> all_tapes, ArrayList<String> listed_tapes)
+	{
+		ArrayList<String> sorted_tapes = new ArrayList<String>();
+		
+		// Step 1: Add Gap Slots
+		/*
+		 * Skipping this step for initial organization.
+		int gap_slots = listed_tapes.size() % magazine_size; // number of slots occupied by listed tapes.
+		gap_slots = magazine_size - gap_slots; // number of slots that need to be filled.
+
+		if(gap_slots != magazine_size)
+		{
+			for(int i=0; i<gap_slots; i++)
+			{
+				sorted_tapes.add("empty");
+			}
+		}
+		*/
+
+		// Step 2: Sort all_tapes alphabetically to guarantee inventory order.
+		Collections.sort(all_tapes);		
+
+		// Step 3: If tape is in listed_tapes insert before gap, if not, insert after.
+		for(int i=0; i<all_tapes.size(); i++)
+		{
+			if(listed_tapes.contains(all_tapes.get(i)))
+			{
+				// Tape is listed
+				sorted_tapes.add(all_tapes.get(i));
+			}
+			else
+			{
+				// Tape is not listed
+				sorted_tapes.add(0, all_tapes.get(i));
+			}
+		}
+
+		return sorted_tapes;
 	}
 }

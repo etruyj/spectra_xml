@@ -63,7 +63,7 @@ public class AdvancedCommands
 	// 	These are the public functions callable by the script.
 	//====================================================================
 
-	public void arrangeTapes(String partition, int max_moves, String output_format, boolean printToShell)
+	public void arrangeTapes(String partition, String file_path, int max_moves, String output_format, boolean printToShell)
 	{
 		// Arrange the tapes in ascending order in the library.
 
@@ -80,8 +80,20 @@ public class AdvancedCommands
 		// Algorithm 2
 		//===============================
 
-		ArrayList<Move> move_list = ArrangeTapes.alphabetizeInventory(inv, max_moves, log);
-		
+		ArrayList<Move> move_list;
+
+		if(file_path.equals("none"))
+		{
+			move_list = ArrangeTapes.alphabetizeInventory(inv, max_moves, log);
+		}
+		else
+		{
+			String mediaType = getMediaType(partition, false);
+			int slots_per_terapack = Inventory.findMagazineSize(mediaType);
+
+			move_list = ArrangeTapes.groupListed(inv, file_path, slots_per_terapack, max_moves, log);
+		}
+
 		if(move_list.size()>0)
 		{
 			log.INFO("(" + move_list.size() + ") moves queued.");
