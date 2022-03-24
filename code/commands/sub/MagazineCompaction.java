@@ -10,6 +10,7 @@ package com.socialvagrancy.spectraxml.commands.sub;
 import com.socialvagrancy.spectraxml.commands.BasicXMLCommands;
 import com.socialvagrancy.spectraxml.structures.Move;
 import com.socialvagrancy.spectraxml.structures.TeraPack;
+import com.socialvagrancy.spectraxml.structures.XMLResult;
 
 import com.socialvagrancy.utils.FileManager;
 import com.socialvagrancy.utils.Logger;
@@ -105,6 +106,7 @@ public class MagazineCompaction
 		String checkBarcode;
 		String checkSlotString;
 		boolean isValidMove;
+		XMLResult[] inventory = library.listInventory(partition);
 
 		Move queued_move;
 		ArrayList<Move> move_queue = new ArrayList<Move>();
@@ -143,9 +145,9 @@ public class MagazineCompaction
 					System.out.println("\nPreparing move " + moves);
 				}
 
-				sourceSlotString = VerifyMove.findSlotString(partition, sourceBarcode, library);
-				checkSlotString = VerifyMove.findSlotString(partition, checkBarcode, library);
-				destSlotString = VerifyMove.findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode, library);
+				sourceSlotString = VerifyMove.findSlotString(partition, sourceBarcode, inventory);
+				checkSlotString = VerifyMove.findSlotString(partition, checkBarcode, inventory);
+				destSlotString = VerifyMove.findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode, inventory);
 
 				// Move validation.
 				// Will be removed/commented out in a future release.
@@ -155,7 +157,8 @@ public class MagazineCompaction
 				// validateMove(), so this function validates the move
 				// with by the same process that generates it. It's
 				// redundant.
-				isValidMove = VerifyMove.validate(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, library, log, true);				
+				isValidMove = true; // Marking this true for now to skip the move validation field.
+				// isValidMove = VerifyMove.validate(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, library, log, true);				
 			}
 			else
 			{

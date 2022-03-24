@@ -23,6 +23,8 @@ public class VerifyMove
 	// 	These are the public functions callable by the script.
 	//====================================================================
 
+	//Shifting functions to take XMLResult[] instead of BasicXMLCommands to reduce the number of calls to the 
+	// LCM and speed up execution.
 	public static String findDestinationSlot(String partition, int destSlot, int magSlot, String barcode, BasicXMLCommands library)
 	{
 		// Finds the slot string of the destination slot
@@ -44,9 +46,79 @@ public class VerifyMove
 		return "none";		
 	}
 
+	public static String findDestinationSlot(String partition, int destSlot, int magSlot, String barcode, XMLResult[] inventory)
+	{
+		// Finds the slot string of the destination slot
+		// by locating the slot of a tape within the same
+		// TeraPack and adjusting the slot based on the difference.
+
+		// destSlot = target
+		// magSlot = slot occupied by passed barcode.
+		int difference = destSlot - magSlot;
+		String anchor = "none";
+		anchor = findSlotString(partition, barcode, inventory);
+
+		if(!anchor.equals("none"))
+		{
+			difference = difference + Integer.valueOf(anchor);
+			return Integer.toString(difference);
+		}
+
+		return "none";		
+	}
+
 	public static ArrayList<String> findEmptyTeraPacks(String partition, int magazine_size, BasicXMLCommands library, boolean printToShell)
 	{
 		ArrayList<String> empty_slots = findEmptySlots(partition, library);
+		ArrayList<String> terapack_slots = new ArrayList<String>();
+		int firstSlot = Integer.valueOf(empty_slots.get(0));
+		
+		int terapack = firstSlot % magazine_size;
+		terapack = (firstSlot - terapack)+1;
+
+		boolean searching = true;
+		int itr = 0;
+
+		while(searching)
+		{
+			// If the slot is the first in the terapack
+			// Check the index + mag size to determine
+			// if all the slots are in the list.
+			if(Integer.valueOf(empty_slots.get(itr)) == terapack)
+			{
+				if(Integer.valueOf(empty_slots.get(itr+magazine_size-1)) == (terapack + magazine_size - 1))
+				{
+					// Add slots to array.
+					for(int i = itr; i<itr+magazine_size; i++)
+					{
+						terapack_slots.add(empty_slots.get(i));
+					}
+				}
+			}
+
+			// If in the last slot of the TP increment the tp.
+			if(Integer.valueOf(empty_slots.get(itr)) == (terapack + magazine_size - 1))
+			{
+				terapack+=magazine_size;
+			}
+
+			// Check to see if we got to the end of the array.
+			// if the last slot in the terapack is higher than the
+			// last value of the list, we're done.
+			if((terapack + magazine_size - 1) > Integer.valueOf(empty_slots.get(empty_slots.size()-1)))
+			{
+				searching = false;
+			}
+
+			itr++;
+		}
+	
+		return terapack_slots;
+	}
+
+	public static ArrayList<String> findEmptyTeraPacks(String partition, int magazine_size, XMLResult[] inventory, boolean printToShell)
+	{
+		ArrayList<String> empty_slots = findEmptySlots(partition, inventory);
 		ArrayList<String> terapack_slots = new ArrayList<String>();
 		int firstSlot = Integer.valueOf(empty_slots.get(0));
 		
@@ -130,6 +202,41 @@ public class VerifyMove
 		return empty_slots;
 	}	
 
+	public static ArrayList<String> findEmptySlots(String partition, XMLResult[] inventory)
+	{
+		ArrayList<String> empty_slots = new ArrayList<String>();
+		boolean searching = true;
+		int itr = 0;
+		String checkSlot = "0";
+		
+		// Build a list of all available slots.
+		while(searching)
+		{
+			// Grab a slot number.
+			if(inventory[itr].headerTag.equalsIgnoreCase("partition>storageSlot>Offset"))
+			{
+				checkSlot = inventory[itr].value;
+			}
+			
+			// Determine if that slot is occupied.
+			// If not store the number for verificatation.
+			if(inventory[itr].headerTag.equalsIgnoreCase("partition>storageSlot>full") && inventory[itr].value.equalsIgnoreCase("No"))
+			{
+				empty_slots.add(checkSlot);
+			}
+
+			// Determine the end of the search.
+			if(inventory[itr].headerTag.equalsIgnoreCase("partition>entryExitSlot"))
+			{
+				searching = false;
+			}
+
+			itr++;
+		}
+
+		return empty_slots;
+	}	
+
 	public static String findSlotString(String partition, String barcode, BasicXMLCommands library)
 	{
 		// Search the inventory for the barcode.
@@ -151,6 +258,35 @@ public class VerifyMove
 			// have to use trim() as there's whitespace in the barcode
 			// for some reason.
 			if(response[itr].headerTag.equalsIgnoreCase("partition>storageSlot>barcode") && response[itr].value.trim().equalsIgnoreCase(barcode))
+			{
+				slotFound = true;
+			}
+
+			itr++;
+		}
+
+		return slot;
+	}
+	
+	public static String findSlotString(String partition, String barcode, XMLResult[] inventory)
+	{
+		// Search the inventory for the barcode.
+		// Export the Slot number of the barcode.
+
+		boolean slotFound = false;
+		String slot = "none";
+		int itr = 0; // using while with an iterator to save cycles.
+
+		while(!slotFound)
+		{
+			if(inventory[itr].headerTag.equalsIgnoreCase("partition>storageSlot>Offset"))
+			{
+				slot = inventory[itr].value;
+			}
+			
+			// have to use trim() as there's whitespace in the barcode
+			// for some reason.
+			if(inventory[itr].headerTag.equalsIgnoreCase("partition>storageSlot>barcode") && inventory[itr].value.trim().equalsIgnoreCase(barcode))
 			{
 				slotFound = true;
 			}
