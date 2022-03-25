@@ -257,9 +257,9 @@ public class SpectraController
 		advanced.magazineCapacity(partition, printToShell);
 	}
 
-	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
+	public void magazineCompaction(String partition, int maxMoves, boolean verify_moves, String output_type, boolean printToShell)
 	{
-		advanced.magazineCompaction(partition, maxMoves, output_type, printToShell);
+		advanced.magazineCompaction(partition, maxMoves, verify_moves, output_type, printToShell);
 	}
 
 	public TeraPack[] magazineContents(String partition, boolean printToShell)

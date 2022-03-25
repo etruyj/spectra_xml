@@ -35,7 +35,7 @@ public class SpectraXML
 
 			if(ui.login(aparser.getUsername(), aparser.getPassword()))
 			{
-				ui.performCommand(aparser.getCommand(), aparser.getCmdOption(), aparser.getCmdOption2(), aparser.getCmdOption3(), aparser.getCmdOption4(), aparser.getCmdOption5(), aparser.getMaxMoves(), aparser.getOutputFormat());
+				ui.performCommand(aparser.getCommand(), aparser.getCmdOption(), aparser.getCmdOption2(), aparser.getCmdOption3(), aparser.getCmdOption4(), aparser.getCmdOption5(), aparser.getMaxMoves(), aparser.getBooleanFlag(), aparser.getOutputFormat());
 				ui.logout();
 			}
 			else
@@ -59,7 +59,7 @@ public class SpectraXML
 		return conn.logout();
 	}
 
-	public void performCommand(String command, String option, String option2, String option3, String option4, String option5, int moves, String output_format)
+	public void performCommand(String command, String option, String option2, String option3, String option4, String option5, int moves, boolean boolean_flag, String output_format)
 	{
 		boolean printOutput = true; // by default call print output after each function call.
 		boolean includeHeaders = false;
@@ -260,7 +260,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "magazine-compaction":
-				conn.magazineCompaction(option, moves, output_format, true);
+				conn.magazineCompaction(option, moves, boolean_flag, output_format, true);
 				printOutput = false;
 				break;
 			case "magazine-contents":

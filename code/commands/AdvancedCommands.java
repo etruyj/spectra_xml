@@ -26,6 +26,7 @@ import com.socialvagrancy.spectraxml.commands.sub.LoadFile;
 import com.socialvagrancy.spectraxml.commands.sub.MagazineCompaction;
 import com.socialvagrancy.spectraxml.commands.sub.MagazineUtilization;
 import com.socialvagrancy.spectraxml.commands.sub.MoveQueue;
+import com.socialvagrancy.spectraxml.commands.sub.SendMoves;
 import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
 import com.socialvagrancy.spectraxml.commands.sub.SortMagazines;
 import com.socialvagrancy.spectraxml.structures.Move;
@@ -100,13 +101,13 @@ public class AdvancedCommands
 				
 			if(output_format.equals("move-queue"))
 			{
-				log.log("Generating move queue...", 1);
+				log.INFO("Generating move queue...");
 				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
 			}
 			else
 			{
-				log.log("Sending moves to library...", 1);
-				sendMoves(partition, move_list, printToShell);
+				log.INFO("Sending moves to library...");
+				SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 			}
 		}
 		else
@@ -181,7 +182,7 @@ public class AdvancedCommands
 	{
 		// Calibrate the partitions drives by moving a tape to each
 		// partition.
-		log.log("Calibrating drives for partition " + partition, 1);
+		log.INFO("Calibrating drives for partition " + partition);
 		ArrayList<Move> move_list = CalibrateDrives.prepareMoves(library, partition, log);
 		
 
@@ -193,12 +194,12 @@ public class AdvancedCommands
 			}
 			else
 			{
-				sendMoves(partition, move_list, printToShell);
+				SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 			}
 		}
 		else
 		{
-			log.log("No moves queued.", 2);
+			log.WARN("No moves queued.");
 		}
 	}
 
@@ -350,7 +351,7 @@ public class AdvancedCommands
 		}
 		else
 		{
-			sendMoves(partition, move_list, printToShell);
+			SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 		}
 	}
 
@@ -366,7 +367,7 @@ public class AdvancedCommands
 		return magazine_summary;
 	}
 
-	public void magazineCompaction(String partition, int maxMoves, String output_type, boolean printToShell)
+	public void magazineCompaction(String partition, int maxMoves, boolean verify_moves, String output_type, boolean printToShell)
 	{
 
 		// Get list of Terapacks.
@@ -426,7 +427,7 @@ public class AdvancedCommands
 				System.out.println("TeraPacks that can be freed: " + requirements[2]);
 			}
 
-			ArrayList<Move> move_list = MagazineCompaction.prepareMoves(magazines, maxMoves, partition, library, log, printToShell);
+			ArrayList<Move> move_list = MagazineCompaction.prepareMoves(magazines, maxMoves, partition, library, verify_moves, log, printToShell);
 	
 			if(output_type.equals("move-queue"))
 			{
@@ -436,7 +437,7 @@ public class AdvancedCommands
 			else
 			{
 				// send moves to library
-				sendMoves(partition, move_list, printToShell);
+				SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 			}
 		}
 
@@ -537,7 +538,7 @@ public class AdvancedCommands
 	public void prepareSlotIQ(String partition, int max_moves, String output_format, boolean printToShell)
 	{
 		ArrayList<Move> move_list;
-		log.log("Preparing library for SlotIQ", 1);
+		log.INFO("Preparing library for SlotIQ");
 
 		if(printToShell)
 		{
@@ -550,7 +551,7 @@ public class AdvancedCommands
 		
 		if(SlotIQ.isPossible(magazines, mediaType, true))
 		{
-			log.log("SlotIQ preparation is possible", 1);
+			log.INFO("SlotIQ preparation is possible");
 			
 			int slots_per_mag = Inventory.findMagazineSize(mediaType);
 
@@ -564,13 +565,13 @@ public class AdvancedCommands
 			else
 			{
 				// Or send the moves directly to the library.
-				sendMoves(partition, move_list, printToShell);
+				SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 			}
 
 		}
 		else
 		{
-			log.log("Unable to prepare library for SlotIQ", 3);
+			log.WARN("Unable to prepare library for SlotIQ");
 
 			if(printToShell)
 			{

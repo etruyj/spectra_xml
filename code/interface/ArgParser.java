@@ -43,6 +43,7 @@ public class ArgParser
 	// for ease of coding, multiple flags map to the same
 	// variables depending on the function being called.
 	// If they aren't valid, isValid is set to false.
+	private boolean boolean_flag; // generic boolean variable that can be set to true with flags.
 	private boolean isValid; // Is the entered input valid
 	private boolean option_set;
 	private boolean option2_set;
@@ -84,6 +85,7 @@ public class ArgParser
 		// 	option values. Options may not be
 		// 	required for specific commands.
 		isValid = true;  
+		boolean_flag = false;
 		option_set = false;
 		option2_set = false;
 		option3_set = false;
@@ -135,6 +137,7 @@ public class ArgParser
 	// Gettors 
 	//===================================================================
 
+	public boolean getBooleanFlag() { return boolean_flag; }
 	public boolean getHelpSelected() { return helpSelected; }
 	public boolean getIgnoreSSL() { return ignore_ssl; }
 	public boolean getSecureHTTPS() { return secure_https; }
@@ -283,6 +286,10 @@ public class ArgParser
 		{
 			switch (args[i])
 			{
+				case "--boolean-flag":
+				case "--verify-moves":
+					boolean_flag = true;
+					break;
 				case "-c":
 				case "--command":
 					if((i+1)<args.length)

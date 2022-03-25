@@ -69,7 +69,7 @@ public class MagazineCompaction
 		return response;
 	}
 
-	public static ArrayList<Move> prepareMoves(TeraPack[] mags, int maxMoves, String partition, BasicXMLCommands library, Logger log, boolean printToShell)
+	public static ArrayList<Move> prepareMoves(TeraPack[] mags, int maxMoves, String partition, BasicXMLCommands library, boolean verify_moves, Logger log, boolean printToShell)
 	{
 		int source = 0; // Incrementor for source TP
 		int destination = mags.length - 1; // Increment for destination TP
@@ -140,7 +140,9 @@ public class MagazineCompaction
 				// checkSlot - occupied slot in the same TeraPack to
 				// 		anchor the TeraPack to the inventory
 				// 		slot. destSlot is calculated from here.
-				if(printToShell)
+				//
+				// No need to print this line if moves aren't being verified.
+				if(printToShell && verify_moves)
 				{
 					System.out.println("\nPreparing move " + moves);
 				}
@@ -149,16 +151,22 @@ public class MagazineCompaction
 				checkSlotString = VerifyMove.findSlotString(partition, checkBarcode, inventory);
 				destSlotString = VerifyMove.findDestinationSlot(partition, emptySlot, checkSlot, checkBarcode, inventory);
 
-				// Move validation.
-				// Will be removed/commented out in a future release.
-				// This was placed here when the slot was calculated
-				// by generateSlotString() to verify the calculated
-				// value. findSlotString() performs a similar task as
-				// validateMove(), so this function validates the move
-				// with by the same process that generates it. It's
-				// redundant.
-				isValidMove = true; // Marking this true for now to skip the move validation field.
-				// isValidMove = VerifyMove.validate(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, library, log, true);				
+				if(verify_moves)
+				{
+					// Move validation.
+					// This is an optional flag if something is causing moves to fail.
+					// This was placed here when the slot was calculated
+					// by generateSlotString() to verify the calculated
+					// value. findSlotString() performs a similar task as
+					// validateMove(), so this function validates the move
+					// with by the same process that generates it. It's
+					// redundant.
+					isValidMove = VerifyMove.validate(partition, sourceSlotString, sourceBarcode, destSlotString, checkSlotString, checkBarcode, library, log, true);				
+				}
+				else
+				{
+					isValidMove = true;
+				}
 			}
 			else
 			{

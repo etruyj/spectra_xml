@@ -45,4 +45,5 @@ Available Options:
 	--type		Specify the HHM counter type for reset-hhm-counter command. Valid inputs Horizontal Axis, Vertical Axis, Picker Axis, Rotational Axis, Magazine Axis, Toggle Axis, Side Axis, Drive to Drive Move, Drive to Slot Move, Slot to Slot Move, Slot to Drive Move TAP In Move, TAP Out Move.
 	-u, --username	Specify the username for the connection/query.
 	--value		Specify the value the HHM counter should be set to.
+	--verify-moves	Have the script verify the position of source and destination slot before adding moves to move queue. Currently available for magazine-compaction only.
 	--version	Prints the current code level for the script.
