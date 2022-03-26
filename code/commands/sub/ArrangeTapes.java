@@ -147,7 +147,7 @@ public class ArrangeTapes
 
 		if(move==null)
 		{
-			log.log("CHECK: All tapes are in the correct position", 2);
+			log.WARN("CHECK: All tapes are in the correct position");
 		}
 
 		return move;
@@ -234,18 +234,32 @@ public class ArrangeTapes
 		// Act on the unsorted tape list.
 		int slot;
 		int empty;
-		int e = 0;
-		int s = 0;
-		int t = 0;
+		int e = 0; // (e)mpty Slot Iterator
+		int s = 0; // inventory (s)lot interator
+		int t = 0; // placed (t)ape counter.
 
 		while(t<tape_list.size())
 		{
+			// Initiate values:
+			// 	Get inventory slot for the slot at postition (s)
+			// 	Get the empty slot for the empty slot at position (e)
 			slot = Integer.valueOf(all_slots.get(s));
 			empty = Integer.valueOf(empty_slots.get(e));
 			
-			System.err.println(e + "/" + empty_slots.size() + "\t" + s + "/" + all_slots.size() + "\t" + t + "/" + tape_list.size() + "\t" + slot + ":" + empty);
+			//System.err.println(e + "/" + empty_slots.size() + "\t" + s + "/" + all_slots.size() + "\t" + t + "/" + tape_list.size() + "\t" + slot + ":" + empty);
 
-			if(slot<empty)
+			// If the slot isn't empty:
+			// 	 add it to the queue
+			// 	 	Mapped source slot to tape.
+			// 	 	Mapped tape to source slot.
+			// 	 incremet tape counter
+			// If the slot is empty:
+			// 	don't add it to the queue.
+			// 	increment empty slot iterator
+			//
+			// Increment the slot at the end.
+
+			if(slot!=empty)
 			{
 				// Map slot to tape and tape to slot.
 				// use the 's' prefix for the key.
