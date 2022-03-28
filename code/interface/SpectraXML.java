@@ -117,6 +117,11 @@ public class SpectraXML
 				result = conn.displayBarcodeVerification();
 				includeHeaders = true;
 				break;
+			case "drive-status":
+				result = conn.driveStatus(option);
+				includeHeaders = false;
+				printOutput = true;
+				break;
 			case "download-asl":
 				result = conn.downloadASL(option3);
 				break;

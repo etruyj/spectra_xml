@@ -72,6 +72,11 @@ public class SpectraController
 		return library.driveLoadCount(option);
 	}
 
+	public XMLResult[] driveStatus(String partition)
+	{
+		return advanced.driveStatus(partition);
+	}
+
 	public XMLResult[] downloadASL(String aslName)
 	{
 		return library.downloadASL(aslName);

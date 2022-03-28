@@ -19,6 +19,7 @@ package com.socialvagrancy.spectraxml.commands;
 
 import com.socialvagrancy.spectraxml.commands.sub.ArrangeTapes;
 import com.socialvagrancy.spectraxml.commands.sub.CalibrateDrives;
+import com.socialvagrancy.spectraxml.commands.sub.DriveStatus;
 import com.socialvagrancy.spectraxml.commands.sub.EjectListedTapes;
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
 import com.socialvagrancy.spectraxml.commands.sub.LibraryProfile;
@@ -201,6 +202,11 @@ public class AdvancedCommands
 		{
 			log.WARN("No moves queued.");
 		}
+	}
+
+	public XMLResult[] driveStatus(String partition)
+	{
+		return DriveStatus.list(library, partition, log);
 	}
 
 	public void ejectEmpty(String partition, boolean printToShell)
