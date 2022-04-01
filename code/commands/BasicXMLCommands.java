@@ -219,6 +219,18 @@ public class BasicXMLCommands
 		return xmlparser.parseXML(searchTerms);
 	}
 
+	public XMLResult[] downloadMLMReport(String path)
+	{
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"status", "message"};
+
+		String url = url_list.getMLMReportURL();
+
+		String xmlOutput = cxn.downloadFromLibrary(url, path, "mlmdb.csv");
+
+		return xmlparser.parseXML(searchTerms);
+	}
+
 	public XMLResult[] downloadTrace(String traceType, String name)
 	{
 		XMLParser xmlparser = new XMLParser();

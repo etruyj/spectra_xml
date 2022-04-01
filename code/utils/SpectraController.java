@@ -87,6 +87,11 @@ public class SpectraController
 		return library.downloadDriveTrace();
 	}
 
+	public XMLResult[] downloadMLMReport(String output_path)
+	{
+		return library.downloadMLMReport(output_path);
+	}
+
 	public XMLResult[] downloadTrace(String traceType, String name)
 	{
 		return library.downloadTrace(traceType, name);

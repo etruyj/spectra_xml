@@ -298,6 +298,11 @@ public class URLs
 		return url;
 	}
 
+	public String getMLMReportURL()
+	{
+		return libraryAddress + "mlmdb.csv";
+	}
+	
 	public String getMLMSettingsListURL()
 	{
 		return libraryAddress + "mlmSettings.xml?action=list";

@@ -125,6 +125,10 @@ public class SpectraXML
 			case "download-asl":
 				result = conn.downloadASL(option3);
 				break;
+			case "download-mlm":
+			case "download-mlm-report":
+				result = conn.downloadMLMReport("../output/");
+				break;
 			case "download-trace":
 				result = conn.downloadTrace(option, option3);
 				break;
