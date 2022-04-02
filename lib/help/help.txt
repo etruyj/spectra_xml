@@ -28,6 +28,7 @@ Available Options:
 	--package	Specify the package to be used with the package commands.
 	--partition	Specify the partition in which the operation will occur.
 	-p, --password	Specify the user password. Leave blank if the user does not have a password assigned. (This is not a recommended security practice. All user accounts should have secure passwords.)
+	--profile	Specify the connection profile.
 	--qip		Specify the QIP/RCM
 	--rcm		Specify the RCM for the rcm-status command.
 	--reboot-in	Specify the length of tme the library will be off before restarting.
@@ -47,3 +48,6 @@ Available Options:
 	--value		Specify the value the HHM counter should be set to.
 	--verify-moves	Have the script verify the position of source and destination slot before adding moves to move queue. Currently available for magazine-compaction only.
 	--version	Prints the current code level for the script.
+	create-profile	Saves connection information to a file to streamline login process.
+	delete-profile	Deletes connection information from the profile list.
+	update-profile	Updates information for the specified profile in the profile list.

@@ -12,6 +12,7 @@ Basic XML Commands
 	delete-partition	deletes a partition from the library. Use --partition to specify the partition name and --save-to to specify whether the new configuration should be saved to usb ro sent to an email.
 	disable-failover	disables controller redundancy for the specified primary controller. User -o/--option to specify controller in FR[#]/DBA[#]/F-QIP[#] format where [#] represents the number designating each value for the controller. Use list-controllers to see a list of assigned controllers.
 	download-asl		download the specified autosupport log (ASL). Use --file-name to specify the file name. File will appear in the ../output directory.
+	download-mlm-report	downloads the MLM database in CSV format to the ../output directory.
 	download-trace		download the specified CAN, motion, kernel, or security audit traces. Specify the trace type with the -o/--option flag (can, motion, kernel, qip, security-audit) and the name of the file to download with the --file-name flag.
 	drive-load-count	prints the number of times the drive was loaded. Must specify the drive in FR[#]/DBA[#]/DR[#] format with the option flag.
 	display-barcode-settings displays the barcode reporting settings assigned to the library.

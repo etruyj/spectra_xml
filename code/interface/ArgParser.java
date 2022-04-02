@@ -9,7 +9,9 @@
 package com.socialvagrancy.spectraxml.ui;
 
 import com.socialvagrancy.spectraxml.structures.Configuration;
+import com.socialvagrancy.spectraxml.structures.LibraryProfile;
 import com.socialvagrancy.spectraxml.utils.Load;
+import com.socialvagrancy.spectraxml.utils.ProfileManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -247,6 +249,12 @@ public class ArgParser
 
 	public boolean checkValidInput()
 	{
+		// Get password if required by profile
+		if(password.equals("required"))
+		{
+			password = ProfileManager.getPassword();
+		}
+
 		// Verify the input hasn't already failed the test with the entered command options.
 		if(isValid)
 		{
@@ -275,6 +283,28 @@ public class ArgParser
 			System.out.println("Unable to format controller. Please use #:#:# format when describring.");
 			isValid = false;
 			return "none";
+		}
+	}
+
+	public void loadProfile(String profile_name)
+	{
+		LibraryProfile profile = Load.profile(profile_name, "../profiles");
+
+		ip_address = profile.url;
+		username = profile.username;
+
+		if(profile.password_required)
+		{
+			password = "required";
+		}
+
+		if(profile.http_connection)
+		{
+			secure_https = false;
+		}	
+		else if(profile.ignore_ssl_certificate)
+		{
+			ignore_ssl = true;
 		}
 	}
 
@@ -522,6 +552,15 @@ public class ArgParser
 						i++;
 					}
 					break;
+				case "--profile":
+					if((i+1)<args.length)
+					{
+						username = args[i+1];
+						i++;
+
+						loadProfile(username);
+					}
+					break;
 				case "-u":
 				case "--user":
 				case "--username":
@@ -532,8 +571,20 @@ public class ArgParser
 					}
 					break;
 				case "--version":
-					helpSelected = true;
+					helpSelected = true; // No need to process further
 					printFile("help/version.txt");
+					break;
+				case "create-profile":
+					ProfileManager.createProfile("../profiles");
+					helpSelected = true; // No need to process further
+					break;
+				case "delete-profile":
+					ProfileManager.deleteProfile("../profiles");
+					helpSelected = true; // No need to process further
+					break;
+				case "update-profile":
+					ProfileManager.updateProfile("../profiles");
+					helpSelected = true; // No need to process further
 					break;
 				default:
 					i++;
