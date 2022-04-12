@@ -97,6 +97,10 @@ public class SpectraXML
 				result = conn.checkProgress(option);
 				includeHeaders = true;
 				break;
+			case "create-partition":
+			case "create-partitions":
+				conn.createPartition(option3, true);
+				printOutput = false;
 			case "create-partition-auto":
 				result = conn.getXMLStatusMessage("create-partition-auto", option, option2, option3, option4);
 				includeHeaders = true;

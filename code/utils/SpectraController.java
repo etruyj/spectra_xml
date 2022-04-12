@@ -57,6 +57,11 @@ public class SpectraController
 
 	}
 
+	public void createPartition(String file_name, boolean printToShell)
+	{
+		advanced.createPartition(file_name, printToShell);
+	}
+
 	public XMLResult[] displayBarcodeReporting()
 	{
 		return library.displayBarcodeReporting();
