@@ -60,7 +60,7 @@ public class MoveQueue
 		return newFile.createFileDeleteOld(fileName, true);
 	}
 
-	public static void storeMoves(String fileName, ArrayList<Move> move_list)
+	public static void storeMoves(String fileName, ArrayList<Move> move_list, Logger log)
 	{
 		// Call this function to create the file and store the moves.
 
@@ -78,7 +78,10 @@ public class MoveQueue
 			}
 		}
 
-		System.out.println("\nGeneration of move queue is complete. The file can be found at " + fileName + ". Upload the move queue to the library either by USB or the web GUI. When useing USB, the file must by named MoveQueue.txt and placed in the root (/) directory to be uploaded. The moved queue can be uploaded from the Web GUI from the Inventory > Advanced menu.\n");
+		log.INFO("Wrote " + move_list.size() + " moves to file.");
+		System.err.println("Wrote " + move_list.size() + " moves to file.");
+
+		System.err.println("\nGeneration of move queue is complete. The file can be found at " + fileName + ". Upload the move queue to the library either by USB or the web GUI. When useing USB, the file must by named MoveQueue.txt and placed in the root (/) directory to be uploaded. The moved queue can be uploaded from the Web GUI from the Inventory > Advanced menu.\n");
 	}
 }
 

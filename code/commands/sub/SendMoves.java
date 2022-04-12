@@ -59,7 +59,7 @@ public class SendMoves
 
 			if(readyForMove(library, printToShell))
 			{
-				log.INFO("Sending move " + i + ": (" + move_list.get(i).barcode 
+				log.INFO("Sending move " + i + "/" + move_list.size() + ": (" + move_list.get(i).barcode 
 						+ ") " + move_list.get(i).source_type + " " 
 						+ move_list.get(i).source_slot + " to " 
 						+ move_list.get(i).target_type + " " 
@@ -69,7 +69,7 @@ public class SendMoves
 				{
 					timestamp = LocalDateTime.now();
 
-					System.out.println(timestamp.format(output_format) + " : Sending move " + i + ": (" + move_list.get(i).barcode 
+					System.out.println(timestamp.format(output_format) + " : Sending move " + i + "/" + move_list.size() + ": (" + move_list.get(i).barcode 
 						+ ") " + move_list.get(i).source_type + " " 
 						+ move_list.get(i).source_slot + " to " 
 						+ move_list.get(i).target_type + " " 
