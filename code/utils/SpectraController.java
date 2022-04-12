@@ -102,9 +102,16 @@ public class SpectraController
 		advanced.ejectEmpty(partition, printToShell);
 	}
 
-	public void ejectListed(String partition, String file_name, boolean printToShell)
+	public void ejectListed(String partition, String file_name, int max_moves, String output_format, boolean printToShell)
 	{
-		advanced.ejectListedTapes(partition, file_name, printToShell);
+		if(output_format.equals("shell"))
+		{
+			advanced.ejectListedTapes(partition, file_name, printToShell);
+		}
+		else
+		{
+			advanced.ejectToEE(partition, file_name, max_moves, output_format, printToShell);
+		}
 	}
 
 	public void ejectTeraPack(String partition, String tape, String terapack, boolean printToShell)
