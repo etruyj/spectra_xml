@@ -29,42 +29,54 @@ public class MagazineCompaction
 
 		int source = 0;
 		int destination = mags.length - 1;
-		int availMoves = 0; // how many moves can be made.
-		int availSlots = 0; // how many slots can be used.
-		int availTeraPacks = 0;
+		int tapesToMove = mags[source].getCapacity(); // how many moves can be made.
+		int availSlots = mags[destination].getNumSlots() - mags[destination].getCapacity(); // how many slots can be used.
+		int moves = 0;
+		int freedTeraPacks = 0;
 		int[] response = new int[3];
 
-		while(source < destination)
+		while(tapesToMove > 0)
 		{
-			availMoves += mags[source].getCapacity();
-			availSlots += mags[destination].getNumSlots() - mags[destination].getCapacity();
-			availTeraPacks++;	
-		
-			if(source==0 && availMoves > maxMoves)
+			// Process moves
+			if(tapesToMove < availSlots)
 			{
-				// Checking to see if a higher maximum must be specified
-				// to empty the first TeraPack.
-				// Set the source to destination to end the loop.
-				// Make availMoves negative for error handling.
-				source = destination;
-				availMoves = -1 * availMoves;
+				moves += tapesToMove;
+				tapesToMove = 0;
+				availSlots = availSlots - tapesToMove;
+			}
+			else
+			{
+				moves += availSlots;
+				availSlots = 0;
+				tapesToMove = tapesToMove - availSlots;
 			}
 
-			source++;
-			destination--;
+			// shift to next terapack
+			if(availSlots == 0)
+			{
+				destination--;
+				availSlots = mags[destination].getNumSlots() - mags[destination].getCapacity();
+			}
+
+			if(tapesToMove == 0)
+			{
+				source++;
+				tapesToMove = mags[source].getCapacity();
+				freedTeraPacks++;
+			}
+
+			// determine if all available moves have been made.
+			if(source >= destination)
+			{
+				// No tapes can be moved.
+				// Set to 0 to break the loop.
+				tapesToMove = 0;
+			}
 		}
 
-		// Add the last TeraPack of slots to the library
-		// for reporting purposes. Necessary for odd number
-		// of TeraPacks.
-		if(source == destination)
-		{
-			availSlots += mags[destination].getNumSlots() - mags[destination].getCapacity();
-		}
-
-		response[0] = availMoves;
-		response[1] = availSlots;
-		response[2] = availTeraPacks;
+		response[0] = moves;
+		response[1] = freedTeraPacks;
+		response[2] = mags[source].getCapacity(); // Store for messaging in case no moves are made.
 
 		return response;
 	}

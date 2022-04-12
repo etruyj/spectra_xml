@@ -144,7 +144,7 @@ public class SpectraXML
 			case "eject-list":
 			case "eject-listed":
 			case "eject-listed-tapes":
-				conn.ejectListed(option, option3, true);
+				conn.ejectListed(option, option3, moves, output_format, true);
 				printOutput = false;
 				break;
 			case "eject-terapack":
