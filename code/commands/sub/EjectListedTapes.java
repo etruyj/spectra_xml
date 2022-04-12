@@ -137,7 +137,7 @@ public class EjectListedTapes
 		}
 	}
 
-	private static void exportRemainingTapes(ArrayList<String> tapes, int toStore, String fileName)
+	public static void exportRemainingTapes(ArrayList<String> tapes, int toStore, String fileName)
 	{
 		FileManager fm = new FileManager();
 

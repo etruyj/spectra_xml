@@ -21,6 +21,7 @@ import com.socialvagrancy.spectraxml.commands.sub.ArrangeTapes;
 import com.socialvagrancy.spectraxml.commands.sub.CalibrateDrives;
 import com.socialvagrancy.spectraxml.commands.sub.DriveStatus;
 import com.socialvagrancy.spectraxml.commands.sub.EjectListedTapes;
+import com.socialvagrancy.spectraxml.commands.sub.EjectToEESlots;
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
 import com.socialvagrancy.spectraxml.commands.sub.LibraryProfile;
 import com.socialvagrancy.spectraxml.commands.sub.LoadFile;
@@ -103,7 +104,7 @@ public class AdvancedCommands
 			if(output_format.equals("move-queue"))
 			{
 				log.INFO("Generating move queue...");
-				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list, log);
 			}
 			else
 			{
@@ -191,7 +192,7 @@ public class AdvancedCommands
 		{
 			if(output_format.equals("move-queue"))
 			{
-				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);		
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list, log);		
 			}
 			else
 			{
@@ -342,6 +343,36 @@ public class AdvancedCommands
 		}
 	}
 
+	public void ejectToEE(String partition, String file_name, int max_moves, String output_format, boolean printToShell)
+	{
+		log.INFO("Fetching library inventory...");
+		XMLResult[] inv = library.listInventory(partition);
+
+		log.INFO("Finding available EE slots...");
+		ArrayList<String> ee_slots = Inventory.findEntryExitEmptySlots(inv);
+
+		log.INFO("There are (" + ee_slots.size() + ") entry exit slots available.");
+
+		log.INFO("Calling EjectToEESlots(" + file_name + ")...");
+		ArrayList<Move> move_list = EjectToEESlots.fromTapeList(file_name, max_moves, ee_slots, log);
+
+		if(printToShell)
+		{
+			System.err.println("(" + move_list.size() + ") moves queued for moves to Entry/Exit.");
+		}
+
+		if(output_format.equals("move-queue"))
+		{
+			// Save moves to move queue.
+			MoveQueue.storeMoves("../output/MoveQueue.txt", move_list, log);
+		}
+		else if(output_format.equals("send"))
+		{
+			// send moves to library
+			SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
+		}
+	}
+
 	public void groupListedTapes(String partition, String file_name, int max_moves, String output_format, boolean printToShell)
 	{
 		// Groups the listed tapes in the specified TeraPacks.
@@ -353,7 +384,7 @@ public class AdvancedCommands
 		// Send moves
 		if(output_format.equals("move-queue"))
 		{
-			MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+			MoveQueue.storeMoves("../output/MoveQueue.txt", move_list, log);
 		}
 		else
 		{
@@ -371,6 +402,69 @@ public class AdvancedCommands
 		int[][] magazine_summary = MagazineUtilization.generateSummary(magazines, slots_per_terapack, log, printToShell);
 		
 		return magazine_summary;
+	}
+
+	public boolean magazineCompactionAnalysis(TeraPack[] magazines, int maxMoves, boolean printToShell)
+	{
+		// Results of the checkMoves script.
+		// [0] moves required.
+		// [1] TeraPacks freed
+		// [2] Leftover moves.
+		int[] requirements = MagazineCompaction.checkMoves(magazines, maxMoves);
+
+		if(requirements[1] == 0)
+		{
+			log.WARN("magazineCompaction() is not possible.");
+
+			if(printToShell)
+			{
+				System.err.println("Magazine compaction is not possible.");
+			}
+
+			if(requirements[2] >= maxMoves)
+			{
+				log.WARN("Not enough moves allowed. Maximum of " + maxMoves
+						+ " moves specified while " + requirements[2] 
+						+ " moves are required to free 1 magazine.");
+				if(printToShell)
+				{
+					System.err.println("Not enough moves allowed. Maximum of " + maxMoves
+						+ " moves specified while " + requirements[2] 
+						+ " moves are required to free 1 magazine.");
+				}
+			}
+
+			return false;
+		}
+		else
+		{
+			if(requirements[0]>maxMoves)
+			{
+				log.WARN("(" + requirements[0] + ") moves can be made to free (" 
+						+ requirements[1] + ") TeraPacks.");
+				log.WARN("Additional compaction may be possible.");
+			
+				if(printToShell)
+				{	
+					System.err.println("(" + requirements[0] + ") moves can be made to free (" 
+						+ requirements[1] + ") TeraPacks.");
+					System.err.println("Additional compaction may be possible.");
+				}
+			}
+			else
+			{
+				log.WARN("(" + requirements[0] + ") moves can be made to free ("
+						+ requirements[1] + ") TeraPacks.");
+				
+				if(printToShell)
+				{	
+					System.err.println("(" + requirements[0] + ") moves can be made to free ("
+						+ requirements[1] + ") TeraPacks.");
+				}
+			}
+
+			return true;
+		}
 	}
 
 	public void magazineCompaction(String partition, int maxMoves, boolean verify_moves, String output_type, boolean printToShell)
@@ -391,54 +485,14 @@ public class AdvancedCommands
 		
 		magazines = SortMagazines.sort(magazines, true, true);
 		
-		int[] requirements = MagazineCompaction.checkMoves(magazines, maxMoves);
-
-		if(requirements[0] == 0)
+		if(magazineCompactionAnalysis(magazines, maxMoves, printToShell))
 		{
-			log.log("No TeraPacks can be freed by magazine compaction.", 2);
-
-			if(printToShell)
-			{
-				System.err.println("No TeraPacks can be freed by magazine compaction.");
-			}
-		}
-		else if(requirements[0] < 0)
-		{
-			log.log("Not enough moves allowed. Maximum of " + maxMoves 
-					+ " specified when " + -requirements[0] 
-					+ "moves are required to free 1 magazine.", 2);
-
-			if(printToShell)
-			{
-				System.err.println("Not enough moves allowed. Maximum of " + maxMoves 
-					+ " specified when " + -requirements[0] 
-					+ "moves are required to free 1 magazine.");
-			}
-
-			// END OF FUNCTION AS NO MOVES ARE POSSIBLE
-		}
-		else
-		{
-			log.log("Starting compaction.", 2);
-			log.log("Maximum moves: " + maxMoves, 2);
-			log.log("Available moves: " + requirements[0], 2);
-			log.log("Available target slots: " + requirements[1], 2);
-			log.log("TeraPacks that can be freed: " + requirements[2], 2);
-
-			if(false) // replace with printToShell
-			{
-				System.out.println("\nMaximum moves: " + maxMoves);
-				System.out.println("Available moves: " + requirements[0]);
-				System.out.println("Available target slots: " + requirements[1]);
-				System.out.println("TeraPacks that can be freed: " + requirements[2]);
-			}
-
 			ArrayList<Move> move_list = MagazineCompaction.prepareMoves(magazines, maxMoves, partition, library, verify_moves, log, printToShell);
 	
 			if(output_type.equals("move-queue"))
 			{
 				// Save moves to move queue.
-				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list, log);
 			}
 			else
 			{
@@ -566,7 +620,7 @@ public class AdvancedCommands
 			if(output_format.equals("move-queue"))
 			{
 				// Save the moves to a move-queue file.
-				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list);
+				MoveQueue.storeMoves("../output/MoveQueue.txt", move_list, log);
 			}
 			else
 			{

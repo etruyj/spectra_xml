@@ -153,6 +153,28 @@ public class Inventory
 		return terapack_slots;
 	}
 
+	public static ArrayList<String> findEntryExitEmptySlots(XMLResult[] inventory)
+	{
+		ArrayList<String> slot_list = new ArrayList<String>();
+		String slot = "";
+
+		for(int i=0; i<inventory.length; i++)
+		{
+			if(inventory[i].headerTag.equalsIgnoreCase("partition>entryExitSlot>offset"))
+			{
+				slot = inventory[i].value.trim();
+			}
+
+			if(inventory[i].headerTag.equalsIgnoreCase("partition>entryExitSlot>full") 
+					&& inventory[i].value.trim().equals("no"))
+			{
+				slot_list.add(slot);
+			}
+		}
+
+		return slot_list;
+	}
+
 	public static int findMagazineSize(String libraryType)
 	{
 		if(libraryType.equalsIgnoreCase("LTO"))
