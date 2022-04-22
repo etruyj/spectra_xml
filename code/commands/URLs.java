@@ -414,16 +414,14 @@ public class URLs
 		return libraryAddress + "partitionList.xml";
 	}
 
-/*	This one needs some work.... Missing an identifier in the var declarations
- *	+ a whole lot of other logic and code required in the calling function to 
- *	get all these details..
-	public String getPartitionNewURL(String partition, String type, String exporter, String exporterType, String globalSpares, String numStorageSlots, String numEESlots, String eeType, String barcodeLength, String barcodeShortenedSide, String barcodeChecksum, String, barcodeChecksumCalculated, String drive, String cleaningPartition, String enablePreScan, String enableFullScan, String enableQuickScan, String scanAfter, String includeDriveAndMediaGenerationInRES, String enableSoftLoad, String slotIQ, String enableMediaZoning, String QIPList)
+	public String getPartitionNewURL(String parameters)
 	{
-		String url = libraryAddress + "partition.xml?action=new";
+		// The rest of the parameters are provided by commands/partition/URLString.get(Partition par)
+		String url = libraryAddress + "partition.xml?action=new&" + parameters;
 
 		return url;
 	}
-*/
+
 	public String getPartitionResizeSlotsURL(String partition, String type, String value)
 	{
 		String operation;

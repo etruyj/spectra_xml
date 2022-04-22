@@ -1211,6 +1211,23 @@ public class BasicXMLCommands
 		return response;
 	}
 
+	public XMLResult[] newPartition(String parameters)
+	{
+		String xmlOutput;
+		XMLResult[] response;
+		
+		XMLParser xmlparser = new XMLParser();
+		String[] searchTerms = {"message"};
+
+		String url = url_list.getPartitionNewURL(parameters);
+		xmlOutput = cxn.queryLibrary(url);
+
+		xmlparser.setXML(xmlOutput);
+		response = xmlparser.parseXML(searchTerms);
+
+		return response;
+	}
+
 	public XMLResult[] physicalInventory(String partition)
 	{
 		String xmlOutput;

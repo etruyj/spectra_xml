@@ -19,13 +19,16 @@ public class URLString
 		url += "&type=" + par.partition_type;
 		
 		// Exporters and drives
-		if(par.exporter_type.equals("QIP"))
+		if(par.exporter_type != null)
 		{
-			url += "&QIPExporter=" + par.exporters;
-		}
-		else if(par.exporter_type.equals("DRIVE"))
-		{
-			url += "&driveExporter=" + par.exporters;
+			if(par.exporter_type.equals("QIP"))
+			{
+				url += "&QIPExporter=" + par.exporters;
+			}
+			else if(par.exporter_type.equals("DRIVE"))
+			{
+				url += "&driveExporter=" + par.exporters;
+			}
 		}
 
 		if(par.global_spares!=null)
@@ -45,6 +48,7 @@ public class URLString
 
 		// Barcode Options
 		url += "&barcodeLength=" + String.valueOf(par.barcode_length);
+		
 		url += "&barcodeShortenedSide=" + par.barcode_reporting;
 		
 		if(par.barcode_checksum)

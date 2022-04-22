@@ -17,8 +17,7 @@
 
 package com.socialvagrancy.spectraxml.commands;
 
-import com.socialvagrancy.spectraxml.commands.partition.LoadPartition;
-import com.socialvagrancy.spectraxml.commands.partition.URLString;
+import com.socialvagrancy.spectraxml.commands.partition.CreatePartition;
 import com.socialvagrancy.spectraxml.commands.sub.ArrangeTapes;
 import com.socialvagrancy.spectraxml.commands.sub.CalibrateDrives;
 import com.socialvagrancy.spectraxml.commands.sub.DriveStatus;
@@ -34,7 +33,6 @@ import com.socialvagrancy.spectraxml.commands.sub.SendMoves;
 import com.socialvagrancy.spectraxml.commands.sub.SlotIQ;
 import com.socialvagrancy.spectraxml.commands.sub.SortMagazines;
 import com.socialvagrancy.spectraxml.structures.Move;
-import com.socialvagrancy.spectraxml.structures.Partition;
 import com.socialvagrancy.spectraxml.structures.SlotPair;
 import com.socialvagrancy.spectraxml.structures.TeraPack;
 import com.socialvagrancy.spectraxml.structures.XMLResult;
@@ -210,15 +208,7 @@ public class AdvancedCommands
 
 	public void createPartition(String file_name, boolean printToShell)
 	{
-		log.INFO("Opening partition file...");
-		ArrayList<Partition> par_list = LoadPartition.fromFile(file_name, log);
-
-		log.INFO("Loaded (" + par_list.size() + ") partitions from file.");
-		
-		if(printToShell)
-		{
-			System.err.println("Loaded (" + par_list.size() + ") partitions from file.");
-		}
+		CreatePartition.fromFile(library, file_name, printToShell, log);
 	}
 
 	public XMLResult[] driveStatus(String partition)
