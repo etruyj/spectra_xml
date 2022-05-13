@@ -102,10 +102,10 @@ public class SpectraController
 		return library.downloadTrace(traceType, name);
 	}
 
-	public void downloadXMLSheet(String url, String save_path, String file_name)
+	public void downloadXMLSheet(String doc, String option1, String save_path, String file_name)
 	{
 		// Temporary script to add download XML functionality
-		library.saveXML(url, save_path, file_name);
+		library.saveXML(doc, option1, save_path, file_name);
 	}
 
 	public void ejectEmpty(String partition, boolean printToShell)

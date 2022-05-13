@@ -1340,8 +1340,34 @@ public class BasicXMLCommands
 		return response;
 	}
 
-	public void saveXML(String url, String save_path, String file_name)
+	public void saveXML(String doc, String option1, String save_path, String file_name)
 	{
+		String url="";
+
+		switch(doc)
+		{
+			case "library-status":
+				url = url_list.getLibraryStatusURL();
+				break;
+			case "list-controllers":
+				url = url_list.getControllerListURL();
+				break;
+			case "list-drives":
+				url = url_list.getDriveListURL();
+				break;
+			case "list-inventory":
+				// Option 1 = partition name.
+				url = url_list.getInventoryListURL(option1);
+				break;
+			case "mlmdb":
+				url = url_list.getMLMReportURL();
+				break;
+			case "system-messages":
+				url = url_list.getSystemMessagesURL();
+				break;
+
+		}
+
 		cxn.downloadFromLibrary(url, save_path, file_name);
 	}
 
