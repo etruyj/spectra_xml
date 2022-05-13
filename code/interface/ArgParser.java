@@ -452,7 +452,6 @@ public class ArgParser
 					setCmdOption2(option);
 					break;
 				case "--option3": // Heading is more to categorize and organize.
-				case "--delay": // delay before restart.
 				case "--drawer": // tap drawer to check with tap-status.
 				case "--file":
 				case "--file-name":
@@ -511,6 +510,7 @@ public class ArgParser
 					setCmdOption4(option);
 					break;
 				case "--option5":
+				case "--delay": // delay before restart or for the orchestrator..
 				case "--target-type":
 				case "--timeout": // Add to help.txt when you remember what it is
 					option = "none";

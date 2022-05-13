@@ -399,7 +399,7 @@ public class BasicXMLCommands
 
 	}
 
-	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4)
+	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4, String option5)
 	{
 		String xmlOutput;
 		XMLResult[] response;
@@ -469,7 +469,7 @@ public class BasicXMLCommands
 				url = url_list.getInventoryMoveResultURL(option1);
 				break;
 			case "power-off":
-				url = url_list.getPowerOffURL(option3);
+				url = url_list.getPowerOffURL(option5);
 				break;
 			case "refresh-ec-info":
 				url = url_list.getLibraryRefreshECInfoURL();
@@ -1338,6 +1338,11 @@ public class BasicXMLCommands
 		response = xmlparser.parseXML(searchTerms);
 
 		return response;
+	}
+
+	public void saveXML(String url, String save_path, String file_name)
+	{
+		cxn.downloadFromLibrary(url, save_path, file_name);
 	}
 
 	public XMLResult[] setHHMThreshold(String event, String keepDefault, String value)

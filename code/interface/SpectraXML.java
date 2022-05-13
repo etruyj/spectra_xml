@@ -69,24 +69,24 @@ public class SpectraXML
 		{
 			case "abort-audit":
 				// Abort security audit.
-				result = conn.getXMLStatusMessage("abort-audit", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("abort-audit", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "add-key":
-				result = conn.getXMLStatusMessage("add-key", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("add-key", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "audit-inventory":
-				result = conn.getXMLStatusMessage("audit-inventory", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("audit-inventory", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "audit-inventory-result":
-				result = conn.getXMLStatusMessage("audit-inventory-result", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("audit-inventory-result", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "audit-status":
 				// Security audit status.
-				result = conn.getXMLStatusMessage("audit-status", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("audit-status", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "calibrate-drives":
@@ -103,15 +103,15 @@ public class SpectraXML
 				printOutput = false;
 				break;
 			case "create-partition-auto":
-				result = conn.getXMLStatusMessage("create-partition-auto", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("create-partition-auto", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "delete-partition":
-				result = conn.getXMLStatusMessage("delete-partition", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("delete-partition", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "disable-controller":
-				result = conn.getXMLStatusMessage("controller-disable", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("controller-disable", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "display-barcode-settings":
@@ -158,12 +158,12 @@ public class SpectraXML
 				break;
 			case "empty-bulk":
 			case "empty-bulk-tap":
-				result = conn.getXMLStatusMessage("empty-bulk", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("empty-bulk", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "enable-controller":
 			case "enable-controller-failover":
-				result = conn.getXMLStatusMessage("controller-enable", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("controller-enable", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "etherlib-status":
@@ -176,15 +176,15 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "gather-trace":
-				result = conn.getXMLStatusMessage("gather-trace", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("gather-trace", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "generate-asl":
-				result = conn.getXMLStatusMessage("generate-asl", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("generate-asl", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "generate-drive-trace":
-				result = conn.getXMLStatusMessage("generate-drive-trace", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("generate-drive-trace", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "get-drive-trace":
@@ -194,7 +194,7 @@ public class SpectraXML
 				}
 				else
 				{
-					result = conn.getXMLStatusMessage("download-drive-trace", option, option2, option3, option4);
+					result = conn.getXMLStatusMessage("download-drive-trace", option, option2, option3, option4, option5);
 					includeHeaders = true;
 				}
 				break;
@@ -270,7 +270,7 @@ public class SpectraXML
 				}
 				break;
 			case "lock-tension-rods":
-				result = conn.getXMLStatusMessage("lock-tension-rods", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("lock-tension-rods", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "magazine-compaction":
@@ -293,11 +293,11 @@ public class SpectraXML
 				result = conn.mediaExchange(option, option2, option3, option4, option5);
 				break;
 			case "modify-barcode-reporting":
-				result = conn.getXMLStatusMessage("modify-barcode-reporting", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("modify-barcode-reporting", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "modify-tape-verification":
-				result = conn.getXMLStatusMessage("modify-tape-verification", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("modify-tape-verification", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "move-details":
@@ -305,7 +305,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "move-status":
-				result = conn.getXMLStatusMessage("move-result", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("move-result", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "move-tape":
@@ -332,7 +332,7 @@ public class SpectraXML
 				printOutput = false;
 				break;
 			case "power-off":
-				result = conn.getXMLStatusMessage("power-off", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("power-off", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "rcm-status":
@@ -341,93 +341,93 @@ public class SpectraXML
 				break;
 			case "refresh-ec":
 			case "refresh-ec-info":
-				result = conn.getXMLStatusMessage("refresh-ec-info", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("refresh-ec-info", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "refresh-env":
 			case "refresh-environ":
 			case "refresh-environment":
-				result = conn.getXMLStatusMessage("refresh-environment", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("refresh-environment", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "refresh-etherlib":
 			case "refresh-etherLib":
-				result = conn.getXMLStatusMessage("refresh-etherlib", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("refresh-etherlib", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "remove-all-partitions":
-				result = conn.getXMLStatusMessage("remove-all-partitions", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("remove-all-partitions", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "replace-drive":
-				result = conn.getXMLStatusMessage("replace-drive", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("replace-drive", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "reset-controller":
-				result = conn.getXMLStatusMessage("reset-controller", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("reset-controller", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "reset-drive":
-				result = conn.getXMLStatusMessage("reset-drive", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("reset-drive", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "reset-hhm-counter":
 				result = conn.resetHHMCounter(option, option2, option3);
 				break;
 			case "reset-inventory":
-				result = conn.getXMLStatusMessage("reset-inventory", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("reset-inventory", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "reset-lcm":
 			case "reset-LCM":
-				result = conn.getXMLStatusMessage("reset-lcm", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("reset-lcm", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "reset-robot":
-				result = conn.getXMLStatusMessage("reset-robot", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("reset-robot", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "reset-robot-calibration":
-				result = conn.getXMLStatusMessage("reset-robot-calibration", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("reset-robot-calibration", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "resize-partition":
-				result = conn.getXMLStatusMessage("resize-partition", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("resize-partition", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "return-from-service":
-				result = conn.getXMLStatusMessage("return-from-service", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("return-from-service", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "robot-utilization":
 				result = conn.robotUtilization();
 				break;
 			case "save-robot-state":
-				result = conn.getXMLStatusMessage("save-robot-state", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("save-robot-state", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "selective-snowplow":
-				result = conn.getXMLStatusMessage("selective-snowplow", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("selective-snowplow", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "send-to-service":
-				result = conn.getXMLStatusMessage("send-to-service", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("send-to-service", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "set-hhm-threshold":
 				result = conn.setHHMThreshold(option, option2, option3);
 				break;
 			case "set-mlm":
-				result = conn.getXMLStatusMessage("set-mlm", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("set-mlm", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "stage-package":
-				result = conn.getXMLStatusMessage("stage-package", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("stage-package", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "start-audit":
 			case "security-audit":
-				result = conn.getXMLStatusMessage("start-audit", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("start-audit", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "system-messages":
@@ -450,7 +450,7 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "update-package":
-				result = conn.getXMLStatusMessage("update-package", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("update-package", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "update-results":
@@ -458,14 +458,14 @@ public class SpectraXML
 				includeHeaders = true;
 				break;
 			case "update-setting":
-				result = conn.getXMLStatusMessage("update-setting", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("update-setting", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			case "upload-package":
 				result = conn.uploadPackageUpdate(option3);
 				break;
 			case "verify-magazine-barcodes":
-				result = conn.getXMLStatusMessage("verify-magazine-barcodes", option, option2, option3, option4);
+				result = conn.getXMLStatusMessage("verify-magazine-barcodes", option, option2, option3, option4, option5);
 				includeHeaders = true;
 				break;
 			default:

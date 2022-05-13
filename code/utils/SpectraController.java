@@ -102,6 +102,12 @@ public class SpectraController
 		return library.downloadTrace(traceType, name);
 	}
 
+	public void downloadXMLSheet(String url, String save_path, String file_name)
+	{
+		// Temporary script to add download XML functionality
+		library.saveXML(url, save_path, file_name);
+	}
+
 	public void ejectEmpty(String partition, boolean printToShell)
 	{
 		advanced.ejectEmpty(partition, printToShell);
@@ -159,9 +165,9 @@ public class SpectraController
 		return library.getTraceType(type, controller);
 	}
 
-	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4)
+	public XMLResult[] getXMLStatusMessage(String query, String option1, String option2, String option3, String option4, String option5)
 	{
-		return library.getXMLStatusMessage(query, option1, option2, option3, option4);
+		return library.getXMLStatusMessage(query, option1, option2, option3, option4, option5);
 	}
 
 	public void groupListedTapes(String partition, String file_name, int max_moves, String output_format, boolean printToShell)
