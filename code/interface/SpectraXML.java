@@ -170,6 +170,15 @@ public class SpectraXML
 			case "etherLib-status":
 				result = conn.etherLibStatus();
 				break;
+			case "find-faulted-power-supplies":
+			case "find-faulted-power-supply":
+			case "find-faulted-power":
+			case "find-bad-power-supplies":
+			case "find-bad-power-supply":
+			case "find-bad-power":
+				result = conn.findFaultedPowerSupplies();
+				includeHeaders = false;
+				break;
 			case "firmware":
 			case "firmware-versions":
 				result = conn.listPackageFirmware();

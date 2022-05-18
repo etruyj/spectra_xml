@@ -7,6 +7,8 @@
 
 package com.socialvagrancy.spectraxml.structures.components;
 
+import java.util.ArrayList;
+
 public class PowerSupply
 {
 	public String id;
@@ -22,10 +24,14 @@ public class PowerSupply
 	public String manufacturer;
 	public String country_of_manufacturer;
 	public int temperature_in_celcius;
-	public boolean communicating_with_PCM;
-	public int nominal_voltage;
-	public int actual_voltage;
-	public int actual_current_in_amps;
-	public Fan[] fans;
+	public boolean communicating_with_pcm;
+	public ArrayList<PowerStatus> power_supplies;
+	public ArrayList<Fan> fans;
+
+	public PowerSupply()
+	{
+		power_supplies = new ArrayList<PowerStatus>();
+		fans = new ArrayList<Fan>();
+	}
 
 }

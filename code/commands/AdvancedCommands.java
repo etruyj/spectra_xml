@@ -23,6 +23,7 @@ import com.socialvagrancy.spectraxml.commands.sub.CalibrateDrives;
 import com.socialvagrancy.spectraxml.commands.sub.DriveStatus;
 import com.socialvagrancy.spectraxml.commands.sub.EjectListedTapes;
 import com.socialvagrancy.spectraxml.commands.sub.EjectToEESlots;
+import com.socialvagrancy.spectraxml.commands.sub.FindFaultedPowerSupplies;
 import com.socialvagrancy.spectraxml.commands.sub.Inventory;
 import com.socialvagrancy.spectraxml.commands.sub.LibraryProfile;
 import com.socialvagrancy.spectraxml.commands.sub.LoadFile;
@@ -377,6 +378,13 @@ public class AdvancedCommands
 			// send moves to library
 			SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 		}
+	}
+
+	public XMLResult[] findFaultedPowerSupplies()
+	{
+		log.INFO("Searching for faulted power supplies.");
+		XMLResult[] status = library.libraryStatus();
+		return FindFaultedPowerSupplies.asXMLResult(status);
 	}
 
 	public void groupListedTapes(String partition, String file_name, int max_moves, String output_format, boolean printToShell)

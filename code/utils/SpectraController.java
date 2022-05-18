@@ -135,6 +135,11 @@ public class SpectraController
 		return library.etherLibStatus();
 	}
 
+	public XMLResult[] findFaultedPowerSupplies()
+	{
+		return advanced.findFaultedPowerSupplies();
+	}
+
 	public XMLResult[] generateASL()
 	{
 		return library.generateASL();
