@@ -384,7 +384,7 @@ public class AdvancedCommands
 	{
 		log.INFO("Searching for faulted power supplies.");
 		XMLResult[] status = library.libraryStatus();
-		return FindFaultedPowerSupplies.asXMLResult(status);
+		return FindFaultedPowerSupplies.asXMLResult(status, log);
 	}
 
 	public void groupListedTapes(String partition, String file_name, int max_moves, String output_format, boolean printToShell)

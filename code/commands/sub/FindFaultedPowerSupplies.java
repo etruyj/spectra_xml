@@ -17,9 +17,9 @@ import java.util.ArrayList;
 
 public class FindFaultedPowerSupplies
 {
-	public static XMLResult[] asXMLResult(XMLResult[] status)
+	public static XMLResult[] asXMLResult(XMLResult[] status, Logger log)
 	{
-		ArrayList<String> powersupply_list = fromLibraryStatus(status);
+		ArrayList<String> powersupply_list = fromLibraryStatus(status, log);
 
 		return convertToXMLResult(powersupply_list);
 	}
@@ -38,17 +38,22 @@ public class FindFaultedPowerSupplies
 		return results;
 	}
 	
-	public static ArrayList<String> fromLibraryStatus(XMLResult[] status)
+	public static ArrayList<String> fromLibraryStatus(XMLResult[] status, Logger log)
 	{
 		ArrayList<PowerSupply> powersupply_list = FindPowerSupplyInfo.fromLibraryStatusXML(status);
 
+		log.INFO("Found (" + powersupply_list.size() + ") power supplies.");
+
 		ArrayList<String> fault_messages = new ArrayList<String>();
 		String fault_msg;
+		int faulted_supply_counter = 0;
 
 		for(int i=0; i<powersupply_list.size(); i++)
 		{
 			if(powersupply_list.get(i).faulted)
 			{
+				faulted_supply_counter++;
+
 				fault_msg = powersupply_list.get(i).id;
 				
 				if(powersupply_list.get(i).temperature_warning)
@@ -94,6 +99,11 @@ public class FindFaultedPowerSupplies
 		{
 			fault_msg = "No power supply faults detected.";
 			fault_messages.add(fault_msg);
+			log.INFO(fault_msg);
+		}
+		else
+		{
+			log.WARN("Identified (" + faulted_supply_counter + ") faulted power supplies.");
 		}
 		
 		return fault_messages;
