@@ -499,8 +499,8 @@ public class AdvancedCommands
 		
 		magazines = SortMagazines.sort(magazines, true, true);
 		
-		if(magazineCompactionAnalysis(magazines, maxMoves, printToShell))
-		{
+//		if(magazineCompactionAnalysis(magazines, maxMoves, printToShell))
+//		{
 			ArrayList<Move> move_list = MagazineCompaction.prepareMoves(magazines, maxMoves, partition, library, verify_moves, log, printToShell);
 	
 			if(output_type.equals("move-queue"))
@@ -513,7 +513,7 @@ public class AdvancedCommands
 				// send moves to library
 				SendMoves.fromMoveList(library, partition, move_list, log, printToShell);
 			}
-		}
+//		}
 
 	}
 

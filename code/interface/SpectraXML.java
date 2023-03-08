@@ -273,7 +273,7 @@ public class SpectraXML
 			case "list-traces":
 				result = conn.listTraceNames(option);
 				
-				if(option.substring(0, 8).equals("security") || option.equals("motion"))
+				if(option.length() > 8 && option.substring(0, 8).equals("security") || option.equals("motion"))
 				{
 					includeHeaders = true;
 				}
